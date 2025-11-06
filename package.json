@@ -1,0 +1,20 @@
+{
+	"name": "lost-items",
+	"private": true,
+	"version": "1.0.0",
+	"description": "",
+	"scripts": {
+		"dev": "pnpm -r --parallel run dev",
+		"build": "pnpm -r run build",
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"packageManager": "pnpm@10.20.0",
+	"devDependencies": {
+		"@biomejs/biome": "2.3.4",
+		"@types/node": "^24.10.0",
+		"typescript": "^5.9.3"
+	}
+}
