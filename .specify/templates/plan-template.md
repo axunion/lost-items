@@ -31,7 +31,10 @@
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+*   **Strict Quality and Consistency**: Does the proposed solution adhere to the project's established coding standards, naming conventions, and architectural patterns?
+*   **Language Policy**: Are all user-facing text, comments, and documentation planned to be in the correct language (English for code/public docs, Japanese for internal docs)?
+*   **Effective Commenting**: Is there a plan to comment only where necessary, explaining the "why" and not the "what"?
+*   **Commit Message Style**: Is the team aware of the commit message conventions?
 
 ## Project Structure
 

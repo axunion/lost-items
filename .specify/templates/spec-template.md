@@ -5,6 +5,16 @@
 **Status**: Draft  
 **Input**: User description: "$ARGUMENTS"
 
+## Constitution Alignment
+
+*Before proceeding, ensure this specification aligns with the project constitution (`.specify/memory/constitution.md`). Pay close attention to:*
+
+*   ***Quality & Consistency:*** *Does this feature's design follow our existing patterns and conventions?*
+*   ***Language Policy:*** *Are all text elements (UI, errors, logs) planned in English?*
+*   ***Commit & Commenting Style:*** *Is the scope of work conducive to clear commits and minimal, effective comments?*
+
+---
+
 ## User Scenarios & Testing *(mandatory)*
 
 <!--
