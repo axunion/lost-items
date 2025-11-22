@@ -1,0 +1,112 @@
+---
+import { ClipboardList, PlusCircle } from "lucide-solid";
+import { Button } from "@/components/ui/Button";
+import {
+	Card,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
+} from "@/components/ui/Card";
+import Layout from "../../layouts/Layout.astro";
+
+const { id } = Astro.params;
+---
+
+<Layout title="Organizer Dashboard | Lost Items" description="Manage your lost items list">
+  <main class="container mx-auto flex min-h-screen flex-col items-center justify-center p-4 bg-slate-50">
+    <div class="w-full max-w-md space-y-8">
+      <div class="text-center">
+        <h1 class="text-2xl font-bold tracking-tight mb-2">
+          Organizer Dashboard
+        </h1>
+        <div class="bg-white p-3 rounded-lg border border-slate-200 inline-block shadow-sm">
+           <p class="text-xs text-slate-500 uppercase tracking-wider font-semibold mb-1">List ID</p>
+           <p class="font-mono text-lg tracking-widest">{id}</p>
+        </div>
+      </div>
+
+      <div class="grid gap-4">
+        {/* Primary Action: Register */}
+        <a href={`/${id}/register`} class="block group">
+          <Card class="bg-slate-900 text-white border-slate-900 hover:bg-slate-800 transition-colors">
+            <CardHeader>
+              <CardTitle class="flex items-center gap-3 text-xl">
+                <PlusCircle class="h-6 w-6" />
+                Register Item
+              </CardTitle>
+              <CardDescription class="text-slate-300">
+                Take a photo to add a lost item.
+              </CardDescription>
+            </CardHeader>
+          </Card>
+        </a>
+
+        {/* Secondary Action: View List */}
+        <a href={`/${id}/list`} class="block group">
+          <Card class="hover:border-slate-400 transition-colors">
+            <CardHeader>
+              <CardTitle class="flex items-center gap-3">
+                <ClipboardList class="h-5 w-5 text-slate-600" />
+                View Public List
+              </CardTitle>
+              <CardDescription>
+                Check what users will see.
+              </CardDescription>
+            </CardHeader>
+          </Card>
+        </a>
+
+        {/* Share Section */}
+        <Card>
+          <CardHeader class="pb-3">
+            <CardTitle class="text-base">Share with Users</CardTitle>
+            <CardDescription>
+              Share this link with people looking for lost items.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div class="flex items-center gap-2 bg-slate-100 p-2 rounded-md border border-slate-200">
+              <code class="text-xs flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-slate-600">
+                {Astro.url.origin}/{id}/list
+              </code>
+              <Button
+                size="sm"
+                variant="ghost"
+                class="h-7 px-2 text-xs"
+                id="copy-btn"
+                data-url={`${Astro.url.origin}/${id}/list`}
+              >
+                Copy
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div class="text-center mt-8">
+        <a href="/" class="text-sm text-slate-400 hover:text-slate-600">
+          &larr; Create New List
+        </a>
+      </div>
+    </div>
+  </main>
+</Layout>
+
+<script>
+  const copyBtn = document.getElementById('copy-btn');
+  if (copyBtn) {
+    copyBtn.addEventListener('click', () => {
+      const url = copyBtn.getAttribute('data-url');
+      if (url) {
+        navigator.clipboard.writeText(url).then(() => {
+          const originalText = copyBtn.innerText;
+          copyBtn.innerText = 'Copied!';
+          setTimeout(() => {
+            copyBtn.innerText = originalText;
+          }, 2000);
+        });
+      }
+    });
+  }
+</script>

@@ -1,0 +1,132 @@
+import { Camera, X } from "lucide-solid";
+import { type Component, createSignal, Show } from "solid-js";
+import { Button } from "@/components/ui/Button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
+import { addItem } from "@/lib/store";
+
+type RegisterFormProps = {
+	listId: string;
+};
+
+const RegisterForm: Component<RegisterFormProps> = (props) => {
+	const [comment, setComment] = createSignal("");
+	const [imagePreview, setImagePreview] = createSignal<string | null>(null);
+	const [isSubmitting, setIsSubmitting] = createSignal(false);
+
+	const handleImageUpload = (e: Event) => {
+		const file = (e.target as HTMLInputElement).files?.[0];
+		if (file) {
+			const reader = new FileReader();
+			reader.onloadend = () => {
+				setImagePreview(reader.result as string);
+			};
+			reader.readAsDataURL(file);
+		}
+	};
+
+	const handleSubmit = (e: Event) => {
+		e.preventDefault();
+		setIsSubmitting(true);
+
+		// Simulate network delay
+		setTimeout(() => {
+			addItem(props.listId, {
+				comment: comment(),
+				imageUrl:
+					imagePreview() || "https://placehold.co/600x400?text=No+Image",
+			});
+
+			// Reset form or redirect?
+			// For organizer flow, maybe stay on page or show success message?
+			// Let's redirect to dashboard for now as per plan, but maybe better to allow continuous registration.
+			// Plan says "Dashboard -> Register -> Done".
+			// Let's go back to dashboard.
+			window.location.href = `/${props.listId}`;
+		}, 800);
+	};
+
+	return (
+		<Card class="w-full max-w-md mx-auto border-0 sm:border shadow-none sm:shadow-sm bg-transparent sm:bg-white">
+			<CardHeader class="px-0 sm:px-6">
+				<CardTitle class="text-xl text-center">Register Lost Item</CardTitle>
+			</CardHeader>
+			<CardContent class="px-0 sm:px-6">
+				<form onSubmit={handleSubmit} class="space-y-6">
+					{/* Photo Section - Main Focus */}
+					<div class="space-y-2">
+						<p class="block text-sm font-medium text-slate-700 text-center">
+							Take a Photo
+						</p>
+
+						<Show when={!imagePreview()}>
+							<div class="flex justify-center w-full">
+								<label class="flex flex-col items-center justify-center w-full h-64 border-2 border-slate-300 border-dashed rounded-2xl cursor-pointer bg-slate-50 hover:bg-slate-100 active:bg-slate-200 transition-colors">
+									<div class="flex flex-col items-center justify-center pt-5 pb-6">
+										<Camera class="w-12 h-12 text-slate-400 mb-2" />
+										<p class="text-sm text-slate-500 font-medium">
+											Tap to take photo
+										</p>
+									</div>
+									<input
+										type="file"
+										accept="image/*"
+										capture="environment"
+										class="hidden"
+										onChange={handleImageUpload}
+									/>
+								</label>
+							</div>
+						</Show>
+
+						<Show when={imagePreview()}>
+							<div class="relative w-full h-64 rounded-2xl overflow-hidden border border-slate-200 shadow-sm">
+								<img
+									src={imagePreview() || ""}
+									alt="Preview"
+									class="w-full h-full object-cover"
+								/>
+								<button
+									type="button"
+									onClick={() => setImagePreview(null)}
+									class="absolute top-2 right-2 p-1.5 bg-black/50 text-white rounded-full hover:bg-black/70 transition-colors"
+								>
+									<X class="w-5 h-5" />
+								</button>
+							</div>
+						</Show>
+					</div>
+
+					{/* Comment Section */}
+					<div class="space-y-2">
+						<label
+							for="comment"
+							class="block text-sm font-medium text-slate-700"
+						>
+							Comment (Optional)
+						</label>
+						<textarea
+							id="comment"
+							class="flex min-h-[100px] w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-base ring-offset-white placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
+							value={comment()}
+							onInput={(e) => setComment(e.currentTarget.value)}
+							placeholder="Where was it found? Any distinct features?"
+						/>
+					</div>
+
+					<div class="pt-2">
+						<Button
+							type="submit"
+							size="lg"
+							class="w-full h-12 text-base rounded-xl"
+							disabled={isSubmitting()}
+						>
+							{isSubmitting() ? "Registering..." : "Register Item"}
+						</Button>
+					</div>
+				</form>
+			</CardContent>
+		</Card>
+	);
+};
+
+export default RegisterForm;

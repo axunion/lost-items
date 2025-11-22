@@ -1,0 +1,55 @@
+---
+import { ArrowRight, Plus } from "lucide-solid";
+import { Button } from "@/components/ui/Button";
+import {
+	Card,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
+} from "@/components/ui/Card";
+import Layout from "../layouts/Layout.astro";
+
+// Server-side logic to handle redirection if needed,
+// but for this "random URL" generation, we can do it client-side for simplicity
+// or server-side. Let's do client-side for the "Create" action to keep it simple with the framework.
+---
+
+<Layout title="Lost Items Manager" description="Manage your lost items efficiently">
+  <main class="container mx-auto flex min-h-screen flex-col items-center justify-center p-4">
+    <div class="w-full max-w-md space-y-8">
+      <div class="text-center">
+        <h1 class="text-4xl font-extrabold tracking-tight lg:text-5xl mb-4">
+          Lost Items
+        </h1>
+        <p class="text-lg text-slate-600">
+          Create a secure space to manage and track lost items.
+        </p>
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Start New List</CardTitle>
+          <CardDescription>
+            Generate a unique URL to manage lost items for your event or location.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form
+            class="flex flex-col gap-4"
+            onsubmit="event.preventDefault(); const id = crypto.randomUUID(); window.location.href = `/${id}`;"
+          >
+            <Button type="submit" size="lg" class="w-full gap-2">
+              <Plus class="h-5 w-5" />
+              Create New List
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
+
+      <div class="text-center text-sm text-slate-500">
+        <p>Already have a list? Check your URL history.</p>
+      </div>
+    </div>
+  </main>
+</Layout>
