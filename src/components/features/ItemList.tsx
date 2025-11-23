@@ -2,7 +2,7 @@ import { Search } from "lucide-solid";
 import { type Component, createSignal, For, onMount, Show } from "solid-js";
 import { Badge } from "@/components/ui/Badge";
 import { Card, CardContent } from "@/components/ui/Card";
-import { getList, type LostItem } from "@/lib/store";
+import { getItems, type LostItem } from "@/lib/store";
 
 type ItemListProps = {
 	listId: string;
@@ -12,15 +12,15 @@ const ItemList: Component<ItemListProps> = (props) => {
 	const [items, setItems] = createSignal<LostItem[]>([]);
 	const [loading, setLoading] = createSignal(true);
 
-	onMount(() => {
-		// Simulate loading
-		setTimeout(() => {
-			const list = getList(props.listId);
-			if (list) {
-				setItems(list.items);
-			}
+	onMount(async () => {
+		try {
+			const data = await getItems(props.listId);
+			setItems(data);
+		} catch (error) {
+			console.error("Failed to fetch items:", error);
+		} finally {
 			setLoading(false);
-		}, 500);
+		}
 	});
 
 	return (

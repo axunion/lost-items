@@ -11,11 +11,13 @@ type RegisterFormProps = {
 const RegisterForm: Component<RegisterFormProps> = (props) => {
 	const [comment, setComment] = createSignal("");
 	const [imagePreview, setImagePreview] = createSignal<string | null>(null);
+	const [imageFile, setImageFile] = createSignal<File | undefined>(undefined);
 	const [isSubmitting, setIsSubmitting] = createSignal(false);
 
 	const handleImageUpload = (e: Event) => {
 		const file = (e.target as HTMLInputElement).files?.[0];
 		if (file) {
+			setImageFile(file);
 			const reader = new FileReader();
 			reader.onloadend = () => {
 				setImagePreview(reader.result as string);
@@ -24,25 +26,21 @@ const RegisterForm: Component<RegisterFormProps> = (props) => {
 		}
 	};
 
-	const handleSubmit = (e: Event) => {
+	const handleSubmit = async (e: Event) => {
 		e.preventDefault();
 		setIsSubmitting(true);
 
-		// Simulate network delay
-		setTimeout(() => {
-			addItem(props.listId, {
+		try {
+			await addItem(props.listId, {
 				comment: comment(),
-				imageUrl:
-					imagePreview() || "https://placehold.co/600x400?text=No+Image",
+				image: imageFile(),
 			});
-
-			// Reset form or redirect?
-			// For organizer flow, maybe stay on page or show success message?
-			// Let's redirect to dashboard for now as per plan, but maybe better to allow continuous registration.
-			// Plan says "Dashboard -> Register -> Done".
-			// Let's go back to dashboard.
 			window.location.href = `/${props.listId}`;
-		}, 800);
+		} catch (error) {
+			console.error("Failed to register item:", error);
+			alert("Failed to register item. Please try again.");
+			setIsSubmitting(false);
+		}
 	};
 
 	return (

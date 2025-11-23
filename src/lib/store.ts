@@ -1,78 +1,43 @@
-import { createEffect } from "solid-js";
-import { createStore } from "solid-js/store";
+import { api } from "./client";
 
 export type LostItem = {
 	id: string;
 	comment: string;
 	imageUrl?: string;
-	createdAt: number;
+	createdAt: string; // API returns ISO string
 };
 
 export type LostItemList = {
 	id: string;
 	items: LostItem[];
-	createdAt: number;
+	createdAt: string;
 };
 
-// Custom persistent store implementation
-const createPersistentStore = (name: string) => {
-	const initialData =
-		typeof window !== "undefined" ? localStorage.getItem(name) : null;
-	const [store, setStore] = createStore<Record<string, string>>(
-		initialData ? JSON.parse(initialData) : {},
-	);
+export const createList = async (): Promise<string> => {
+	const res = await api.lists.$post();
+	const data = await res.json();
+	return data.id;
+};
 
-	createEffect(() => {
-		if (typeof window !== "undefined") {
-			localStorage.setItem(name, JSON.stringify(store));
-		}
+export const getItems = async (listId: string): Promise<LostItem[]> => {
+	const res = await api.lists[":id"].items.$get({
+		param: { id: listId },
+	});
+	if (!res.ok) return [];
+	return await res.json();
+};
+
+export const addItem = async (
+	listId: string,
+	item: { comment: string; image?: File },
+) => {
+	const res = await api.lists[":id"].items.$post({
+		param: { id: listId },
+		form: {
+			comment: item.comment,
+			image: item.image || "", // Hono validator might expect string or File, need to check route definition
+		},
 	});
 
-	return [store, setStore] as const;
-};
-
-const [store, setStore] = createPersistentStore("lost-items-data-v2"); // Version bump to clear old data
-
-export const getList = (id: string): LostItemList | null => {
-	try {
-		const data = store[id];
-		return data ? JSON.parse(data) : null;
-	} catch {
-		return null;
-	}
-};
-
-export const createList = (id: string): LostItemList => {
-	const newList: LostItemList = {
-		id,
-		items: [],
-		createdAt: Date.now(),
-	};
-	setStore(id, JSON.stringify(newList));
-	return newList;
-};
-
-export const addItem = (
-	listId: string,
-	item: Omit<LostItem, "id" | "createdAt">,
-) => {
-	// Initialize list if it doesn't exist (for the mock flow)
-	let list = getList(listId);
-	if (!list) {
-		list = createList(listId);
-	}
-
-	const newItem: LostItem = {
-		...item,
-		id: crypto.randomUUID(),
-		createdAt: Date.now(),
-	};
-
-	const updatedList = {
-		...list,
-		items: [newItem, ...list.items],
-	};
-
-	setStore(listId, JSON.stringify(updatedList));
-	return newItem;
+	return await res.json();
 };
