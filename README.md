@@ -1,46 +1,75 @@
-# Astro Starter Kit: Basics
+# Lost Items
 
-```sh
-pnpm create astro@latest -- --template basics
+A modern web application built with **Astro**, **SolidJS**, and **Cloudflare Workers**. This project manages lost and found items, utilizing **Cloudflare D1** for the database and **R2** for image storage.
+
+## 🛠️ Tech Stack
+
+- **Framework:** [Astro](https://astro.build/)
+- **UI Library:** [SolidJS](https://www.solidjs.com/)
+- **API/Backend:** [Hono](https://hono.dev/)
+- **Database:** [Cloudflare D1](https://developers.cloudflare.com/d1/)
+- **Storage:** [Cloudflare R2](https://developers.cloudflare.com/r2/)
+- **ORM:** [Drizzle ORM](https://orm.drizzle.team/)
+- **Styling:** [Tailwind CSS](https://tailwindcss.com/)
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- **Node.js** (v20+ recommended)
+- **pnpm** (Package manager)
+- **Wrangler** (Cloudflare CLI)
+
+### Installation
+
+```bash
+pnpm install
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+### Development
 
-## 🚀 Project Structure
+Start the local development server:
 
-Inside of your Astro project, you'll see the following folders and files:
-
-```text
-/
-├── public/
-│   └── favicon.svg
-├── src
-│   ├── assets
-│   │   └── astro.svg
-│   ├── components
-│   │   └── Welcome.astro
-│   ├── layouts
-│   │   └── Layout.astro
-│   └── pages
-│       └── index.astro
-└── package.json
+```bash
+pnpm dev
 ```
 
-To learn more about the folder structure of an Astro project, refer to [our guide on project structure](https://docs.astro.build/en/basics/project-structure/).
+The application will be available at `http://localhost:4321`.
 
-## 🧞 Commands
+### Database Setup
 
-All commands are run from the root of the project, from a terminal:
+Run database migrations:
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `pnpm install`             | Installs dependencies                            |
-| `pnpm dev`             | Starts local dev server at `localhost:4321`      |
-| `pnpm build`           | Build your production site to `./dist/`          |
-| `pnpm preview`         | Preview your build locally, before deploying     |
-| `pnpm astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `pnpm astro -- --help` | Get help using the Astro CLI                     |
+```bash
+pnpm drizzle-kit migrate
+# or (depending on your setup)
+npx wrangler d1 execute lost-items-db --local --file=./migrations/0000_xxxx.sql
+```
 
-## 👀 Want to learn more?
+## 📦 Build & Deploy
 
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+Build the project for production:
+
+```bash
+pnpm build
+```
+
+Deploy to Cloudflare Workers:
+
+```bash
+pnpm run deploy # (If script exists, otherwise `npx wrangler deploy`)
+```
+
+## 📂 Project Structure
+
+- `src/pages`: Astro pages and API routes.
+- `src/components`: UI components (Astro & SolidJS).
+- `src/lib`: Utility functions and database configuration.
+- `drizzle/`: Database schema and migrations.
+- `public/`: Static assets.
+
+## 📝 Scripts
+
+- `pnpm dev`: Start dev server.
+- `pnpm build`: Build for production.
+- `pnpm check`: Run Biome check.
