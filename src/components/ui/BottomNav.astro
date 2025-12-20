@@ -1,0 +1,44 @@
+---
+import { Home, List, Plus } from "lucide-solid";
+
+const currentPath = Astro.url.pathname;
+
+const isActive = (path: string) => {
+	if (path === "/" && currentPath === "/") return true;
+	if (path !== "/" && currentPath.startsWith(path)) return true;
+	return false;
+};
+
+const navItems = [
+	{ href: "/", label: "Home", icon: Home },
+	{ href: "/create", label: "New", icon: Plus, isPrimary: true },
+	{ href: "/history", label: "History", icon: List },
+];
+---
+
+<nav class="fixed bottom-0 left-0 right-0 z-50 border-t border-border/40 bg-white/90 backdrop-blur-xl safe-area-bottom pb-[env(safe-area-inset-bottom)]">
+  <div class="flex h-14 items-center justify-around px-2">
+    {navItems.map((item) => {
+      const active = isActive(item.href);
+      const Icon = item.icon;
+
+      if (item.isPrimary) {
+        return (
+          <a href={item.href} class="flex flex-col items-center justify-center p-2 active:scale-95 transition-transform">
+            <div class={`flex h-10 w-12 items-center justify-center rounded-2xl transition-colors ${active ? "bg-primary text-primary-foreground shadow-md shadow-primary/20" : "bg-primary/10 text-primary"}`}>
+              <Icon class="size-6" />
+            </div>
+            <span class="sr-only">{item.label}</span>
+          </a>
+        );
+      }
+
+      return (
+        <a href={item.href} class={`flex flex-1 flex-col items-center gap-1 p-2 active:opacity-70 transition-opacity ${active ? "text-primary font-medium" : "text-muted-foreground"}`}>
+          <Icon class="size-6" />
+          <span class="text-[10px]">{item.label}</span>
+        </a>
+      );
+    })}
+  </div>
+</nav>

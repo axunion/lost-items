@@ -6,7 +6,7 @@ const Card: Component<JSX.HTMLAttributes<HTMLDivElement>> = (props) => {
 	return (
 		<div
 			class={cn(
-				"rounded-lg border border-slate-200 bg-white text-slate-950 shadow-sm",
+				"rounded-2xl border border-border bg-card text-card-foreground shadow-sm",
 				local.class,
 			)}
 			{...others}
@@ -40,7 +40,9 @@ const CardDescription: Component<JSX.HTMLAttributes<HTMLParagraphElement>> = (
 	props,
 ) => {
 	const [local, others] = splitProps(props, ["class"]);
-	return <p class={cn("text-sm text-slate-500", local.class)} {...others} />;
+	return (
+		<p class={cn("text-sm text-muted-foreground", local.class)} {...others} />
+	);
 };
 
 const CardContent: Component<JSX.HTMLAttributes<HTMLDivElement>> = (props) => {

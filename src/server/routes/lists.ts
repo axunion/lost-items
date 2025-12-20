@@ -1,8 +1,8 @@
 import { desc, eq } from "drizzle-orm";
 import { Hono } from "hono";
+import type { Bindings } from "../bindings";
 import { createDb } from "../db";
 import { items, lists } from "../db/schema";
-import type { Bindings } from "../bindings";
 
 export const listsRoute = new Hono<{ Bindings: Bindings }>();
 
@@ -32,9 +32,6 @@ listsRoute.get("/:id/items", async (c) => {
 
 	return c.json(result);
 });
-
-import { zValidator } from "@hono/zod-validator";
-import { z } from "zod";
 
 // Add item to a list (Multipart form data for image)
 // listsRoute.post(

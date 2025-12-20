@@ -1,5 +1,6 @@
 ---
 import { ArrowRight, Plus } from "lucide-solid";
+import AppHeader from "@/components/ui/AppHeader.astro";
 import { Button } from "@/components/ui/Button";
 import {
 	Card,
@@ -15,49 +16,52 @@ import Layout from "../layouts/Layout.astro";
 // or server-side. Let's do client-side for the "Create" action to keep it simple with the framework.
 ---
 
-<Layout title="Lost Items Manager" description="Manage your lost items efficiently">
-  <main class="container mx-auto flex min-h-screen flex-col items-center justify-center p-4">
-    <div class="w-full max-w-md space-y-8">
-      <div class="text-center">
-        <h1 class="text-4xl font-extrabold tracking-tight lg:text-5xl mb-4">
-          Lost Items
-        </h1>
-        <p class="text-lg text-slate-600">
-          Create a secure space to manage and track lost items.
-        </p>
-      </div>
+<Layout title="Lost Items">
+  <AppHeader title="Dashboard" />
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Start New List</CardTitle>
-          <CardDescription>
-            Generate a unique URL to manage lost items for your event or location.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form
-            class="flex flex-col gap-4"
-            onsubmit="event.preventDefault(); const id = crypto.randomUUID(); window.location.href = `/${id}`;"
-          >
-            <Button type="submit" size="lg" class="w-full gap-2">
-              <Plus class="h-5 w-5" />
-              Create New List
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
-
-      <div class="text-center">
-      <button
-        id="create-list-btn"
-        class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-slate-900 text-slate-50 hover:bg-slate-900/90 h-11 rounded-md px-8"
-      >
-        Create New List
-      </button>
+  <main class="container mx-auto px-4 py-6 space-y-6 max-w-md">
+    <div class="space-y-2">
+      <h2 class="text-2xl font-bold tracking-tight">Welcome</h2>
+      <p class="text-muted-foreground">Manage your lost and found items efficiently.</p>
     </div>
 
-      <div class="text-center text-sm text-slate-500">
-        <p>Already have a list? Check your URL history.</p>
+    <Card class="bg-linear-to-br from-indigo-500 to-purple-600 border-none text-white shadow-lg overflow-hidden relative">
+      <div class="absolute top-0 right-0 p-4 opacity-20">
+         <Plus class="w-32 h-32 -mr-8 -mt-8" />
+      </div>
+      <CardHeader>
+        <CardTitle class="text-white">Create New List</CardTitle>
+        <CardDescription class="text-indigo-100">
+          Start tracking items for a new event or location.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form
+          class="flex flex-col gap-4"
+          onsubmit="event.preventDefault(); const id = crypto.randomUUID(); window.location.href = `/${id}`;"
+        >
+          <Button type="submit" size="lg" variant="secondary" class="w-full gap-2 font-semibold text-indigo-700 hover:text-indigo-800">
+            <Plus class="h-5 w-5" />
+            Create List
+          </Button>
+        </form>
+      </CardContent>
+    </Card>
+
+    <div class="space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 class="font-semibold text-lg">Recent Lists</h3>
+        <Button variant="link" size="sm" class="h-auto p-0">View all</Button>
+      </div>
+
+      <div class="grid gap-3">
+         {/* Placeholder for recent items, would be populated by local storage or basic history API in real app */}
+         <div class="rounded-2xl border border-border bg-card p-4 text-card-foreground shadow-sm flex items-center justify-between">
+            <div class="flex flex-col">
+              <span class="font-medium">No recent lists</span>
+              <span class="text-xs text-muted-foreground">Your history will appear here</span>
+            </div>
+         </div>
       </div>
     </div>
   </main>

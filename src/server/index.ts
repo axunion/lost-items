@@ -1,8 +1,7 @@
 import { Hono } from "hono";
+import type { Bindings } from "./bindings";
 import { imagesRoute } from "./routes/images";
 import { listsRoute } from "./routes/lists";
-
-import type { Bindings } from "./bindings";
 
 const app = new Hono<{ Bindings: Bindings }>()
 	.route("/api/lists", listsRoute)

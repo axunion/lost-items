@@ -1,6 +1,7 @@
 ---
 import { Plus } from "lucide-solid";
 import ItemList from "@/components/features/ItemList";
+import AppHeader from "@/components/ui/AppHeader.astro";
 import { Button } from "@/components/ui/Button";
 import Layout from "../../layouts/Layout.astro";
 
@@ -12,12 +13,11 @@ if (!id) {
 ---
 
 <Layout title="Lost Items List">
-  <main class="container mx-auto min-h-screen p-4 bg-slate-50/50">
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-      <div>
-        <h1 class="text-2xl font-bold tracking-tight">Lost Items</h1>
-        <p class="text-sm text-slate-500">Items reported at this location.</p>
-      </div>
+  <AppHeader title="Lost Items" showBack backUrl={`/${id}`} />
+
+  <main class="container mx-auto px-4 py-6 max-w-md">
+    <div class="mb-6">
+       <p class="text-sm text-muted-foreground text-center">Items reported at this location.</p>
     </div>
 
     <ItemList listId={id} client:load />

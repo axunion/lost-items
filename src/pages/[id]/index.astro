@@ -1,5 +1,6 @@
 ---
 import { ClipboardList, PlusCircle } from "lucide-solid";
+import AppHeader from "@/components/ui/AppHeader.astro";
 import { Button } from "@/components/ui/Button";
 import {
 	Card,
@@ -14,84 +15,98 @@ const { id } = Astro.params;
 ---
 
 <Layout title="Organizer Dashboard | Lost Items" description="Manage your lost items list">
-  <main class="container mx-auto flex min-h-screen flex-col items-center justify-center p-4 bg-slate-50">
-    <div class="w-full max-w-md space-y-8">
-      <div class="text-center">
-        <h1 class="text-2xl font-bold tracking-tight mb-2">
-          Organizer Dashboard
-        </h1>
-        <div class="bg-white p-3 rounded-lg border border-slate-200 inline-block shadow-sm">
-           <p class="text-xs text-slate-500 uppercase tracking-wider font-semibold mb-1">List ID</p>
-           <p class="font-mono text-lg tracking-widest">{id}</p>
-        </div>
+  <AppHeader title="Dashboard" showBack backUrl="/" />
+
+  <main class="container mx-auto px-4 py-6 space-y-6 max-w-md">
+    <div class="space-y-4 text-center">
+      <div>
+        <h2 class="text-sm font-medium text-muted-foreground uppercase tracking-wider">List ID</h2>
+        <p class="mt-1 font-mono text-xl font-bold tracking-widest">{id}</p>
       </div>
+    </div>
 
-      <div class="grid gap-4">
-        {/* Primary Action: Register */}
-        <a href={`/${id}/register`} class="block group">
-          <Card class="bg-slate-900 text-white border-slate-900 hover:bg-slate-800 transition-colors">
-            <CardHeader>
-              <CardTitle class="flex items-center gap-3 text-xl">
-                <PlusCircle class="h-6 w-6" />
-                Register Item
-              </CardTitle>
-              <CardDescription class="text-slate-300">
-                Take a photo to add a lost item.
-              </CardDescription>
-            </CardHeader>
-          </Card>
-        </a>
-
-        {/* Secondary Action: View List */}
-        <a href={`/${id}/list`} class="block group">
-          <Card class="hover:border-slate-400 transition-colors">
-            <CardHeader>
-              <CardTitle class="flex items-center gap-3">
-                <ClipboardList class="h-5 w-5 text-slate-600" />
-                View Public List
-              </CardTitle>
-              <CardDescription>
-                Check what users will see.
-              </CardDescription>
-            </CardHeader>
-          </Card>
-        </a>
-
-        {/* Share Section */}
-        <Card>
-          <CardHeader class="pb-3">
-            <CardTitle class="text-base">Share with Users</CardTitle>
-            <CardDescription>
-              Share this link with people looking for lost items.
+    <div class="grid gap-4">
+      {/* Primary Action: Register */}
+      <a href={`/${id}/register`} class="block group active:scale-[0.98] transition-transform">
+        <Card class="bg-primary text-primary-foreground border-none shadow-lg">
+          <CardHeader>
+            <CardTitle class="flex items-center gap-3 text-xl text-white">
+              <PlusCircle class="h-6 w-6" />
+              Register Item
+            </CardTitle>
+            <CardDescription class="text-primary-foreground/80">
+              Take a photo to add a lost item to this list.
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <div class="flex items-center gap-2 bg-slate-100 p-2 rounded-md border border-slate-200">
-              <code class="text-xs flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-slate-600">
-                {Astro.url.origin}/{id}/list
-              </code>
-              <Button
-                size="sm"
-                variant="ghost"
-                class="h-7 px-2 text-xs"
-                id="copy-btn"
-                data-url={`${Astro.url.origin}/${id}/list`}
-              >
-                Copy
-              </Button>
-            </div>
-          </CardContent>
         </Card>
-      </div>
+      </a>
 
-      <div class="text-center mt-8">
-        <a href="/" class="text-sm text-slate-400 hover:text-slate-600">
-          &larr; Create New List
-        </a>
-      </div>
+      {/* Secondary Action: View List */}
+      <a href={`/${id}/list`} class="block group active:scale-[0.98] transition-transform">
+        <Card class="hover:bg-accent/50 transition-colors">
+          <CardHeader>
+            <CardTitle class="flex items-center gap-3">
+              <ClipboardList class="h-5 w-5 text-muted-foreground" />
+              View Public List
+            </CardTitle>
+            <CardDescription>
+              See what users will see when they visit your list.
+            </CardDescription>
+          </CardHeader>
+        </Card>
+      </a>
+
+      {/* Share Section */}
+      <Card>
+        <CardHeader class="pb-3">
+          <CardTitle class="text-base">Share with Users</CardTitle>
+          <CardDescription>
+            Share this link with people looking for lost items.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div class="flex items-center gap-2 bg-secondary/50 p-2 rounded-xl border border-border">
+            <code class="text-xs flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-muted-foreground ml-2">
+              {Astro.url.origin}/{id}/list
+            </code>
+            <Button
+              size="sm"
+              variant="ghost"
+              class="h-9 px-3 text-xs font-semibold"
+              id="copy-btn"
+              data-url={`${Astro.url.origin}/${id}/list`}
+            >
+              Copy
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   </main>
 </Layout>
+
+<script define:vars={{ id }}>
+  // Save to history
+  try {
+    const key = "lost-items-history";
+    const history = JSON.parse(localStorage.getItem(key) || "[]");
+
+    // Remove if exists to push to top
+    const filtered = history.filter(item => item.id !== id);
+
+    filtered.push({
+      id,
+      timestamp: Date.now()
+    });
+
+    // Keep last 10
+    if (filtered.length > 10) filtered.shift();
+
+    localStorage.setItem(key, JSON.stringify(filtered));
+  } catch (e) {
+    console.error("Failed to save history", e);
+  }
+</script>
 
 <script>
   const copyBtn = document.getElementById('copy-btn');

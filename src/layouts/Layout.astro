@@ -1,19 +1,21 @@
 ---
 import "@/styles/global.css";
+import BottomNav from "@/components/ui/BottomNav.astro";
 
 export type Props = {
 	title: string;
 	description?: string;
+	showBottomNav?: boolean;
 };
 
-const { title, description = "" } = Astro.props;
+const { title, description = "", showBottomNav = true } = Astro.props;
 ---
 
 <!doctype html>
 <html lang="ja">
 	<head>
 		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 		<meta name="robots" content="noindex" />
 		<meta name="format-detection" content="telephone=no" />
 		<meta name="description" content={description} />
@@ -21,7 +23,9 @@ const { title, description = "" } = Astro.props;
 		<meta name="generator" content={Astro.generator} />
 		<title>{title}</title>
 	</head>
-	<body>
+	<body class="bg-background text-foreground min-h-screen pb-20 selection:bg-primary/20">
 		<slot />
+
+		{showBottomNav && <BottomNav />}
 	</body>
 </html>
