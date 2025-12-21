@@ -1,5 +1,5 @@
 ---
-import { ClipboardList, PlusCircle } from "lucide-solid";
+import { ClipboardList, PlusCircle, Share2 } from "lucide-solid";
 import AppHeader from "@/components/ui/AppHeader.astro";
 import { Button } from "@/components/ui/Button";
 import {
@@ -11,97 +11,82 @@ import {
 } from "@/components/ui/Card";
 import Layout from "../../layouts/Layout.astro";
 
-const { id } = Astro.params;
+const { id = "" } = Astro.params;
 ---
 
-<Layout title="Organizer Dashboard | Lost Items" description="Manage your lost items list">
+<Layout title="Dashboard" description="Manage your lost items list">
   <AppHeader title="Dashboard" showBack backUrl="/" />
 
-  <main class="container mx-auto px-4 py-6 space-y-6 max-w-md">
-    <div class="space-y-4 text-center">
-      <div>
-        <h2 class="text-sm font-medium text-muted-foreground uppercase tracking-wider">List ID</h2>
-        <p class="mt-1 font-mono text-xl font-bold tracking-widest">{id}</p>
+  <main class="px-4 py-6 space-y-6">
+    <div class="text-center space-y-2">
+      <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">List ID</p>
+      <div class="inline-block px-4 py-2 bg-slate-100 rounded-lg border border-slate-200">
+        <code class="font-mono text-lg font-bold text-slate-900">{id}</code>
       </div>
     </div>
 
-    <div class="grid gap-4">
-      {/* Primary Action: Register */}
-      <a href={`/${id}/register`} class="block group active:scale-[0.98] transition-transform">
-        <Card class="bg-primary text-primary-foreground border-none shadow-lg">
+    <div class="space-y-4">
+      <a href={`/${id}/register`} class="block">
+        <Card class="bg-indigo-600 border-indigo-600">
           <CardHeader>
-            <CardTitle class="flex items-center gap-3 text-xl text-white">
-              <PlusCircle class="h-6 w-6" />
+            <CardTitle class="flex items-center gap-3 text-white">
+              <PlusCircle class="size-6" />
               Register Item
             </CardTitle>
-            <CardDescription class="text-primary-foreground/80">
-              Take a photo to add a lost item to this list.
+            <CardDescription class="text-indigo-100">
+              Add a new found item to this list.
             </CardDescription>
           </CardHeader>
         </Card>
       </a>
 
-      {/* Secondary Action: View List */}
-      <a href={`/${id}/list`} class="block group active:scale-[0.98] transition-transform">
-        <Card class="hover:bg-accent/50 transition-colors">
+      <a href={`/${id}/list`} class="block">
+        <Card>
           <CardHeader>
-            <CardTitle class="flex items-center gap-3">
-              <ClipboardList class="h-5 w-5 text-muted-foreground" />
+            <CardTitle class="flex items-center gap-3 text-slate-900">
+              <ClipboardList class="size-5 text-slate-500" />
               View Public List
             </CardTitle>
             <CardDescription>
-              See what users will see when they visit your list.
+              See what visitors see.
             </CardDescription>
           </CardHeader>
         </Card>
       </a>
-
-      {/* Share Section */}
-      <Card>
-        <CardHeader class="pb-3">
-          <CardTitle class="text-base">Share with Users</CardTitle>
-          <CardDescription>
-            Share this link with people looking for lost items.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div class="flex items-center gap-2 bg-secondary/50 p-2 rounded-xl border border-border">
-            <code class="text-xs flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-muted-foreground ml-2">
-              {Astro.url.origin}/{id}/list
-            </code>
-            <Button
-              size="sm"
-              variant="ghost"
-              class="h-9 px-3 text-xs font-semibold"
-              id="copy-btn"
-              data-url={`${Astro.url.origin}/${id}/list`}
-            >
-              Copy
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
     </div>
+
+    <Card>
+      <CardHeader>
+        <CardTitle class="flex items-center gap-2 text-base text-slate-900">
+          <Share2 class="size-4" />
+          Share List
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div class="flex items-center gap-2 bg-slate-100 p-2 pl-3 rounded-lg border border-slate-200">
+          <code class="text-sm flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-slate-700 font-mono">
+            {Astro.url.origin}/{id}/list
+          </code>
+          <Button
+            size="sm"
+            id="copy-btn"
+            data-url={`${Astro.url.origin}/${id}/list`}
+          >
+            Copy
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
   </main>
 </Layout>
 
 <script define:vars={{ id }}>
-  // Save to history
   try {
     const key = "lost-items-history";
     const history = JSON.parse(localStorage.getItem(key) || "[]");
-
-    // Remove if exists to push to top
     const filtered = history.filter(item => item.id !== id);
-
-    filtered.push({
-      id,
-      timestamp: Date.now()
-    });
-
-    // Keep last 10
+    filtered.push({ id, timestamp: Date.now() });
     if (filtered.length > 10) filtered.shift();
-
     localStorage.setItem(key, JSON.stringify(filtered));
   } catch (e) {
     console.error("Failed to save history", e);

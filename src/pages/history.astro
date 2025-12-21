@@ -4,13 +4,11 @@ import AppHeader from "@/components/ui/AppHeader.astro";
 import Layout from "../layouts/Layout.astro";
 ---
 
-<Layout title="History | Lost Items">
+<Layout title="History">
   <AppHeader title="History" />
 
-  <main class="container mx-auto px-4 py-6 max-w-md">
-    <div class="mb-6">
-       <p class="text-sm text-muted-foreground text-center">Lists you have visited recently.</p>
-    </div>
+  <main class="px-4 py-6">
+    <p class="text-sm text-slate-600 text-center mb-6">Lists you have visited recently.</p>
 
     <HistoryList client:only="solid-js" />
   </main>

@@ -34,41 +34,40 @@ const ItemList: Component<ItemListProps> = (props) => {
 				<Show
 					when={items().length > 0}
 					fallback={
-						<div class="text-center py-20 px-4">
-							<div class="bg-slate-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
-								<Search class="h-10 w-10 text-slate-400" />
+						<div class="text-center py-16 px-4">
+							<div class="bg-slate-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+								<Search class="h-8 w-8 text-slate-400" />
 							</div>
-							<h3 class="text-lg font-semibold text-slate-900 mb-1">
+							<h3 class="text-lg font-bold text-slate-900 mb-1">
 								No items reported yet
 							</h3>
-							<p class="text-slate-500 max-w-xs mx-auto">
+							<p class="text-slate-600">
 								Items reported as lost will appear here.
 							</p>
 						</div>
 					}
 				>
-					<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+					<div class="grid grid-cols-2 gap-3">
 						<For each={items()}>
 							{(item) => (
-								<Card class="overflow-hidden border-0 shadow-sm bg-slate-50 group">
-									<div class="aspect-square relative overflow-hidden rounded-lg bg-slate-200">
+								<Card class="overflow-hidden">
+									<div class="aspect-square relative overflow-hidden bg-slate-100">
 										<img
 											src={
 												item.imageUrl ||
 												"https://placehold.co/600x400?text=No+Image"
 											}
 											alt="Lost Item"
-											class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+											class="w-full h-full object-cover"
 											loading="lazy"
 										/>
-										<div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-										<Badge class="absolute top-2 right-2 bg-white/90 text-slate-900 shadow-sm text-[10px] px-1.5 h-5">
+										<Badge class="absolute top-2 right-2 bg-white text-slate-900 text-[10px] px-1.5 h-5">
 											{new Date(item.createdAt).toLocaleDateString()}
 										</Badge>
 									</div>
 									<Show when={item.comment}>
 										<CardContent class="p-3">
-											<p class="text-sm text-slate-700 line-clamp-2 leading-relaxed">
+											<p class="text-sm text-slate-700 line-clamp-2">
 												{item.comment}
 											</p>
 										</CardContent>

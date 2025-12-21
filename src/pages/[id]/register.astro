@@ -3,17 +3,13 @@ import RegisterForm from "@/components/features/RegisterForm";
 import AppHeader from "@/components/ui/AppHeader.astro";
 import Layout from "../../layouts/Layout.astro";
 
-const { id } = Astro.params;
-
-if (!id) {
-	return Astro.redirect("/");
-}
+const { id = "" } = Astro.params;
 ---
 
-<Layout title="Register Item | Lost Items">
+<Layout title="Register Item">
   <AppHeader title="Register Item" showBack backUrl={`/${id}`} />
 
-  <main class="container mx-auto px-4 py-6 max-w-md">
+  <main class="px-4 py-6">
     <RegisterForm listId={id} client:load />
   </main>
 </Layout>

@@ -13,7 +13,11 @@ type HistoryItem = {
 	title?: string;
 };
 
-const HistoryList: Component = () => {
+type HistoryListProps = {
+	maxItems?: number;
+};
+
+const HistoryList: Component<HistoryListProps> = (props) => {
 	const [history, setHistory] = createSignal<HistoryItem[]>([]);
 
 	onMount(() => {
@@ -36,6 +40,11 @@ const HistoryList: Component = () => {
 		setHistory([]);
 	};
 
+	const displayItems = () => {
+		const items = history();
+		return props.maxItems ? items.slice(0, props.maxItems) : items;
+	};
+
 	return (
 		<div class="space-y-4">
 			<div class="flex justify-end">
@@ -43,7 +52,7 @@ const HistoryList: Component = () => {
 					<button
 						type="button"
 						onClick={clearHistory}
-						class="text-xs text-red-500 hover:text-red-600 flex items-center gap-1"
+						class="text-xs text-red-600 hover:text-red-700 flex items-center gap-1"
 					>
 						<Trash2 class="size-3" />
 						Clear History
@@ -52,22 +61,19 @@ const HistoryList: Component = () => {
 			</div>
 
 			{history().length === 0 ? (
-				<div class="text-center py-10 text-muted-foreground">
+				<div class="text-center py-10 text-slate-500 bg-slate-50 rounded-xl border border-slate-200">
 					<p>No history found.</p>
 				</div>
 			) : (
 				<div class="grid gap-3">
-					<For each={history()}>
+					<For each={displayItems()}>
 						{(item) => (
-							<a
-								href={`/${item.id}`}
-								class="block group active:scale-[0.98] transition-transform"
-							>
-								<Card class="hover:bg-accent/50 transition-colors">
+							<a href={`/${item.id}`} class="block">
+								<Card class="hover:bg-slate-50">
 									<CardHeader class="p-4">
-										<CardTitle class="text-base flex items-center justify-between">
+										<CardTitle class="text-base flex items-center justify-between text-slate-900">
 											<span class="font-mono">{item.id.slice(0, 8)}...</span>
-											<ArrowRight class="size-4 text-muted-foreground" />
+											<ArrowRight class="size-4 text-slate-400" />
 										</CardTitle>
 										<CardDescription>
 											Visited: {new Date(item.timestamp).toLocaleDateString()}

@@ -1,10 +1,8 @@
-import { api } from "./client";
-
 export type LostItem = {
 	id: string;
 	comment: string;
 	imageUrl?: string;
-	createdAt: string; // API returns ISO string
+	createdAt: string;
 };
 
 export type LostItemList = {
@@ -13,16 +11,23 @@ export type LostItemList = {
 	createdAt: string;
 };
 
+const getBaseUrl = () => {
+	if (typeof window !== "undefined") {
+		return "";
+	}
+	return import.meta.env.SITE || "http://localhost:4321";
+};
+
 export const createList = async (): Promise<string> => {
-	const res = await api.lists.$post();
-	const data = await res.json();
+	const res = await fetch(`${getBaseUrl()}/api/lists`, {
+		method: "POST",
+	});
+	const data = (await res.json()) as { id: string };
 	return data.id;
 };
 
 export const getItems = async (listId: string): Promise<LostItem[]> => {
-	const res = await api.lists[":id"].items.$get({
-		param: { id: listId },
-	});
+	const res = await fetch(`${getBaseUrl()}/api/lists/${listId}/items`);
 	if (!res.ok) return [];
 	return await res.json();
 };
@@ -31,12 +36,15 @@ export const addItem = async (
 	listId: string,
 	item: { comment: string; image?: File },
 ) => {
-	const res = await api.lists[":id"].items.$post({
-		param: { id: listId },
-		form: {
-			comment: item.comment,
-			image: item.image || "", // Hono validator might expect string or File, need to check route definition
-		},
+	const formData = new FormData();
+	formData.append("comment", item.comment);
+	if (item.image) {
+		formData.append("image", item.image);
+	}
+
+	const res = await fetch(`${getBaseUrl()}/api/lists/${listId}/items`, {
+		method: "POST",
+		body: formData,
 	});
 
 	return await res.json();
