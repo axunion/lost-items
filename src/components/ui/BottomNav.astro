@@ -16,7 +16,7 @@ const navItems = [
 ];
 ---
 
-<nav class="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-slate-200 safe-area-bottom pb-[env(safe-area-inset-bottom)]">
+<nav class="fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-border safe-area-bottom pb-[env(safe-area-inset-bottom)]">
   <div class="flex h-16 items-center justify-around px-4">
     {navItems.map((item) => {
       const active = isActive(item.href);
@@ -25,7 +25,7 @@ const navItems = [
       if (item.isPrimary) {
         return (
           <a href={item.href} class="flex flex-col items-center justify-center p-2">
-            <div class={`flex h-12 w-12 items-center justify-center rounded-full ${active ? "bg-indigo-600 text-white" : "bg-indigo-100 text-indigo-600"}`}>
+            <div class={`flex h-12 w-12 items-center justify-center rounded-full shadow-md transition-colors ${active ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground hover:bg-secondary/80"}`}>
               <Icon class="size-6" />
             </div>
             <span class="sr-only">{item.label}</span>
@@ -34,7 +34,7 @@ const navItems = [
       }
 
       return (
-        <a href={item.href} class={`flex flex-1 flex-col items-center gap-1 p-2 ${active ? "text-indigo-600 font-bold" : "text-slate-500"}`}>
+        <a href={item.href} class={`flex flex-1 flex-col items-center gap-1 p-2 transition-colors ${active ? "text-primary font-medium" : "text-muted-foreground hover:text-foreground"}`}>
           <Icon class="size-6" />
           <span class="text-xs">{item.label}</span>
         </a>

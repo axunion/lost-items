@@ -1,33 +1,39 @@
-import * as TextField from "@kobalte/core/text-field";
+import * as TextFieldPrimitive from "@kobalte/core/text-field";
 import { type Component, splitProps } from "solid-js";
+
 import { cn } from "@/lib/utils";
 
-type InputProps = {
+type InputProps = TextFieldPrimitive.TextFieldRootProps & {
 	label?: string;
 	error?: string;
-} & TextField.TextFieldRootProps & { class?: string };
+	class?: string;
+};
 
 const Input: Component<InputProps> = (props) => {
 	const [local, others] = splitProps(props, ["label", "error", "class"]);
 
 	return (
-		<TextField.Root class={cn("flex flex-col gap-2", local.class)} {...others}>
+		<TextFieldPrimitive.Root
+			class={cn("flex flex-col gap-1.5", local.class)}
+			validationState={local.error ? "invalid" : "valid"}
+			{...others}
+		>
 			{local.label && (
-				<TextField.Label class="text-sm font-semibold text-slate-700">
+				<TextFieldPrimitive.Label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
 					{local.label}
-				</TextField.Label>
+				</TextFieldPrimitive.Label>
 			)}
-			<TextField.Input
+			<TextFieldPrimitive.Input
 				class={cn(
-					"flex h-12 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-base text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 disabled:cursor-not-allowed disabled:opacity-50",
+					"flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
 				)}
 			/>
 			{local.error && (
-				<TextField.ErrorMessage class="text-sm font-medium text-red-600">
+				<TextFieldPrimitive.ErrorMessage class="text-sm font-medium text-destructive">
 					{local.error}
-				</TextField.ErrorMessage>
+				</TextFieldPrimitive.ErrorMessage>
 			)}
-		</TextField.Root>
+		</TextFieldPrimitive.Root>
 	);
 };
 

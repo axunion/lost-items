@@ -1,8 +1,8 @@
-import { Camera, X } from "lucide-solid";
-import { type Component, createSignal, Show } from "solid-js";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { addItem } from "@/lib/store";
+import { Camera, X } from "lucide-solid";
+import { type Component, Show, createSignal } from "solid-js";
 
 type RegisterFormProps = {
 	listId: string;
@@ -51,16 +51,16 @@ const RegisterForm: Component<RegisterFormProps> = (props) => {
 			<CardContent>
 				<form onSubmit={handleSubmit} class="space-y-6">
 					<div class="space-y-2">
-						<p class="text-sm font-semibold text-slate-700 text-center">
+						<p class="text-sm font-medium text-foreground text-center">
 							Take a Photo
 						</p>
 
 						<Show when={!imagePreview()}>
 							<div class="flex justify-center w-full">
-								<label class="flex flex-col items-center justify-center w-full h-48 border-2 border-slate-300 border-dashed rounded-xl cursor-pointer bg-slate-50 hover:bg-slate-100">
+								<label class="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-input rounded-xl cursor-pointer bg-muted/50 hover:bg-muted/80 transition-colors">
 									<div class="flex flex-col items-center justify-center py-6">
-										<Camera class="w-10 h-10 text-slate-400 mb-2" />
-										<p class="text-sm text-slate-600 font-medium">
+										<Camera class="w-10 h-10 text-muted-foreground mb-2" />
+										<p class="text-sm text-muted-foreground font-medium">
 											Tap to take photo
 										</p>
 									</div>
@@ -76,7 +76,7 @@ const RegisterForm: Component<RegisterFormProps> = (props) => {
 						</Show>
 
 						<Show when={imagePreview()}>
-							<div class="relative w-full h-48 rounded-xl overflow-hidden border border-slate-200">
+							<div class="relative w-full h-48 rounded-xl overflow-hidden border border-border">
 								<img
 									src={imagePreview() || ""}
 									alt="Preview"
@@ -85,7 +85,7 @@ const RegisterForm: Component<RegisterFormProps> = (props) => {
 								<button
 									type="button"
 									onClick={() => setImagePreview(null)}
-									class="absolute top-2 right-2 p-1.5 bg-black/50 text-white rounded-full hover:bg-black/70"
+									class="absolute top-2 right-2 p-1.5 bg-background/50 backdrop-blur-sm text-foreground rounded-full hover:bg-background/80"
 								>
 									<X class="w-5 h-5" />
 								</button>
@@ -96,13 +96,13 @@ const RegisterForm: Component<RegisterFormProps> = (props) => {
 					<div class="space-y-2">
 						<label
 							for="comment"
-							class="block text-sm font-semibold text-slate-700"
+							class="block text-sm font-medium text-foreground"
 						>
 							Comment (Optional)
 						</label>
 						<textarea
 							id="comment"
-							class="flex min-h-[100px] w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-base text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
+							class="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
 							value={comment()}
 							onInput={(e) => setComment(e.currentTarget.value)}
 							placeholder="Where was it found? Any distinct features?"
