@@ -1,8 +1,8 @@
+import { Camera, X } from "lucide-solid";
+import { type Component, createSignal, Show } from "solid-js";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { addItem } from "@/lib/store";
-import { Camera, X } from "lucide-solid";
-import { type Component, Show, createSignal } from "solid-js";
 
 type RegisterFormProps = {
 	listId: string;

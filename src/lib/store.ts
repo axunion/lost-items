@@ -34,7 +34,7 @@ export const getItems = async (listId: string): Promise<LostItem[]> => {
 
 export const addItem = async (
 	listId: string,
-	item: { comment: string; image?: File }
+	item: { comment: string; image?: File },
 ) => {
 	const formData = new FormData();
 	formData.append("comment", item.comment);

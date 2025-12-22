@@ -1,15 +1,19 @@
 {
 	"$schema": "https://biomejs.dev/schemas/2.3.6/schema.json",
+	"css": {
+		"parser": {
+			"tailwindDirectives": true
+		}
+	},
 	"overrides": [
 		{
-			"includes": ["**/*.svelte", "**/*.astro", "**/*.vue"],
+			"includes": ["**/*.astro"],
 			"linter": {
 				"rules": {
 					"style": {
 						"useConst": "off",
 						"useImportType": "off"
 					},
-
 					"correctness": {
 						"noUnusedVariables": "off",
 						"noUnusedImports": "off"

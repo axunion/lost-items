@@ -1,6 +1,6 @@
-import { Button } from "@/components/ui/Button";
 import { Moon, Sun } from "lucide-solid";
-import { type Component, createEffect, createSignal, onMount } from "solid-js";
+import { type Component, createSignal, onMount } from "solid-js";
+import { Button } from "@/components/ui/Button";
 
 const ThemeToggle: Component = () => {
 	const [theme, setTheme] = createSignal<"light" | "dark">("light");

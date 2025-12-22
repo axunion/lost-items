@@ -32,7 +32,7 @@ const buttonVariants = cva(
 			variant: "default",
 			size: "default",
 		},
-	}
+	},
 );
 
 export interface ButtonProps
@@ -45,7 +45,7 @@ const Button: Component<ButtonProps> = (props) => {
 		<ButtonPrimitive.Root
 			class={cn(
 				buttonVariants({ variant: local.variant, size: local.size }),
-				local.class
+				local.class,
 			)}
 			{...others}
 		/>
