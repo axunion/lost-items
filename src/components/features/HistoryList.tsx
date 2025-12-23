@@ -1,12 +1,12 @@
 import { ArrowRight, Trash2 } from "lucide-solid";
 import { type Component, createSignal, For, onMount } from "solid-js";
-import { Button } from "@/components/ui/Button";
+import { Button } from "~/components/ui/button";
 import {
 	Card,
 	CardDescription,
 	CardHeader,
 	CardTitle,
-} from "@/components/ui/Card";
+} from "~/components/ui/card";
 
 type HistoryItem = {
 	id: string;
