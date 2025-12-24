@@ -7,8 +7,10 @@ import Layout from "../layouts/Layout.astro";
 <Layout title="History">
   <AppHeader title="History" />
 
-  <main class="container mx-auto px-4 py-8 space-y-6">
-    <p class="text-sm text-muted-foreground text-center">Lists you have visited recently.</p>
+  <main class="px-4 py-6 space-y-4">
+    <p class="text-sm text-muted-foreground text-center">
+      Lists you have visited recently.
+    </p>
 
     <HistoryList client:only="solid-js" />
   </main>

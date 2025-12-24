@@ -1,6 +1,5 @@
 import { Search } from "lucide-solid";
 import { type Component, createSignal, For, onMount, Show } from "solid-js";
-import { Badge } from "~/components/ui/badge";
 import { Card, CardContent } from "~/components/ui/card";
 import { getItems, type LostItem } from "~/lib/store";
 
@@ -28,7 +27,7 @@ const ItemList: Component<ItemListProps> = (props) => {
 			<Show
 				when={!loading()}
 				fallback={
-					<div class="text-center py-10 text-muted-foreground">
+					<div class="text-center py-8 text-muted-foreground">
 						Loading items...
 					</div>
 				}
@@ -36,14 +35,12 @@ const ItemList: Component<ItemListProps> = (props) => {
 				<Show
 					when={items().length > 0}
 					fallback={
-						<div class="text-center py-16 px-4">
-							<div class="bg-muted w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-								<Search class="h-8 w-8 text-muted-foreground" />
+						<div class="text-center py-12 px-4">
+							<div class="bg-secondary w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-3">
+								<Search class="h-6 w-6 text-muted-foreground" />
 							</div>
-							<h3 class="text-lg font-bold text-foreground mb-1">
-								No items reported yet
-							</h3>
-							<p class="text-muted-foreground">
+							<h3 class="font-semibold mb-1">No items reported yet</h3>
+							<p class="text-sm text-muted-foreground">
 								Items reported as lost will appear here.
 							</p>
 						</div>
@@ -53,25 +50,20 @@ const ItemList: Component<ItemListProps> = (props) => {
 						<For each={items()}>
 							{(item) => (
 								<Card class="overflow-hidden">
-									<div class="aspect-square relative overflow-hidden bg-muted">
+									<div class="aspect-square relative overflow-hidden bg-secondary">
 										<img
-											src={
-												item.imageUrl ||
-												"https://placehold.co/600x400?text=No+Image"
-											}
+											src={item.imageUrl || "https://placehold.co/300x300?text=No+Image"}
 											alt="Lost Item"
 											class="w-full h-full object-cover"
 											loading="lazy"
 										/>
-										<Badge class="absolute top-2 right-2 bg-background/80 backdrop-blur-sm text-foreground hover:bg-background/90 text-[10px] px-1.5 h-5 shadow-sm">
+										<div class="absolute top-2 right-2 bg-background/80 text-xs px-1.5 py-0.5 rounded">
 											{new Date(item.createdAt).toLocaleDateString()}
-										</Badge>
+										</div>
 									</div>
 									<Show when={item.comment}>
 										<CardContent class="p-3">
-											<p class="text-sm text-foreground line-clamp-2">
-												{item.comment}
-											</p>
+											<p class="text-sm line-clamp-2">{item.comment}</p>
 										</CardContent>
 									</Show>
 								</Card>

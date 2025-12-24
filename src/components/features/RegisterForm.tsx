@@ -4,7 +4,6 @@ import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import {
 	TextField,
-	TextFieldInput,
 	TextFieldLabel,
 	TextFieldTextArea,
 } from "~/components/ui/text-field";
@@ -57,20 +56,16 @@ const RegisterForm: Component<RegisterFormProps> = (props) => {
 			<CardContent>
 				<form onSubmit={handleSubmit} class="space-y-6">
 					<div class="space-y-2">
-						<p class="text-sm font-medium text-foreground text-center">
-							Take a Photo
-						</p>
+						<p class="text-sm font-medium text-center">Take a Photo</p>
 
 						<Show when={!imagePreview()}>
 							<div class="flex justify-center w-full">
-								<div class="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-input rounded-xl bg-muted/50 hover:bg-muted/80 transition-colors relative">
-									<div class="flex flex-col items-center justify-center py-6 pointer-events-none">
-										<Camera class="w-10 h-10 text-muted-foreground mb-2" />
-										<p class="text-sm text-muted-foreground font-medium">
-											Tap to take photo
-										</p>
+								<div class="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-input rounded-lg bg-secondary/50 relative">
+									<div class="flex flex-col items-center justify-center py-4 pointer-events-none">
+										<Camera class="w-8 h-8 text-muted-foreground mb-2" />
+										<p class="text-sm text-muted-foreground">Tap to take photo</p>
 									</div>
-									<TextFieldInput
+									<input
 										type="file"
 										accept="image/*"
 										capture="environment"
@@ -82,7 +77,7 @@ const RegisterForm: Component<RegisterFormProps> = (props) => {
 						</Show>
 
 						<Show when={imagePreview()}>
-							<div class="relative w-full h-48 rounded-xl overflow-hidden border border-border">
+							<div class="relative w-full h-40 rounded-lg overflow-hidden border border-border">
 								<img
 									src={imagePreview() || ""}
 									alt="Preview"
@@ -90,21 +85,19 @@ const RegisterForm: Component<RegisterFormProps> = (props) => {
 								/>
 								<button
 									type="button"
-									onClick={() => setImagePreview(null)}
-									class="absolute top-2 right-2 p-1.5 bg-background/50 backdrop-blur-sm text-foreground rounded-full hover:bg-background/80"
+									onClick={() => {
+										setImagePreview(null);
+										setImageFile(undefined);
+									}}
+									class="absolute top-2 right-2 p-1 bg-background/80 rounded-full"
 								>
-									<X class="w-5 h-5" />
+									<X class="w-4 h-4" />
 								</button>
 							</div>
 						</Show>
 					</div>
 
-					<TextField
-						id="comment"
-						value={comment()}
-						onChange={setComment}
-						class="space-y-2"
-					>
+					<TextField value={comment()} onChange={setComment}>
 						<TextFieldLabel>Comment (Optional)</TextFieldLabel>
 						<TextFieldTextArea
 							placeholder="Where was it found? Any distinct features?"
@@ -112,12 +105,7 @@ const RegisterForm: Component<RegisterFormProps> = (props) => {
 						/>
 					</TextField>
 
-					<Button
-						type="submit"
-						size="lg"
-						class="w-full"
-						disabled={isSubmitting()}
-					>
+					<Button type="submit" class="w-full" disabled={isSubmitting()}>
 						{isSubmitting() ? "Registering..." : "Register Item"}
 					</Button>
 				</form>

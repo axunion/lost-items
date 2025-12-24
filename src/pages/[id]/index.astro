@@ -2,69 +2,67 @@
 import { ClipboardList, PlusCircle, Share2 } from "lucide-solid";
 import AppHeader from "~/components/ui/AppHeader.astro";
 import { Button } from "~/components/ui/button";
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from "~/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import Layout from "../../layouts/Layout.astro";
 
 const { id = "" } = Astro.params;
 ---
 
-<Layout title="Dashboard" description="Manage your lost items list">
+<Layout title="Dashboard">
   <AppHeader title="Dashboard" showBack backUrl="/" />
 
-  <main class="container mx-auto px-4 py-8 space-y-6">
+  <main class="px-4 py-6 space-y-6">
     <div class="text-center space-y-2">
-      <p class="text-xs font-bold text-muted-foreground uppercase tracking-wider">List ID</p>
-      <div class="inline-block px-4 py-2 bg-muted rounded-md border border-border">
-        <code class="font-mono text-lg font-bold text-foreground">{id}</code>
+      <p class="text-xs font-medium text-muted-foreground uppercase tracking-wide">List ID</p>
+      <div class="inline-block px-3 py-1.5 bg-secondary rounded-md">
+        <code class="font-mono text-sm font-medium">{id}</code>
       </div>
     </div>
 
-    <div class="grid gap-4">
-      <a href={`/${id}/register`} class="block group">
-        <Card class="bg-primary text-primary-foreground border-primary transition-colors hover:bg-primary/90">
-          <CardHeader>
-            <CardTitle class="flex items-center gap-3 text-primary-foreground">
-              <PlusCircle class="size-6" />
+    <div class="space-y-3">
+      <a href={`/${id}/register`} class="block">
+        <Card class="hover:bg-secondary/50">
+          <CardHeader class="pb-2">
+            <CardTitle class="flex items-center gap-2 text-base">
+              <PlusCircle class="size-5" />
               Register Item
             </CardTitle>
-            <CardDescription class="text-primary-foreground/80">
-              Add a new found item to this list.
-            </CardDescription>
           </CardHeader>
+          <CardContent class="pt-0">
+            <p class="text-sm text-muted-foreground">
+              Add a new found item to this list.
+            </p>
+          </CardContent>
         </Card>
       </a>
 
-      <a href={`/${id}/list`} class="block group">
-        <Card class="transition-colors hover:bg-muted/50">
-          <CardHeader>
-            <CardTitle class="flex items-center gap-3">
-              <ClipboardList class="size-5 text-muted-foreground" />
+      <a href={`/${id}/list`} class="block">
+        <Card class="hover:bg-secondary/50">
+          <CardHeader class="pb-2">
+            <CardTitle class="flex items-center gap-2 text-base">
+              <ClipboardList class="size-5" />
               View Public List
             </CardTitle>
-            <CardDescription>
-              See what visitors see.
-            </CardDescription>
           </CardHeader>
+          <CardContent class="pt-0">
+            <p class="text-sm text-muted-foreground">
+              See what visitors see.
+            </p>
+          </CardContent>
         </Card>
       </a>
     </div>
 
     <Card>
-      <CardHeader>
+      <CardHeader class="pb-2">
         <CardTitle class="flex items-center gap-2 text-base">
           <Share2 class="size-4" />
           Share List
         </CardTitle>
       </CardHeader>
-      <CardContent>
-        <div class="flex items-center gap-2 bg-muted p-2 pl-3 rounded-md border border-border">
-          <code class="text-sm flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-muted-foreground font-mono">
+      <CardContent class="pt-0">
+        <div class="flex items-center gap-2 bg-secondary p-2 rounded-md">
+          <code class="text-xs flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-muted-foreground font-mono">
             {Astro.url.origin}/{id}/list
           </code>
           <Button

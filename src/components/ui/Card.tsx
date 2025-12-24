@@ -48,18 +48,4 @@ const CardContent: Component<ComponentProps<"div">> = (props) => {
 	return <div class={cn("p-6 pt-0", local.class)} {...others} />;
 };
 
-const CardFooter: Component<ComponentProps<"div">> = (props) => {
-	const [local, others] = splitProps(props, ["class"]);
-	return (
-		<div class={cn("flex items-center p-6 pt-0", local.class)} {...others} />
-	);
-};
-
-export {
-	Card,
-	CardHeader,
-	CardFooter,
-	CardTitle,
-	CardDescription,
-	CardContent,
-};
+export { Card, CardHeader, CardTitle, CardDescription, CardContent };

@@ -3,50 +3,44 @@ import { Plus } from "lucide-solid";
 import HistoryList from "~/components/features/HistoryList";
 import AppHeader from "~/components/ui/AppHeader.astro";
 import { Button } from "~/components/ui/button";
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from "~/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import Layout from "../layouts/Layout.astro";
 ---
 
 <Layout title="Lost Items">
   <AppHeader title="Lost Items" />
 
-  <main class="container mx-auto px-4 py-8 space-y-8">
-    <div class="text-center space-y-2">
-      <h2 class="text-3xl font-bold tracking-tight text-foreground">Lost & Found</h2>
-      <p class="text-muted-foreground">Manage items effortlessly.</p>
+  <main class="px-4 py-6 space-y-6">
+    <div class="text-center space-y-1">
+      <h2 class="text-xl font-bold">Lost & Found</h2>
+      <p class="text-sm text-muted-foreground">Manage items effortlessly.</p>
     </div>
 
-    <Card class="bg-primary text-primary-foreground border-primary">
+    <Card>
       <CardHeader>
-        <CardTitle class="text-primary-foreground text-xl">Create New List</CardTitle>
-        <CardDescription class="text-primary-foreground/80">
-          Start tracking items for an event or location.
-        </CardDescription>
+        <CardTitle>Create New List</CardTitle>
       </CardHeader>
       <CardContent>
+        <p class="text-sm text-muted-foreground mb-4">
+          Start tracking items for an event or location.
+        </p>
         <form
           onsubmit="event.preventDefault(); const id = crypto.randomUUID(); window.location.href = `/${id}`;"
         >
-          <Button type="submit" variant="secondary" size="lg" class="w-full font-semibold shadow-sm">
-            <Plus class="size-5 mr-2" />
+          <Button type="submit" class="w-full">
+            <Plus class="size-4 mr-2" />
             Create List
           </Button>
         </form>
       </CardContent>
     </Card>
 
-    <div class="space-y-4">
+    <div class="space-y-3">
       <div class="flex items-center justify-between">
-        <h3 class="text-lg font-semibold text-foreground">Recent Lists</h3>
-        <Button variant="link" as="a" href="/history" class="text-primary p-0 h-auto font-semibold">
+        <h3 class="font-semibold">Recent Lists</h3>
+        <a href="/history" class="text-sm text-primary hover:underline">
           View all
-        </Button>
+        </a>
       </div>
       <HistoryList client:only="solid-js" maxItems={3} />
     </div>
