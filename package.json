@@ -4,12 +4,16 @@
 	"version": "0.0.1",
 	"scripts": {
 		"dev": "astro dev",
+		"dev:cf": "astro build && wrangler dev",
 		"build": "astro build",
-		"preview": "astro preview",
+		"preview": "wrangler dev",
+		"deploy": "astro build && wrangler deploy",
 		"astro": "astro",
+		"db:generate": "drizzle-kit generate",
+		"db:migrate": "wrangler d1 migrations apply lost-items-db --local",
+		"db:migrate:prod": "wrangler d1 migrations apply lost-items-db --remote",
 		"check": "biome check src",
-		"check:write": "biome check --write src",
-		"test": "echo \"Error: no test specified\" && exit 1"
+		"check:write": "biome check --write src"
 	},
 	"dependencies": {
 		"@astrojs/cloudflare": "^12.6.11",

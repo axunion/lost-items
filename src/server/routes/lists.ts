@@ -33,46 +33,32 @@ listsRoute.get("/:id/items", async (c) => {
 	return c.json(result);
 });
 
-// Add item to a list (Multipart form data for image)
-// listsRoute.post(
-// 	"/:id/items",
-// 	zValidator(
-// 		"form",
-// 		z.object({
-// 			comment: z.string(),
-// 			image: z.instanceof(File).optional().or(z.string().optional()), // Hono sometimes parses empty file input as empty string
-// 		}),
-// 	),
-// 	async (c) => {
-// 		const listId = c.req.param("id");
-// 		const db = createDb(c.env.DB);
+// Add item to a list
+listsRoute.post("/:id/items", async (c) => {
+	const listId = c.req.param("id");
+	const db = createDb(c.env.DB);
 
-// 		const { comment, image } = c.req.valid("form");
+	const formData = await c.req.formData();
+	const comment = formData.get("comment") as string | null;
+	const image = formData.get("image") as File | null;
 
-// 		let imageUrl: string | undefined;
+	let imageUrl: string | undefined;
 
-// 		if (image && image instanceof File) {
-// 			const key = `${listId}/${crypto.randomUUID()}-${image.name}`;
-// 			await c.env.BUCKET.put(key, image);
-// 			// In development (local), R2 URLs might need special handling or a proxy.
-// 			// For now, we assume standard public access or signed URL pattern.
-// 			// Since we don't have a custom domain set up, we might need to serve it via an API endpoint or assume public bucket.
-// 			// For simplicity in this "mock-to-real" phase, let's store the key and serve via a proxy endpoint if needed,
-// 			// OR just assume we can construct a URL.
-// 			// Let's assume we will serve it via a proxy endpoint `/api/images/:key` for simplicity in local dev.
-// 			imageUrl = `/api/images/${key}`;
-// 		}
+	if (image && image.size > 0) {
+		const key = `${listId}/${crypto.randomUUID()}-${image.name}`;
+		await c.env.BUCKET.put(key, image);
+		imageUrl = `/api/images/${key}`;
+	}
 
-// 		const newItem = {
-// 			id: crypto.randomUUID(),
-// 			listId,
-// 			comment,
-// 			imageUrl,
-// 			createdAt: new Date(),
-// 		};
+	const newItem = {
+		id: crypto.randomUUID(),
+		listId,
+		comment: comment || "",
+		imageUrl,
+		createdAt: new Date(),
+	};
 
-// 		await db.insert(items).values(newItem);
+	await db.insert(items).values(newItem);
 
-// 		return c.json(newItem);
-// 	},
-// );
+	return c.json(newItem);
+});
