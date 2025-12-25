@@ -63,7 +63,9 @@ const RegisterForm: Component<RegisterFormProps> = (props) => {
 								<div class="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-input rounded-lg bg-secondary/50 relative">
 									<div class="flex flex-col items-center justify-center py-4 pointer-events-none">
 										<Camera class="w-8 h-8 text-muted-foreground mb-2" />
-										<p class="text-sm text-muted-foreground">Tap to take photo</p>
+										<p class="text-sm text-muted-foreground">
+											Tap to take photo
+										</p>
 									</div>
 									<input
 										type="file"

@@ -7,8 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import Layout from "../layouts/Layout.astro";
 ---
 
-<Layout title="Lost Items">
-  <AppHeader title="Lost Items" />
+<Layout title="Dashboard">
+  <AppHeader title="Dashboard" />
 
   <main class="px-4 py-6 space-y-6">
     <div class="text-center space-y-1">
@@ -24,9 +24,18 @@ import Layout from "../layouts/Layout.astro";
         <p class="text-sm text-muted-foreground mb-4">
           Start tracking items for an event or location.
         </p>
-        <form
-          onsubmit="event.preventDefault(); const id = crypto.randomUUID(); window.location.href = `/${id}`;"
-        >
+        <form id="create-list-form" class="space-y-4">
+          <div class="space-y-2">
+            <label for="list-name" class="text-sm font-medium">List Name</label>
+            <input
+              type="text"
+              id="list-name"
+              name="name"
+              placeholder="e.g., Office, Home, School"
+              class="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              required
+            />
+          </div>
           <Button type="submit" class="w-full">
             <Plus class="size-4 mr-2" />
             Create List
@@ -34,6 +43,25 @@ import Layout from "../layouts/Layout.astro";
         </form>
       </CardContent>
     </Card>
+
+    <script>
+      import { addToHistory } from "~/lib/history";
+
+      const form = document.getElementById('create-list-form');
+      form?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target as HTMLFormElement);
+        const name = formData.get('name') as string;
+        const id = crypto.randomUUID();
+
+        // Save to local history for simplicity since we don't have a login system yet
+        // and want the user to manage their own created lists.
+        addToHistory({ id, name, timestamp: Date.now(), isOwner: true });
+
+        // Redirect to the dashboard
+        window.location.href = `/${id}`;
+      });
+    </script>
 
     <div class="space-y-3">
       <div class="flex items-center justify-between">

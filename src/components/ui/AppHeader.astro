@@ -22,8 +22,12 @@ const {
         <span class="sr-only">Back</span>
       </a>
     )}
-    <h1 class="text-base font-semibold text-foreground">
+    <h1 class="text-base font-semibold text-foreground truncate max-w-[200px]" id="header-title">
       {title}
     </h1>
+
+    <div class="absolute right-4 flex items-center">
+      <slot name="right" />
+    </div>
   </div>
 </header>

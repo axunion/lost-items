@@ -1,18 +1,13 @@
 ---
-import BottomNav from "~/components/ui/BottomNav.astro";
 import "~/styles/global.css";
 
 interface Props {
 	title?: string;
 	description?: string;
-	showBottomNav?: boolean;
 }
 
-const {
-	title = "Lost Items",
-	description = "Manage lost and found items",
-	showBottomNav = true,
-} = Astro.props;
+const { title = "Lost Items", description = "Manage lost and found items" } =
+	Astro.props;
 ---
 
 <!doctype html>
@@ -25,11 +20,9 @@ const {
 		<meta name="generator" content={Astro.generator} />
 		<title>{title}</title>
 	</head>
-	<body class="min-h-screen pb-20">
+	<body class="min-h-screen">
 		<div class="max-w-lg mx-auto bg-background min-h-screen">
 			<slot />
 		</div>
-
-		{showBottomNav && <BottomNav />}
 	</body>
 </html>

@@ -52,7 +52,10 @@ const ItemList: Component<ItemListProps> = (props) => {
 								<Card class="overflow-hidden">
 									<div class="aspect-square relative overflow-hidden bg-secondary">
 										<img
-											src={item.imageUrl || "https://placehold.co/300x300?text=No+Image"}
+											src={
+												item.imageUrl ||
+												"https://placehold.co/300x300?text=No+Image"
+											}
 											alt="Lost Item"
 											class="w-full h-full object-cover"
 											loading="lazy"

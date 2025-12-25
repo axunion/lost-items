@@ -1,5 +1,5 @@
 ---
-import { ClipboardList, PlusCircle, Share2 } from "lucide-solid";
+import { ClipboardList, ExternalLink, Pencil, PlusCircle } from "lucide-solid";
 import AppHeader from "~/components/ui/AppHeader.astro";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
@@ -9,104 +9,150 @@ const { id = "" } = Astro.params;
 ---
 
 <Layout title="Dashboard">
-  <AppHeader title="Dashboard" showBack backUrl="/" />
+  <AppHeader title="Loading..." showBack backUrl="/">
+    <button
+      slot="right"
+      id="edit-name-btn"
+      class="hidden p-2 -mr-2 text-muted-foreground hover:text-foreground transition-colors"
+      title="Edit List Name"
+    >
+      <Pencil class="size-4" />
+    </button>
+  </AppHeader>
 
-  <main class="px-4 py-6 space-y-6">
-    <div class="text-center space-y-2">
-      <p class="text-xs font-medium text-muted-foreground uppercase tracking-wide">List ID</p>
-      <div class="inline-block px-3 py-1.5 bg-secondary rounded-md">
-        <code class="font-mono text-sm font-medium">{id}</code>
-      </div>
+  <main class="px-4 py-6 space-y-8" id="dashboard-container" data-id={id}>
+    <div class="space-y-6">
+      <!-- Register Item Card -->
+      <Card>
+        <CardHeader class="pb-2">
+          <CardTitle class="flex items-center gap-2 text-base">
+            <PlusCircle class="size-5 text-primary" />
+            Register Item
+          </CardTitle>
+        </CardHeader>
+        <CardContent class="space-y-4">
+          <p class="text-sm text-muted-foreground">
+            Allow others to register items to this list.
+          </p>
+          <div class="space-y-2">
+            <div class="flex items-center gap-2 bg-secondary p-2 rounded-md border border-input/50">
+              <code class="text-xs flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-muted-foreground font-mono">
+                {Astro.url.origin}/{id}/register
+              </code>
+              <Button
+                size="sm"
+                variant="secondary"
+                class="shrink-0 h-8 copy-btn"
+                data-url={`${Astro.url.origin}/${id}/register`}
+              >
+                Copy
+              </Button>
+            </div>
+            <a href={`/${id}/register`} target="_blank" rel="noopener noreferrer" class="block">
+              <Button class="w-full h-11 justify-between px-4 font-medium" variant="outline">
+                <span>Open Registration Page</span>
+                <ExternalLink class="size-4" />
+              </Button>
+            </a>
+          </div>
+        </CardContent>
+      </Card>
+
+      <!-- Public List Card -->
+      <Card>
+        <CardHeader class="pb-2">
+          <CardTitle class="flex items-center gap-2 text-base">
+            <ClipboardList class="size-5 text-primary" />
+            Public Items List
+          </CardTitle>
+        </CardHeader>
+        <CardContent class="space-y-4">
+          <p class="text-sm text-muted-foreground">
+            Allow others to view items in this list.
+          </p>
+          <div class="space-y-2">
+            <div class="flex items-center gap-2 bg-secondary p-2 rounded-md border border-input/50">
+              <code class="text-xs flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-muted-foreground font-mono">
+                {Astro.url.origin}/{id}/list
+              </code>
+              <Button
+                size="sm"
+                variant="secondary"
+                class="shrink-0 h-8 copy-btn"
+                data-url={`${Astro.url.origin}/${id}/list`}
+              >
+                Copy
+              </Button>
+            </div>
+            <a href={`/${id}/list`} target="_blank" rel="noopener noreferrer" class="block">
+              <Button class="w-full h-11 justify-between px-4 font-medium" variant="outline">
+                <span>Open Public List</span>
+                <ExternalLink class="size-4" />
+              </Button>
+            </a>
+          </div>
+        </CardContent>
+      </Card>
     </div>
-
-    <div class="space-y-3">
-      <a href={`/${id}/register`} class="block">
-        <Card class="hover:bg-secondary/50">
-          <CardHeader class="pb-2">
-            <CardTitle class="flex items-center gap-2 text-base">
-              <PlusCircle class="size-5" />
-              Register Item
-            </CardTitle>
-          </CardHeader>
-          <CardContent class="pt-0">
-            <p class="text-sm text-muted-foreground">
-              Add a new found item to this list.
-            </p>
-          </CardContent>
-        </Card>
-      </a>
-
-      <a href={`/${id}/list`} class="block">
-        <Card class="hover:bg-secondary/50">
-          <CardHeader class="pb-2">
-            <CardTitle class="flex items-center gap-2 text-base">
-              <ClipboardList class="size-5" />
-              View Public List
-            </CardTitle>
-          </CardHeader>
-          <CardContent class="pt-0">
-            <p class="text-sm text-muted-foreground">
-              See what visitors see.
-            </p>
-          </CardContent>
-        </Card>
-      </a>
-    </div>
-
-    <Card>
-      <CardHeader class="pb-2">
-        <CardTitle class="flex items-center gap-2 text-base">
-          <Share2 class="size-4" />
-          Share List
-        </CardTitle>
-      </CardHeader>
-      <CardContent class="pt-0">
-        <div class="flex items-center gap-2 bg-secondary p-2 rounded-md">
-          <code class="text-xs flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-muted-foreground font-mono">
-            {Astro.url.origin}/{id}/list
-          </code>
-          <Button
-            size="sm"
-            id="copy-btn"
-            variant="secondary"
-            class="shrink-0"
-            data-url={`${Astro.url.origin}/${id}/list`}
-          >
-            Copy
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
   </main>
 </Layout>
 
-<script define:vars={{ id }}>
+<script>
+  import { getHistory, updateHistory } from "~/lib/history";
+
   try {
-    const key = "lost-items-history";
-    const history = JSON.parse(localStorage.getItem(key) || "[]");
-    const filtered = history.filter(item => item.id !== id);
-    filtered.push({ id, timestamp: Date.now() });
-    if (filtered.length > 10) filtered.shift();
-    localStorage.setItem(key, JSON.stringify(filtered));
+    const container = document.getElementById('dashboard-container');
+    const id = container?.dataset.id;
+    if (!id) throw new Error("ID not found in container");
+
+    const history = getHistory();
+    const currentItem = history.find(item => item.id === id);
+    const listName = currentItem?.name || "Untitled List";
+
+    const headerTitle = document.getElementById('header-title');
+    const editBtn = document.getElementById('edit-name-btn');
+
+    if (headerTitle) {
+      headerTitle.innerText = listName;
+    }
+    document.title = `${listName} | Dashboard`;
+
+    if (currentItem?.isOwner && editBtn) {
+      editBtn.classList.remove('hidden');
+    }
+
+    // Refresh timestamp
+    updateHistory(id, { timestamp: Date.now() });
+
+    // Edit Name logic
+    editBtn?.addEventListener('click', () => {
+      const newName = prompt("Enter new list name:", listName);
+      if (newName && newName !== listName) {
+        updateHistory(id, { name: newName });
+        if (headerTitle) headerTitle.innerText = newName;
+        document.title = `${newName} | Dashboard`;
+      }
+    });
   } catch (e) {
-    console.error("Failed to save history", e);
+    console.error("Failed to handle dashboard logic", e);
   }
 </script>
 
 <script>
-  const copyBtn = document.getElementById('copy-btn');
-  if (copyBtn) {
-    copyBtn.addEventListener('click', () => {
-      const url = copyBtn.getAttribute('data-url');
+  // Copy button logic
+  const copyBtns = document.querySelectorAll('.copy-btn');
+  copyBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const url = btn.getAttribute('data-url');
       if (url) {
         navigator.clipboard.writeText(url).then(() => {
-          const originalText = copyBtn.innerText;
-          copyBtn.innerText = 'Copied!';
+          const originalText = (btn as HTMLElement).innerText;
+          (btn as HTMLElement).innerText = 'Copied!';
           setTimeout(() => {
-            copyBtn.innerText = originalText;
+            (btn as HTMLElement).innerText = originalText;
           }, 2000);
         });
       }
     });
-  }
+  });
 </script>

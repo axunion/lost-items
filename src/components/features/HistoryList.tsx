@@ -2,11 +2,7 @@ import { ArrowRight, Trash2 } from "lucide-solid";
 import { type Component, createSignal, For, onMount } from "solid-js";
 import { Button } from "~/components/ui/button";
 import { Card, CardHeader, CardTitle } from "~/components/ui/card";
-
-type HistoryItem = {
-	id: string;
-	timestamp: number;
-};
+import { clearHistory, getHistory, type HistoryItem } from "~/lib/history";
 
 type HistoryListProps = {
 	maxItems?: number;
@@ -16,22 +12,11 @@ const HistoryList: Component<HistoryListProps> = (props) => {
 	const [history, setHistory] = createSignal<HistoryItem[]>([]);
 
 	onMount(() => {
-		try {
-			const stored = localStorage.getItem("lost-items-history");
-			if (stored) {
-				setHistory(
-					JSON.parse(stored).sort(
-						(a: HistoryItem, b: HistoryItem) => b.timestamp - a.timestamp,
-					),
-				);
-			}
-		} catch (e) {
-			console.error("Failed to load history", e);
-		}
+		setHistory(getHistory());
 	});
 
-	const clearHistory = () => {
-		localStorage.removeItem("lost-items-history");
+	const handleClear = () => {
+		clearHistory();
 		setHistory([]);
 	};
 
@@ -44,7 +29,12 @@ const HistoryList: Component<HistoryListProps> = (props) => {
 		<div class="space-y-3">
 			{history().length > 0 && (
 				<div class="flex justify-end">
-					<Button variant="ghost" size="sm" onClick={clearHistory} class="text-destructive h-auto p-1">
+					<Button
+						variant="ghost"
+						size="sm"
+						onClick={handleClear}
+						class="text-destructive h-auto p-1"
+					>
 						<Trash2 class="size-3 mr-1" />
 						Clear
 					</Button>
@@ -63,11 +53,25 @@ const HistoryList: Component<HistoryListProps> = (props) => {
 								<Card class="hover:bg-secondary/50">
 									<CardHeader class="p-4">
 										<CardTitle class="text-sm flex items-center justify-between">
-											<span class="font-mono">{item.id.slice(0, 8)}...</span>
-											<div class="flex items-center gap-2 text-muted-foreground">
-												<span class="text-xs font-normal">
-													{new Date(item.timestamp).toLocaleDateString()}
+											<div class="flex flex-col gap-1">
+												<span class="font-bold">
+													{item.name || "Untitled List"}
 												</span>
+												<span class="font-mono text-[10px] text-muted-foreground">
+													{item.id.slice(0, 8)}...
+												</span>
+											</div>
+											<div class="flex items-center gap-2 text-muted-foreground">
+												<div class="flex flex-col items-end gap-1">
+													{item.isOwner && (
+														<span class="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded-full font-medium">
+															Admin
+														</span>
+													)}
+													<span class="text-xs font-normal">
+														{new Date(item.timestamp).toLocaleDateString()}
+													</span>
+												</div>
 												<ArrowRight class="size-4" />
 											</div>
 										</CardTitle>
