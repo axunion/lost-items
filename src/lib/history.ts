@@ -46,6 +46,16 @@ export const updateHistory = (id: string, updates: Partial<HistoryItem>) => {
 	}
 };
 
+export const removeFromHistory = (id: string) => {
+	try {
+		const history = getHistory();
+		const filtered = history.filter((i) => i.id !== id);
+		localStorage.setItem(KEY, JSON.stringify(filtered));
+	} catch (e) {
+		console.error("Failed to remove from history", e);
+	}
+};
+
 export const clearHistory = () => {
 	localStorage.removeItem(KEY);
 };

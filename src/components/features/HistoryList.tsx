@@ -1,8 +1,6 @@
-import { ArrowRight, Trash2 } from "lucide-solid";
 import { type Component, createSignal, For, onMount } from "solid-js";
-import { Button } from "~/components/ui/button";
 import { Card, CardHeader, CardTitle } from "~/components/ui/card";
-import { clearHistory, getHistory, type HistoryItem } from "~/lib/history";
+import { getHistory, type HistoryItem } from "~/lib/history";
 
 type HistoryListProps = {
 	maxItems?: number;
@@ -15,11 +13,6 @@ const HistoryList: Component<HistoryListProps> = (props) => {
 		setHistory(getHistory());
 	});
 
-	const handleClear = () => {
-		clearHistory();
-		setHistory([]);
-	};
-
 	const displayItems = () => {
 		const items = history();
 		return props.maxItems ? items.slice(0, props.maxItems) : items;
@@ -27,23 +20,9 @@ const HistoryList: Component<HistoryListProps> = (props) => {
 
 	return (
 		<div class="space-y-3">
-			{history().length > 0 && (
-				<div class="flex justify-end">
-					<Button
-						variant="ghost"
-						size="sm"
-						onClick={handleClear}
-						class="text-destructive h-auto p-1"
-					>
-						<Trash2 class="size-3 mr-1" />
-						Clear
-					</Button>
-				</div>
-			)}
-
 			{history().length === 0 ? (
 				<div class="text-center py-8 text-muted-foreground bg-secondary rounded-lg">
-					<p class="text-sm">No history found.</p>
+					<p class="text-base">No history found.</p>
 				</div>
 			) : (
 				<div class="space-y-2">
@@ -52,27 +31,26 @@ const HistoryList: Component<HistoryListProps> = (props) => {
 							<a href={`/${item.id}`} class="block">
 								<Card class="hover:bg-secondary/50">
 									<CardHeader class="p-4">
-										<CardTitle class="text-sm flex items-center justify-between">
-											<div class="flex flex-col gap-1">
-												<span class="font-bold">
-													{item.name || "Untitled List"}
-												</span>
-												<span class="font-mono text-[10px] text-muted-foreground">
-													{item.id.slice(0, 8)}...
-												</span>
-											</div>
-											<div class="flex items-center gap-2 text-muted-foreground">
-												<div class="flex flex-col items-end gap-1">
+										<CardTitle class="text-base">
+											<div class="flex flex-col gap-2 min-w-0">
+												<div class="flex flex-col gap-1">
+													<span class="font-bold truncate">
+														{item.name || "Untitled List"}
+													</span>
+													<span class="font-mono text-xs text-muted-foreground break-all">
+														{item.id}
+													</span>
+												</div>
+												<div class="flex items-center justify-between mt-1">
+													<span class="text-sm font-normal text-muted-foreground">
+														{new Date(item.timestamp).toLocaleDateString()}
+													</span>
 													{item.isOwner && (
-														<span class="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded-full font-medium">
+														<span class="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full font-medium">
 															Admin
 														</span>
 													)}
-													<span class="text-xs font-normal">
-														{new Date(item.timestamp).toLocaleDateString()}
-													</span>
 												</div>
-												<ArrowRight class="size-4" />
 											</div>
 										</CardTitle>
 									</CardHeader>

@@ -1,5 +1,11 @@
 ---
-import { ClipboardList, ExternalLink, Pencil, PlusCircle } from "lucide-solid";
+import {
+	ClipboardList,
+	ExternalLink,
+	Pencil,
+	PlusCircle,
+	Trash2,
+} from "lucide-solid";
 import AppHeader from "~/components/ui/AppHeader.astro";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
@@ -93,12 +99,29 @@ const { id = "" } = Astro.params;
           </div>
         </CardContent>
       </Card>
+
+      <!-- Danger Zone -->
+      <div id="danger-zone" class="hidden pt-8 space-y-4">
+        <div class="flex items-center gap-2 px-1">
+          <div class="h-px flex-1 bg-border/50"></div>
+          <span class="text-xs font-medium text-muted-foreground uppercase tracking-wider">Danger Zone</span>
+          <div class="h-px flex-1 bg-border/50"></div>
+        </div>
+        <Button
+          id="delete-list-btn"
+          variant="destructive"
+          class="w-full h-11 font-medium"
+        >
+          <Trash2 class="size-4 mr-2" />
+          Delete This List
+        </Button>
+      </div>
     </div>
   </main>
 </Layout>
 
 <script>
-  import { getHistory, updateHistory } from "~/lib/history";
+  import { getHistory, updateHistory, removeFromHistory } from "~/lib/history";
 
   try {
     const container = document.getElementById('dashboard-container');
@@ -111,14 +134,17 @@ const { id = "" } = Astro.params;
 
     const headerTitle = document.getElementById('header-title');
     const editBtn = document.getElementById('edit-name-btn');
+    const dangerZone = document.getElementById('danger-zone');
+    const deleteBtn = document.getElementById('delete-list-btn');
 
     if (headerTitle) {
       headerTitle.innerText = listName;
     }
     document.title = `${listName} | Dashboard`;
 
-    if (currentItem?.isOwner && editBtn) {
-      editBtn.classList.remove('hidden');
+    if (currentItem?.isOwner) {
+      if (editBtn) editBtn.classList.remove('hidden');
+      if (dangerZone) dangerZone.classList.remove('hidden');
     }
 
     // Refresh timestamp
@@ -131,6 +157,14 @@ const { id = "" } = Astro.params;
         updateHistory(id, { name: newName });
         if (headerTitle) headerTitle.innerText = newName;
         document.title = `${newName} | Dashboard`;
+      }
+    });
+
+    // Delete logic
+    deleteBtn?.addEventListener('click', () => {
+      if (confirm(`Are you sure you want to delete "${listName}"? This action cannot be undone.`)) {
+        removeFromHistory(id);
+        window.location.href = '/';
       }
     });
   } catch (e) {
