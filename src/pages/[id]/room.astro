@@ -6,14 +6,10 @@ import Layout from "../../layouts/Layout.astro";
 const { id = "" } = Astro.params;
 ---
 
-<Layout title="Lost Items List">
-  <AppHeader title="Lost Items" showBack backUrl={`/${id}`} />
+<Layout title="Room Items">
+  <AppHeader title="Room Items" />
 
-  <main class="px-4 py-6 space-y-4">
-    <p class="text-sm text-muted-foreground text-center">
-      Items reported at this location.
-    </p>
-
+  <main class="px-4 py-6">
     <ItemList listId={id} client:load />
   </main>
 </Layout>

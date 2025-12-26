@@ -5,13 +5,9 @@ import Layout from "../layouts/Layout.astro";
 ---
 
 <Layout title="History">
-  <AppHeader title="History" />
+  <AppHeader title="History" showBack backUrl="/" />
 
-  <main class="px-4 py-6 space-y-4">
-    <p class="text-sm text-muted-foreground text-center">
-      Lists you have visited recently.
-    </p>
-
+  <main class="px-4 py-6 space-y-6">
     <HistoryList client:only="solid-js" />
   </main>
 </Layout>

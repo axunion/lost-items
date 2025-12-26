@@ -7,7 +7,7 @@ const { id = "" } = Astro.params;
 ---
 
 <Layout title="Register Item">
-  <AppHeader title="Register Item" showBack backUrl={`/${id}`} />
+  <AppHeader title="Register Item" />
 
   <main class="px-4 py-6">
     <RegisterForm listId={id} client:load />

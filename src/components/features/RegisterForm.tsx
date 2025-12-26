@@ -1,7 +1,6 @@
-import { Camera, X } from "lucide-solid";
+import { Camera, Send, X } from "lucide-solid";
 import { type Component, createSignal, Show } from "solid-js";
 import { Button } from "~/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import {
 	TextField,
 	TextFieldLabel,
@@ -49,70 +48,91 @@ const RegisterForm: Component<RegisterFormProps> = (props) => {
 	};
 
 	return (
-		<Card>
-			<CardHeader>
-				<CardTitle class="text-center">Register Lost Item</CardTitle>
-			</CardHeader>
-			<CardContent>
-				<form onSubmit={handleSubmit} class="space-y-6">
-					<div class="space-y-2">
-						<p class="text-sm font-medium text-center">Take a Photo</p>
-
-						<Show when={!imagePreview()}>
-							<div class="flex justify-center w-full">
-								<div class="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-input rounded-lg bg-secondary/50 relative">
-									<div class="flex flex-col items-center justify-center py-4 pointer-events-none">
-										<Camera class="w-8 h-8 text-muted-foreground mb-2" />
-										<p class="text-sm text-muted-foreground">
-											Tap to take photo
-										</p>
-									</div>
-									<input
-										type="file"
-										accept="image/*"
-										capture="environment"
-										class="absolute inset-0 opacity-0 cursor-pointer"
-										onChange={handleImageUpload}
-									/>
-								</div>
-							</div>
-						</Show>
-
-						<Show when={imagePreview()}>
-							<div class="relative w-full h-40 rounded-lg overflow-hidden border border-border">
-								<img
-									src={imagePreview() || ""}
-									alt="Preview"
-									class="w-full h-full object-cover"
-								/>
-								<button
-									type="button"
-									onClick={() => {
-										setImagePreview(null);
-										setImageFile(undefined);
-									}}
-									class="absolute top-2 right-2 p-1 bg-background/80 rounded-full"
-								>
-									<X class="w-4 h-4" />
-								</button>
-							</div>
-						</Show>
+		<div class="space-y-8">
+			<form onSubmit={handleSubmit} class="space-y-8">
+				{/* Photo Section */}
+				<div class="space-y-4">
+					<div class="flex items-center gap-2 px-1">
+						<Camera class="size-6 text-primary" />
+						<span class="text-lg font-bold">Photo</span>
 					</div>
 
-					<TextField value={comment()} onChange={setComment}>
-						<TextFieldLabel>Comment (Optional)</TextFieldLabel>
-						<TextFieldTextArea
-							placeholder="Where was it found? Any distinct features?"
-							class="resize-none"
-						/>
-					</TextField>
+					<Show when={!imagePreview()}>
+						<div class="flex justify-center w-full">
+							<div class="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-input rounded-xl bg-secondary/30 relative hover:bg-secondary/50 transition-colors group">
+								<div class="flex flex-col items-center justify-center py-4 pointer-events-none transition-transform group-active:scale-95">
+									<Camera class="w-10 h-10 text-muted-foreground/40 mb-2" />
+									<p class="text-sm text-muted-foreground/60 font-bold">
+										Tap to capture
+									</p>
+								</div>
+								<input
+									type="file"
+									accept="image/*"
+									capture="environment"
+									class="absolute inset-0 opacity-0 cursor-pointer"
+									onChange={handleImageUpload}
+								/>
+							</div>
+						</div>
+					</Show>
 
-					<Button type="submit" class="w-full" disabled={isSubmitting()}>
-						{isSubmitting() ? "Registering..." : "Register Item"}
-					</Button>
-				</form>
-			</CardContent>
-		</Card>
+					<Show when={imagePreview()}>
+						<div class="relative w-full h-48 rounded-xl overflow-hidden border border-border shadow-sm">
+							<img
+								src={imagePreview() || ""}
+								alt="Preview"
+								class="w-full h-full object-cover"
+							/>
+							<button
+								type="button"
+								onClick={() => {
+									setImagePreview(null);
+									setImageFile(undefined);
+								}}
+								class="absolute top-2 right-2 p-2 bg-background/90 rounded-full shadow-md hover:bg-destructive hover:text-destructive-foreground transition-all active:scale-90"
+							>
+								<X class="w-5 h-5" />
+							</button>
+						</div>
+					</Show>
+				</div>
+
+				{/* Comment Section */}
+				<TextField value={comment()} onChange={setComment} class="space-y-4">
+					<div class="flex items-center gap-2 px-1">
+						<div class="size-6 flex items-center justify-center">
+							<div class="size-2 rounded-full bg-primary" />
+						</div>
+						<TextFieldLabel class="text-lg font-bold contents">
+							Comment
+						</TextFieldLabel>
+					</div>
+					<TextFieldTextArea
+						placeholder="Optional info..."
+						class="resize-none min-h-[120px] text-base p-4 rounded-xl focus-visible:ring-primary/40 focus-visible:ring-offset-1 border-input bg-transparent"
+					/>
+				</TextField>
+
+				<Button
+					type="submit"
+					class="w-full h-16 text-lg font-bold rounded-xl shadow-md transition-all active:scale-[0.98]"
+					disabled={isSubmitting()}
+				>
+					<Show
+						when={isSubmitting()}
+						fallback={
+							<div class="flex items-center gap-2">
+								<Send class="size-6" />
+								<span>Register</span>
+							</div>
+						}
+					>
+						<span>Registering...</span>
+					</Show>
+				</Button>
+			</form>
+		</div>
 	);
 };
 
