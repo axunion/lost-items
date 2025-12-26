@@ -1,13 +1,13 @@
 ---
 import RegisterForm from "~/components/features/RegisterForm";
-import AppHeader from "~/components/ui/AppHeader.astro";
+import AppHeader from "~/components/ui/AppHeader";
 import Layout from "../../layouts/Layout.astro";
 
 const { id = "" } = Astro.params;
 ---
 
 <Layout title="Register Item">
-  <AppHeader title="Register Item" />
+  <AppHeader title="Register Item" client:load />
 
   <main class="px-4 py-6">
     <RegisterForm listId={id} client:load />

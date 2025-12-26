@@ -1,13 +1,13 @@
 ---
-import { ChevronRight, Clock, DoorOpen, Plus } from "lucide-solid";
+import { ChevronRight, Clock, DoorOpen } from "lucide-solid";
 import HistoryList from "~/components/features/HistoryList";
-import AppHeader from "~/components/ui/AppHeader.astro";
-import { Button } from "~/components/ui/button";
+import RoomCreateForm from "~/components/features/RoomCreateForm";
+import AppHeader from "~/components/ui/AppHeader";
 import Layout from "../layouts/Layout.astro";
 ---
 
 <Layout title="Dashboard">
-  <AppHeader title="Dashboard" />
+  <AppHeader title="Dashboard" client:load />
 
   <main class="px-4 py-6 space-y-6">
 
@@ -17,42 +17,8 @@ import Layout from "../layouts/Layout.astro";
         New Room
       </h2>
 
-      <form id="create-list-form" class="space-y-4">
-        <div class="space-y-2">
-          <input
-            type="text"
-            id="list-name"
-            name="name"
-            placeholder="Name"
-            class="flex h-12 w-full rounded-xl border border-input bg-transparent px-4 py-2 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-1 transition-all"
-            required
-          />
-        </div>
-        <Button type="submit" class="w-full text-lg font-bold py-6 flex items-center justify-center gap-2 rounded-xl transition-all active:scale-[0.98]">
-          <Plus class="size-6" />
-          Create
-        </Button>
-      </form>
+      <RoomCreateForm client:load />
     </div>
-
-    <script>
-      import { addToHistory } from "~/lib/history";
-
-      const form = document.getElementById('create-list-form');
-      form?.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const formData = new FormData(e.target as HTMLFormElement);
-        const name = formData.get('name') as string;
-        const id = crypto.randomUUID();
-
-        // Save to local history for simplicity since we don't have a login system yet
-        // and want the user to manage their own created lists.
-        addToHistory({ id, name, timestamp: Date.now(), isOwner: true });
-
-        // Redirect to the dashboard
-        window.location.href = `/${id}`;
-      });
-    </script>
 
     <div class="space-y-4 pt-8 border-t border-border/50">
       <div class="flex items-center justify-between px-1">
@@ -60,9 +26,9 @@ import Layout from "../layouts/Layout.astro";
           <Clock class="size-6 text-primary" />
           <span>Recent</span>
         </div>
-        <a href="/history" class="text-sm text-primary hover:underline flex items-center gap-1.5 font-medium">
+        <a href="/history" class="text-sm text-primary hover:underline flex items-center gap-1 font-medium">
           All
-          <ChevronRight class="size-5" />
+          <ChevronRight class="size-4" />
         </a>
       </div>
       <HistoryList client:only="solid-js" maxItems={3} />

@@ -110,13 +110,13 @@ const RegisterForm: Component<RegisterFormProps> = (props) => {
 					</div>
 					<TextFieldTextArea
 						placeholder="Optional info..."
-						class="resize-none min-h-[120px] text-base p-4 rounded-xl focus-visible:ring-primary/40 focus-visible:ring-offset-1 border-input bg-transparent"
+						class="resize-none min-h-[120px] text-base p-4 rounded-xl focus-visible:ring-primary/40 focus-visible:ring-offset-1 border-input bg-background"
 					/>
 				</TextField>
 
 				<Button
 					type="submit"
-					class="w-full h-16 text-lg font-bold rounded-xl shadow-md transition-all active:scale-[0.98]"
+					class="w-full h-14 text-lg font-bold rounded-xl shadow-md transition-all active:scale-[0.98]"
 					disabled={isSubmitting()}
 				>
 					<Show

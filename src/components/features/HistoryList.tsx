@@ -33,11 +33,11 @@ const HistoryList: Component<HistoryListProps> = (props) => {
 									<CardHeader class="p-4">
 										<CardTitle class="text-base font-normal">
 											<div class="flex flex-col gap-2 min-w-0">
-												<div class="flex flex-col gap-0.5">
+												<div class="flex flex-col gap-1">
 													<span class="text-lg font-bold truncate text-foreground group-hover:text-primary transition-colors">
 														{item.name || "Untitled Room"}
 													</span>
-													<span class="font-mono text-[10px] text-muted-foreground/60 break-all leading-tight">
+													<span class="font-mono text-[10px] text-muted-foreground/50 break-all leading-tight">
 														{item.id}
 													</span>
 												</div>
@@ -52,7 +52,7 @@ const HistoryList: Component<HistoryListProps> = (props) => {
 														</span>
 													</div>
 													{item.isOwner && (
-														<span class="text-[10px] uppercase tracking-wider bg-primary/10 text-primary px-2 py-0.5 rounded-full font-bold border border-primary/20">
+														<span class="text-[10px] uppercase tracking-widest bg-primary/10 text-primary px-2.5 py-0.5 rounded-full font-bold border border-primary/20">
 															Admin
 														</span>
 													)}

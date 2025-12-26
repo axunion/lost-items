@@ -35,12 +35,12 @@ const ItemList: Component<ItemListProps> = (props) => {
 				<Show
 					when={items().length > 0}
 					fallback={
-						<div class="text-center py-20 px-4">
+						<div class="text-center py-12 px-4 bg-secondary/30 rounded-xl border-2 border-dashed border-input/50">
 							<div class="bg-secondary/50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-								<Search class="h-7 w-7 text-muted-foreground/40" />
+								<Search class="h-8 w-8 text-muted-foreground/40" />
 							</div>
-							<p class="text-base font-bold text-muted-foreground/60">
-								No items
+							<p class="text-base font-bold text-muted-foreground/40">
+								No items found
 							</p>
 						</div>
 					}
