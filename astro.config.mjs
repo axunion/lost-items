@@ -1,4 +1,3 @@
-// @ts-check
 import { fileURLToPath, URL } from "node:url";
 import cloudflare from "@astrojs/cloudflare";
 import solidJs from "@astrojs/solid-js";
@@ -8,8 +7,14 @@ import { defineConfig } from "astro/config";
 // https://astro.build/config
 export default defineConfig({
 	output: "server",
-	adapter: cloudflare(),
+	adapter: cloudflare({
+		imageService: "compile",
+		cloudflareModules: true,
+	}),
 	integrations: [solidJs()],
+	image: {
+		service: { entrypoint: "astro/assets/services/noop" },
+	},
 
 	vite: {
 		plugins: [tailwindcss()],
