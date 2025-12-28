@@ -7,14 +7,34 @@ import {
 } from "lucide-solid";
 import { type Component, createSignal, onMount, Show } from "solid-js";
 import AppHeader from "~/components/ui/AppHeader";
-import { Button } from "~/components/ui/button";
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+	AlertDialogTrigger,
+} from "~/components/ui/alert-dialog";
+import { Button, buttonVariants } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
+import {
+	Dialog,
+	DialogContent,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+	DialogTrigger,
+} from "~/components/ui/dialog";
+import { TextField, TextFieldInput } from "~/components/ui/text-field";
 import {
 	getHistory,
 	type HistoryItem,
 	removeFromHistory,
 	updateHistory,
 } from "~/lib/history";
+import { cn } from "~/lib/utils";
 
 interface DashboardManagerProps {
 	id: string;
@@ -24,38 +44,40 @@ interface DashboardManagerProps {
 const DashboardManager: Component<DashboardManagerProps> = (props) => {
 	const [currentItem, setCurrentItem] = createSignal<HistoryItem | null>(null);
 	const [listName, setListName] = createSignal("Loading...");
+	const [tempName, setTempName] = createSignal("");
+	const [isEditOpen, setIsEditOpen] = createSignal(false);
+	const [isDeleteOpen, setIsDeleteOpen] = createSignal(false);
 
 	onMount(() => {
 		const history = getHistory();
 		const item = history.find((i) => i.id === props.id);
 		if (item) {
 			setCurrentItem(item);
-			setListName(item.name || "Untitled Room");
+			const name = item.name || "Untitled Room";
+			setListName(name);
+			setTempName(name);
 			// Refresh timestamp
 			updateHistory(props.id, { timestamp: Date.now() });
 		} else {
 			setListName("Untitled Room");
+			setTempName("Untitled Room");
 		}
 	});
 
-	const handleEditName = () => {
-		const newName = prompt("Enter new room name:", listName());
+	const handleEditName = (e: SubmitEvent) => {
+		e.preventDefault();
+		const newName = tempName().trim();
 		if (newName && newName !== listName()) {
 			updateHistory(props.id, { name: newName });
 			setListName(newName);
 			document.title = `${newName} | Dashboard`;
 		}
+		setIsEditOpen(false);
 	};
 
 	const handleDelete = () => {
-		if (
-			confirm(
-				`Are you sure you want to delete "${listName()}"? This action cannot be undone.`,
-			)
-		) {
-			removeFromHistory(props.id);
-			window.location.href = "/";
-		}
+		removeFromHistory(props.id);
+		window.location.href = "/";
 	};
 
 	const handleCopy = (url: string, btn: HTMLButtonElement) => {
@@ -77,14 +99,38 @@ const DashboardManager: Component<DashboardManagerProps> = (props) => {
 				backUrl="/"
 				right={
 					<Show when={currentItem()?.isOwner}>
-						<button
-							type="button"
-							onClick={handleEditName}
-							class="p-2 -mr-2 text-muted-foreground hover:text-foreground transition-colors"
-							title="Edit Room Name"
-						>
-							<Pencil class="size-4" />
-						</button>
+						<Dialog open={isEditOpen()} onOpenChange={setIsEditOpen}>
+							<DialogTrigger class="p-2 -mr-2 text-muted-foreground hover:text-foreground transition-colors">
+								<Pencil class="size-4" />
+							</DialogTrigger>
+							<DialogContent>
+								<form onSubmit={handleEditName}>
+									<DialogHeader>
+										<DialogTitle>Name</DialogTitle>
+									</DialogHeader>
+									<div class="py-4">
+										<TextField>
+											<TextFieldInput
+												value={tempName()}
+												onInput={(e) => setTempName(e.currentTarget.value)}
+												placeholder="Name"
+												autofocus
+											/>
+										</TextField>
+									</div>
+									<DialogFooter>
+										<Button
+											type="button"
+											variant="outline"
+											onClick={() => setIsEditOpen(false)}
+										>
+											Cancel
+										</Button>
+										<Button type="submit">Save</Button>
+									</DialogFooter>
+								</form>
+							</DialogContent>
+						</Dialog>
 					</Show>
 				}
 			/>
@@ -199,14 +245,31 @@ const DashboardManager: Component<DashboardManagerProps> = (props) => {
 								</span>
 								<div class="h-px flex-1 bg-destructive/20" />
 							</div>
-							<Button
-								onClick={handleDelete}
-								variant="destructive"
-								class="w-full h-14 font-bold text-lg flex items-center justify-center gap-2.5 rounded-xl transition-all active:scale-[0.98] shadow-sm shadow-destructive/20"
-							>
-								<Trash2 class="size-6" />
-								Delete Room
-							</Button>
+							<AlertDialog open={isDeleteOpen()} onOpenChange={setIsDeleteOpen}>
+								<AlertDialogTrigger
+									class={cn(
+										buttonVariants({ variant: "destructive" }),
+										"w-full h-14 font-bold text-lg flex items-center justify-center gap-2.5 rounded-xl transition-all active:scale-[0.98] shadow-sm shadow-destructive/20",
+									)}
+								>
+									<Trash2 class="size-6" />
+									Delete
+								</AlertDialogTrigger>
+								<AlertDialogContent>
+									<AlertDialogHeader>
+										<AlertDialogTitle>Delete?</AlertDialogTitle>
+									</AlertDialogHeader>
+									<AlertDialogFooter>
+										<AlertDialogCancel>Cancel</AlertDialogCancel>
+										<AlertDialogAction
+											variant="destructive"
+											onClick={handleDelete}
+										>
+											Delete
+										</AlertDialogAction>
+									</AlertDialogFooter>
+								</AlertDialogContent>
+							</AlertDialog>
 						</div>
 					</Show>
 				</div>
