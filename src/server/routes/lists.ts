@@ -8,6 +8,16 @@ import { items, lists } from "../db/schema";
 
 export const listsRoute = new Hono<{ Bindings: Bindings }>();
 
+// Get all lists
+listsRoute.get("/", async (c) => {
+	const db = createDb(c.env.DB);
+	const result = await db
+		.select()
+		.from(lists)
+		.orderBy(desc(lists.createdAt));
+	return c.json(result);
+});
+
 // Create a new list
 listsRoute.post(
 	"/",
@@ -44,6 +54,55 @@ listsRoute.get("/:id", async (c) => {
 	}
 
 	return c.json(result);
+});
+
+// Update a list name
+listsRoute.patch(
+	"/:id",
+	zValidator(
+		"json",
+		z.object({
+			name: z.string().min(1),
+		}),
+	),
+	async (c) => {
+		const id = c.req.param("id");
+		const { name } = c.req.valid("json");
+		const db = createDb(c.env.DB);
+
+		const existing = await db
+			.select()
+			.from(lists)
+			.where(eq(lists.id, id))
+			.get();
+
+		if (!existing) {
+			return c.json({ error: "List not found" }, 404);
+		}
+
+		await db.update(lists).set({ name }).where(eq(lists.id, id));
+
+		return c.json({ id, name });
+	},
+);
+
+// Delete a list and its items
+listsRoute.delete("/:id", async (c) => {
+	const id = c.req.param("id");
+	const db = createDb(c.env.DB);
+
+	const existing = await db.select().from(lists).where(eq(lists.id, id)).get();
+
+	if (!existing) {
+		return c.json({ error: "List not found" }, 404);
+	}
+
+	// Delete associated items first
+	await db.delete(items).where(eq(items.listId, id));
+	// Delete the list
+	await db.delete(lists).where(eq(lists.id, id));
+
+	return c.json({ success: true });
 });
 
 // Get items for a list

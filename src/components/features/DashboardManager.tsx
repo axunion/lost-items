@@ -29,12 +29,6 @@ import {
 } from "~/components/ui/dialog";
 import Loading from "~/components/ui/loading";
 import { TextField, TextFieldInput } from "~/components/ui/text-field";
-import {
-	getHistory,
-	type HistoryItem,
-	removeFromHistory,
-	updateHistory,
-} from "~/lib/history";
 import { cn } from "~/lib/utils";
 
 interface DashboardManagerProps {
@@ -43,44 +37,63 @@ interface DashboardManagerProps {
 }
 
 const DashboardManager: Component<DashboardManagerProps> = (props) => {
-	const [currentItem, setCurrentItem] = createSignal<HistoryItem | null>(null);
 	const [listName, setListName] = createSignal("");
 	const [tempName, setTempName] = createSignal("");
 	const [isEditOpen, setIsEditOpen] = createSignal(false);
 	const [isDeleteOpen, setIsDeleteOpen] = createSignal(false);
 	const [loading, setLoading] = createSignal(true);
+	const [notFound, setNotFound] = createSignal(false);
 
-	onMount(() => {
-		const history = getHistory();
-		const item = history.find((i) => i.id === props.id);
-		if (item) {
-			setCurrentItem(item);
-			const name = item.name || "Untitled Room";
-			setListName(name);
-			setTempName(name);
-			// Refresh timestamp
-			updateHistory(props.id, { timestamp: Date.now() });
-		} else {
-			setListName("Untitled Room");
-			setTempName("Untitled Room");
+	onMount(async () => {
+		try {
+			const res = await fetch(`/api/lists/${props.id}`);
+			if (res.ok) {
+				const data = await res.json();
+				const name = data.name || "Untitled Room";
+				setListName(name);
+				setTempName(name);
+			} else if (res.status === 404) {
+				setNotFound(true);
+			}
+		} catch (error) {
+			console.error("Failed to fetch list:", error);
+		} finally {
+			setLoading(false);
 		}
-		setLoading(false);
 	});
 
-	const handleEditName = (e: SubmitEvent) => {
+	const handleEditName = async (e: SubmitEvent) => {
 		e.preventDefault();
 		const newName = tempName().trim();
 		if (newName && newName !== listName()) {
-			updateHistory(props.id, { name: newName });
-			setListName(newName);
-			document.title = `${newName} | Dashboard`;
+			try {
+				const res = await fetch(`/api/lists/${props.id}`, {
+					method: "PATCH",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify({ name: newName }),
+				});
+				if (res.ok) {
+					setListName(newName);
+					document.title = `${newName} | Dashboard`;
+				}
+			} catch (error) {
+				console.error("Failed to update name:", error);
+			}
 		}
 		setIsEditOpen(false);
 	};
 
-	const handleDelete = () => {
-		removeFromHistory(props.id);
-		window.location.href = "/";
+	const handleDelete = async () => {
+		try {
+			const res = await fetch(`/api/lists/${props.id}`, {
+				method: "DELETE",
+			});
+			if (res.ok) {
+				window.location.href = "/";
+			}
+		} catch (error) {
+			console.error("Failed to delete:", error);
+		}
 	};
 
 	const handleCopy = (url: string, btn: HTMLButtonElement) => {
@@ -101,7 +114,7 @@ const DashboardManager: Component<DashboardManagerProps> = (props) => {
 				showBack
 				backUrl="/"
 				right={
-					<Show when={currentItem()?.isOwner}>
+					<Show when={!notFound()}>
 						<Dialog open={isEditOpen()} onOpenChange={setIsEditOpen}>
 							<DialogTrigger class="p-2 -mr-2 text-muted-foreground hover:text-foreground transition-colors">
 								<Pencil class="size-4" />
@@ -140,6 +153,14 @@ const DashboardManager: Component<DashboardManagerProps> = (props) => {
 
 			<main class="px-4 py-6 space-y-6">
 				<Show when={!loading()} fallback={<Loading variant="fullscreen" />}>
+					<Show
+						when={!notFound()}
+						fallback={
+							<div class="text-center py-8 text-muted-foreground bg-secondary rounded-lg">
+								<p class="text-base">Room not found.</p>
+							</div>
+						}
+					>
 					<div class="space-y-6">
 						{/* Registration Card */}
 						<Card class="rounded-xl border-border/50">
@@ -240,46 +261,45 @@ const DashboardManager: Component<DashboardManagerProps> = (props) => {
 						</Card>
 
 						{/* Danger Zone */}
-						<Show when={currentItem()?.isOwner}>
-							<div class="pt-8 space-y-4">
-								<div class="flex items-center gap-4 px-1">
-									<div class="h-px flex-1 bg-destructive/20" />
-									<span class="text-[10px] font-bold text-destructive/60 uppercase tracking-[0.2em]">
-										Danger Zone
-									</span>
-									<div class="h-px flex-1 bg-destructive/20" />
-								</div>
-								<AlertDialog
-									open={isDeleteOpen()}
-									onOpenChange={setIsDeleteOpen}
-								>
-									<AlertDialogTrigger
-										class={cn(
-											buttonVariants({ variant: "destructive" }),
-											"w-full h-14 font-bold text-lg flex items-center justify-center gap-2.5 rounded-xl transition-all active:scale-[0.98] shadow-sm shadow-destructive/20",
-										)}
-									>
-										<Trash2 class="size-6" />
-										Delete
-									</AlertDialogTrigger>
-									<AlertDialogContent>
-										<AlertDialogHeader>
-											<AlertDialogTitle>Delete?</AlertDialogTitle>
-										</AlertDialogHeader>
-										<AlertDialogFooter>
-											<AlertDialogCancel>Cancel</AlertDialogCancel>
-											<AlertDialogAction
-												variant="destructive"
-												onClick={handleDelete}
-											>
-												Delete
-											</AlertDialogAction>
-										</AlertDialogFooter>
-									</AlertDialogContent>
-								</AlertDialog>
+						<div class="pt-8 space-y-4">
+							<div class="flex items-center gap-4 px-1">
+								<div class="h-px flex-1 bg-destructive/20" />
+								<span class="text-[10px] font-bold text-destructive/60 uppercase tracking-[0.2em]">
+									Danger Zone
+								</span>
+								<div class="h-px flex-1 bg-destructive/20" />
 							</div>
-						</Show>
+							<AlertDialog
+								open={isDeleteOpen()}
+								onOpenChange={setIsDeleteOpen}
+							>
+								<AlertDialogTrigger
+									class={cn(
+										buttonVariants({ variant: "destructive" }),
+										"w-full h-14 font-bold text-lg flex items-center justify-center gap-2.5 rounded-xl transition-all active:scale-[0.98] shadow-sm shadow-destructive/20",
+									)}
+								>
+									<Trash2 class="size-6" />
+									Delete
+								</AlertDialogTrigger>
+								<AlertDialogContent>
+									<AlertDialogHeader>
+										<AlertDialogTitle>Delete?</AlertDialogTitle>
+									</AlertDialogHeader>
+									<AlertDialogFooter>
+										<AlertDialogCancel>Cancel</AlertDialogCancel>
+										<AlertDialogAction
+											variant="destructive"
+											onClick={handleDelete}
+										>
+											Delete
+										</AlertDialogAction>
+									</AlertDialogFooter>
+								</AlertDialogContent>
+							</AlertDialog>
+						</div>
 					</div>
+					</Show>
 				</Show>
 			</main>
 		</>

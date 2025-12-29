@@ -1,8 +1,62 @@
 # Lost Items
 
-A modern web application built with **Astro**, **SolidJS**, and **Cloudflare Workers**. This project manages lost and found items, utilizing **Cloudflare D1** for the database and **R2** for image storage.
+A simple web application for managing lost and found items. Perfect for events, venues, and facilities to collect and share lost item information.
 
-## 🛠️ Tech Stack
+## Overview
+
+Lost Items allows you to create "rooms" to organize lost items by location or event. Share registration URLs with staff to collect found items, and share public URLs with visitors to help them find their belongings.
+
+## Features
+
+- **No account required** - Use immediately without sign-up
+- **URL-based sharing** - Share registration and viewing URLs easily
+- **Photo support** - Upload images of lost items (up to 5MB)
+- **Simple interface** - Minimal, focused design
+
+## How It Works
+
+### 1. Create a Room
+
+Enter a room name on the homepage (e.g., "2025 New Year Party", "3F Meeting Room") and create a new room. Each room manages lost items for a specific location or event.
+
+### 2. Register Lost Items
+
+Each room has a **Registration Page** URL. Share this with staff or finders. They can register items with:
+- A photo (optional)
+- A comment (optional)
+
+### 3. View Lost Items
+
+Each room has a **Public Page** URL. Share this with people who may have lost something. They can browse all registered items to find their belongings.
+
+## Screens
+
+| Screen | Description |
+|--------|-------------|
+| Home | Create rooms, view all rooms |
+| Dashboard | Manage room settings, copy URLs, rename, delete |
+| Registration Page | Form to register lost items |
+| Public Page | List of registered lost items |
+
+## Use Case Example
+
+**For event organizers:**
+
+1. Create a room for your event
+2. Share the "Registration Page" URL with staff
+3. Staff register found items with photos
+4. Share the "Public Page" URL with attendees (via QR code, etc.)
+5. Attendees check if their lost item has been found
+
+## Important Notes
+
+- Anyone with the room URL can access and edit it
+- Not suitable for sensitive or confidential use cases
+- Maximum image size: 5MB per file
+
+---
+
+## Tech Stack
 
 - **Framework:** [Astro](https://astro.build/)
 - **UI Library:** [SolidJS](https://www.solidjs.com/)
@@ -12,7 +66,7 @@ A modern web application built with **Astro**, **SolidJS**, and **Cloudflare Wor
 - **ORM:** [Drizzle ORM](https://orm.drizzle.team/)
 - **Styling:** [Tailwind CSS](https://tailwindcss.com/)
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 
@@ -41,12 +95,10 @@ The application will be available at `http://localhost:4321`.
 Run database migrations:
 
 ```bash
-pnpm drizzle-kit migrate
-# or (depending on your setup)
-npx wrangler d1 execute lost-items-db --local --file=./migrations/0000_xxxx.sql
+pnpm db:migrate
 ```
 
-## 📦 Build & Deploy
+## Build & Deploy
 
 Build the project for production:
 
@@ -57,19 +109,28 @@ pnpm build
 Deploy to Cloudflare Workers:
 
 ```bash
-pnpm run deploy # (If script exists, otherwise `npx wrangler deploy`)
+pnpm deploy
 ```
 
-## 📂 Project Structure
+## Project Structure
 
-- `src/pages`: Astro pages and API routes.
-- `src/components`: UI components (Astro & SolidJS).
-- `src/lib`: Utility functions and database configuration.
-- `drizzle/`: Database schema and migrations.
-- `public/`: Static assets.
+```
+src/
+├── pages/          # Astro pages and API routes
+├── components/     # UI components (Astro & SolidJS)
+├── server/         # Backend routes and database
+└── lib/            # Utility functions
+migrations/         # Database migrations
+public/             # Static assets
+```
 
-## 📝 Scripts
+## Scripts
 
-- `pnpm dev`: Start dev server.
-- `pnpm build`: Build for production.
-- `pnpm check`: Run Biome check.
+| Script | Description |
+|--------|-------------|
+| `pnpm dev` | Start development server |
+| `pnpm build` | Build for production |
+| `pnpm deploy` | Build and deploy to Cloudflare |
+| `pnpm db:migrate` | Run local database migrations |
+| `pnpm db:migrate:prod` | Run production database migrations |
+| `pnpm check` | Run Biome code check |

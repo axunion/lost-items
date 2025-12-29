@@ -1,32 +1,46 @@
 import { type Component, createSignal, For, onMount, Show } from "solid-js";
 import { Card, CardHeader, CardTitle } from "~/components/ui/card";
 import Loading from "~/components/ui/loading";
-import { getHistory, type HistoryItem } from "~/lib/history";
+
+type ListItem = {
+	id: string;
+	name: string | null;
+	createdAt: string;
+};
 
 type HistoryListProps = {
 	maxItems?: number;
 };
 
 const HistoryList: Component<HistoryListProps> = (props) => {
-	const [history, setHistory] = createSignal<HistoryItem[]>([]);
+	const [lists, setLists] = createSignal<ListItem[]>([]);
 	const [loading, setLoading] = createSignal(true);
 
-	onMount(() => {
-		setHistory(getHistory());
-		setLoading(false);
+	onMount(async () => {
+		try {
+			const res = await fetch("/api/lists");
+			if (res.ok) {
+				const data = await res.json();
+				setLists(data);
+			}
+		} catch (error) {
+			console.error("Failed to fetch lists:", error);
+		} finally {
+			setLoading(false);
+		}
 	});
 
 	const displayItems = () => {
-		const items = history();
+		const items = lists();
 		return props.maxItems ? items.slice(0, props.maxItems) : items;
 	};
 
 	return (
 		<div class="space-y-3">
 			<Show when={!loading()} fallback={<Loading variant="fullscreen" />}>
-				{history().length === 0 ? (
+				{lists().length === 0 ? (
 					<div class="text-center py-8 text-muted-foreground bg-secondary rounded-lg">
-						<p class="text-base">No history found.</p>
+						<p class="text-base">No rooms found.</p>
 					</div>
 				) : (
 					<div class="space-y-2">
@@ -45,21 +59,10 @@ const HistoryList: Component<HistoryListProps> = (props) => {
 															{item.id}
 														</span>
 													</div>
-													<div class="flex items-center justify-between pt-1 border-t border-border/40">
-														<div class="flex items-center gap-1.5 text-muted-foreground">
-															<span class="text-xs">
-																{
-																	new Date(item.timestamp)
-																		.toISOString()
-																		.split("T")[0]
-																}
-															</span>
-														</div>
-														{item.isOwner && (
-															<span class="text-[10px] uppercase tracking-widest bg-primary/10 text-primary px-2.5 py-0.5 rounded-full font-bold border border-primary/20">
-																Admin
-															</span>
-														)}
+													<div class="flex items-center pt-1 border-t border-border/40">
+														<span class="text-xs text-muted-foreground">
+															{new Date(item.createdAt).toISOString().split("T")[0]}
+														</span>
 													</div>
 												</div>
 											</CardTitle>

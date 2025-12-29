@@ -2,30 +2,35 @@ import { Plus } from "lucide-solid";
 import { type Component, createSignal, Show } from "solid-js";
 import { Button } from "~/components/ui/button";
 import Loading from "~/components/ui/loading";
-import { addToHistory } from "~/lib/history";
 
 const RoomCreateForm: Component = () => {
 	const [name, setName] = createSignal("");
 	const [isSubmitting, setIsSubmitting] = createSignal(false);
 
-	const handleSubmit = (e: Event) => {
+	const handleSubmit = async (e: Event) => {
 		e.preventDefault();
 		const currentName = name();
 		if (!currentName) return;
 
 		setIsSubmitting(true);
-		const id = crypto.randomUUID();
 
-		// Save to local history
-		addToHistory({
-			id,
-			name: currentName,
-			timestamp: Date.now(),
-			isOwner: true,
-		});
+		try {
+			const res = await fetch("/api/lists", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ name: currentName }),
+			});
 
-		// Redirect to the dashboard
-		window.location.href = `/${id}`;
+			if (!res.ok) {
+				throw new Error("Failed to create room");
+			}
+
+			const { id } = await res.json();
+			window.location.href = `/${id}`;
+		} catch (error) {
+			console.error("Failed to create room:", error);
+			setIsSubmitting(false);
+		}
 	};
 
 	return (
