@@ -33,8 +33,8 @@ Each room has a **Public Page** URL. Share this with people who may have lost so
 
 | Screen | Description |
 |--------|-------------|
-| Home | Create rooms, view all rooms |
-| Dashboard | Manage room settings, copy URLs, rename, delete |
+| Dashboard | Create rooms, view all rooms |
+| Room Manager | Manage room settings, copy URLs, rename, delete |
 | Registration Page | Form to register lost items |
 | Public Page | List of registered lost items |
 

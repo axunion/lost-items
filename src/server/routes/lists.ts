@@ -11,10 +11,7 @@ export const listsRoute = new Hono<{ Bindings: Bindings }>();
 // Get all lists
 listsRoute.get("/", async (c) => {
 	const db = createDb(c.env.DB);
-	const result = await db
-		.select()
-		.from(lists)
-		.orderBy(desc(lists.createdAt));
+	const result = await db.select().from(lists).orderBy(desc(lists.createdAt));
 	return c.json(result);
 });
 
@@ -133,11 +130,6 @@ listsRoute.post(
 		const listId = c.req.param("id");
 		const db = createDb(c.env.DB);
 		const { comment, image } = c.req.valid("form");
-
-		// Verify list exists first? Optional but good practice.
-		// For now keeping it simple as per original logic, relying on FK constraints if enforced,
-		// but D1 doesn't always enforce FKs strictly without PRAGMA foreign_keys = ON;
-		// The original code didn't check. Adding a check for robustness could be good but let's stick to the plan.
 
 		let imageUrl: string | undefined;
 

@@ -1,11 +1,11 @@
 ---
-import DashboardManager from "~/components/features/DashboardManager";
+import RoomManager from "~/components/features/room-manager";
 import Layout from "../../layouts/Layout.astro";
 
 const { id = "" } = Astro.params;
 const origin = Astro.url.origin;
 ---
 
-<Layout title="Dashboard">
-  <DashboardManager client:load id={id} origin={origin} />
+<Layout title="Room Manager">
+  <RoomManager client:load id={id} origin={origin} />
 </Layout>

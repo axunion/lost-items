@@ -2,7 +2,7 @@ import { Search } from "lucide-solid";
 import { type Component, createSignal, For, onMount, Show } from "solid-js";
 import { Card, CardContent } from "~/components/ui/card";
 import Loading from "~/components/ui/loading";
-import { getItems, type LostItem } from "~/lib/store";
+import { getItems, type LostItem } from "~/lib/api";
 
 type ItemListProps = {
 	listId: string;

@@ -128,23 +128,6 @@ const DialogTitle = <T extends ValidComponent = "h2">(
 	);
 };
 
-type DialogDescriptionProps<T extends ValidComponent = "p"> =
-	DialogPrimitive.DialogDescriptionProps<T> & {
-		class?: string | undefined;
-	};
-
-const DialogDescription = <T extends ValidComponent = "p">(
-	props: PolymorphicProps<T, DialogDescriptionProps<T>>,
-) => {
-	const [, rest] = splitProps(props as DialogDescriptionProps, ["class"]);
-	return (
-		<DialogPrimitive.Description
-			class={cn("text-sm text-muted-foreground", props.class)}
-			{...rest}
-		/>
-	);
-};
-
 export {
 	Dialog,
 	DialogTrigger,
@@ -152,5 +135,4 @@ export {
 	DialogHeader,
 	DialogFooter,
 	DialogTitle,
-	DialogDescription,
 };

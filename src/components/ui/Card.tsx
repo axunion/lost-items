@@ -36,16 +36,9 @@ const CardTitle: Component<ComponentProps<"h3">> = (props) => {
 	);
 };
 
-const CardDescription: Component<ComponentProps<"p">> = (props) => {
-	const [local, others] = splitProps(props, ["class"]);
-	return (
-		<p class={cn("text-base text-muted-foreground", local.class)} {...others} />
-	);
-};
-
 const CardContent: Component<ComponentProps<"div">> = (props) => {
 	const [local, others] = splitProps(props, ["class"]);
 	return <div class={cn("p-6 pt-0", local.class)} {...others} />;
 };
 
-export { Card, CardHeader, CardTitle, CardDescription, CardContent };
+export { Card, CardHeader, CardTitle, CardContent };

@@ -25,7 +25,7 @@ const RoomCreateForm: Component = () => {
 				throw new Error("Failed to create room");
 			}
 
-			const { id } = await res.json();
+			const { id } = (await res.json()) as { id: string };
 			window.location.href = `/${id}`;
 		} catch (error) {
 			console.error("Failed to create room:", error);

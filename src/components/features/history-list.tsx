@@ -20,7 +20,7 @@ const HistoryList: Component<HistoryListProps> = (props) => {
 		try {
 			const res = await fetch("/api/lists");
 			if (res.ok) {
-				const data = await res.json();
+				const data = (await res.json()) as ListItem[];
 				setLists(data);
 			}
 		} catch (error) {
@@ -38,11 +38,14 @@ const HistoryList: Component<HistoryListProps> = (props) => {
 	return (
 		<div class="space-y-3">
 			<Show when={!loading()} fallback={<Loading variant="fullscreen" />}>
-				{lists().length === 0 ? (
-					<div class="text-center py-8 text-muted-foreground bg-secondary rounded-lg">
-						<p class="text-base">No rooms found.</p>
-					</div>
-				) : (
+				<Show
+					when={lists().length > 0}
+					fallback={
+						<div class="text-center py-8 text-muted-foreground bg-secondary rounded-lg">
+							<p class="text-base">No rooms found.</p>
+						</div>
+					}
+				>
 					<div class="space-y-2">
 						<For each={displayItems()}>
 							{(item) => (
@@ -61,7 +64,11 @@ const HistoryList: Component<HistoryListProps> = (props) => {
 													</div>
 													<div class="flex items-center pt-1 border-t border-border/40">
 														<span class="text-xs text-muted-foreground">
-															{new Date(item.createdAt).toISOString().split("T")[0]}
+															{
+																new Date(item.createdAt)
+																	.toISOString()
+																	.split("T")[0]
+															}
 														</span>
 													</div>
 												</div>
@@ -72,7 +79,7 @@ const HistoryList: Component<HistoryListProps> = (props) => {
 							)}
 						</For>
 					</div>
-				)}
+				</Show>
 			</Show>
 		</div>
 	);

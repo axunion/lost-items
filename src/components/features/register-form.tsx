@@ -7,7 +7,7 @@ import {
 	TextFieldLabel,
 	TextFieldTextArea,
 } from "~/components/ui/text-field";
-import { addItem } from "~/lib/store";
+import { addItem } from "~/lib/api";
 
 type RegisterFormProps = {
 	listId: string;

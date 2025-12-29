@@ -95,25 +95,6 @@ const AlertDialogTitle = <T extends ValidComponent = "h2">(
 	);
 };
 
-type AlertDialogDescriptionProps<T extends ValidComponent = "p"> =
-	AlertDialogPrimitive.AlertDialogDescriptionProps<T> & {
-		class?: string | undefined;
-	};
-
-const AlertDialogDescription = <T extends ValidComponent = "p">(
-	props: PolymorphicProps<T, AlertDialogDescriptionProps<T>>,
-) => {
-	const [local, others] = splitProps(props as AlertDialogDescriptionProps, [
-		"class",
-	]);
-	return (
-		<AlertDialogPrimitive.Description
-			class={cn("text-sm text-muted-foreground", local.class)}
-			{...others}
-		/>
-	);
-};
-
 const AlertDialogHeader: Component<ComponentProps<"div">> = (props) => {
 	const [local, rest] = splitProps(props, ["class"]);
 	return (
@@ -193,7 +174,6 @@ export {
 	AlertDialogTrigger,
 	AlertDialogContent,
 	AlertDialogTitle,
-	AlertDialogDescription,
 	AlertDialogHeader,
 	AlertDialogFooter,
 	AlertDialogAction,
