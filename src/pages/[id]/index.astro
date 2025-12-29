@@ -7,5 +7,5 @@ const origin = Astro.url.origin;
 ---
 
 <Layout title="Dashboard">
-  <DashboardManager client:only="solid-js" id={id} origin={origin} />
+  <DashboardManager client:load id={id} origin={origin} />
 </Layout>

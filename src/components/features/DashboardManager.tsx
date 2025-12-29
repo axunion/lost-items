@@ -27,6 +27,7 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from "~/components/ui/dialog";
+import Loading from "~/components/ui/loading";
 import { TextField, TextFieldInput } from "~/components/ui/text-field";
 import {
 	getHistory,
@@ -43,10 +44,11 @@ interface DashboardManagerProps {
 
 const DashboardManager: Component<DashboardManagerProps> = (props) => {
 	const [currentItem, setCurrentItem] = createSignal<HistoryItem | null>(null);
-	const [listName, setListName] = createSignal("Loading...");
+	const [listName, setListName] = createSignal("");
 	const [tempName, setTempName] = createSignal("");
 	const [isEditOpen, setIsEditOpen] = createSignal(false);
 	const [isDeleteOpen, setIsDeleteOpen] = createSignal(false);
+	const [loading, setLoading] = createSignal(true);
 
 	onMount(() => {
 		const history = getHistory();
@@ -62,6 +64,7 @@ const DashboardManager: Component<DashboardManagerProps> = (props) => {
 			setListName("Untitled Room");
 			setTempName("Untitled Room");
 		}
+		setLoading(false);
 	});
 
 	const handleEditName = (e: SubmitEvent) => {
@@ -136,143 +139,148 @@ const DashboardManager: Component<DashboardManagerProps> = (props) => {
 			/>
 
 			<main class="px-4 py-6 space-y-6">
-				<div class="space-y-6">
-					{/* Registration Card */}
-					<Card class="rounded-xl border-border/50">
-						<CardHeader class="pb-4">
-							<CardTitle class="flex items-center gap-2 text-lg font-bold">
-								<PlusCircle class="size-6 text-primary" />
-								Registration
-							</CardTitle>
-						</CardHeader>
-						<CardContent class="space-y-4">
-							<div class="space-y-3">
-								<div class="flex items-center gap-2 bg-secondary/50 pl-4 pr-1 rounded-xl border border-input/50 h-14">
-									<code class="text-xs flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-muted-foreground/80 font-mono">
-										{props.origin}/{props.id}/register
-									</code>
-									<Button
-										size="icon"
-										variant="ghost"
-										class="shrink-0 h-12 w-12 rounded-lg"
-										onClick={(e) =>
-											handleCopy(
-												`${props.origin}/${props.id}/register`,
-												e.currentTarget,
-											)
-										}
-										title="Copy"
-									>
-										<ClipboardList class="size-5" />
-									</Button>
-								</div>
-								<a
-									href={`/${props.id}/register`}
-									target="_blank"
-									rel="noopener noreferrer"
-									class="block"
-								>
-									<Button
-										class="w-full h-14 justify-between pl-5 pr-4 font-medium rounded-xl transition-all active:scale-[0.98]"
-										variant="outline"
-									>
-										<span class="text-base">Open Registration Page</span>
-										<div class="flex items-center gap-1.5 text-primary/70">
-											<ExternalLink class="size-6" />
-										</div>
-									</Button>
-								</a>
-							</div>
-						</CardContent>
-					</Card>
-
-					{/* Public Room Card */}
-					<Card class="rounded-xl border-border/50">
-						<CardHeader class="pb-4">
-							<CardTitle class="flex items-center gap-2 text-lg font-bold">
-								<ClipboardList class="size-6 text-primary" />
-								Public Room
-							</CardTitle>
-						</CardHeader>
-						<CardContent class="space-y-4">
-							<div class="space-y-3">
-								<div class="flex items-center gap-2 bg-secondary/50 pl-4 pr-1 rounded-xl border border-input/50 h-14">
-									<code class="text-xs flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-muted-foreground/80 font-mono">
-										{props.origin}/{props.id}/room
-									</code>
-									<Button
-										size="icon"
-										variant="ghost"
-										class="shrink-0 h-12 w-12 rounded-lg"
-										onClick={(e) =>
-											handleCopy(
-												`${props.origin}/${props.id}/room`,
-												e.currentTarget,
-											)
-										}
-										title="Copy"
-									>
-										<ClipboardList class="size-5" />
-									</Button>
-								</div>
-								<a
-									href={`/${props.id}/room`}
-									target="_blank"
-									rel="noopener noreferrer"
-									class="block"
-								>
-									<Button
-										class="w-full h-14 justify-between pl-5 pr-4 font-medium rounded-xl transition-all active:scale-[0.98]"
-										variant="outline"
-									>
-										<span class="text-base">Open Public View</span>
-										<div class="flex items-center gap-1.5 text-primary/70">
-											<ExternalLink class="size-6" />
-										</div>
-									</Button>
-								</a>
-							</div>
-						</CardContent>
-					</Card>
-
-					{/* Danger Zone */}
-					<Show when={currentItem()?.isOwner}>
-						<div class="pt-8 space-y-4">
-							<div class="flex items-center gap-4 px-1">
-								<div class="h-px flex-1 bg-destructive/20" />
-								<span class="text-[10px] font-bold text-destructive/60 uppercase tracking-[0.2em]">
-									Danger Zone
-								</span>
-								<div class="h-px flex-1 bg-destructive/20" />
-							</div>
-							<AlertDialog open={isDeleteOpen()} onOpenChange={setIsDeleteOpen}>
-								<AlertDialogTrigger
-									class={cn(
-										buttonVariants({ variant: "destructive" }),
-										"w-full h-14 font-bold text-lg flex items-center justify-center gap-2.5 rounded-xl transition-all active:scale-[0.98] shadow-sm shadow-destructive/20",
-									)}
-								>
-									<Trash2 class="size-6" />
-									Delete
-								</AlertDialogTrigger>
-								<AlertDialogContent>
-									<AlertDialogHeader>
-										<AlertDialogTitle>Delete?</AlertDialogTitle>
-									</AlertDialogHeader>
-									<AlertDialogFooter>
-										<AlertDialogCancel>Cancel</AlertDialogCancel>
-										<AlertDialogAction
-											variant="destructive"
-											onClick={handleDelete}
+				<Show when={!loading()} fallback={<Loading variant="fullscreen" />}>
+					<div class="space-y-6">
+						{/* Registration Card */}
+						<Card class="rounded-xl border-border/50">
+							<CardHeader class="pb-4">
+								<CardTitle class="flex items-center gap-2 text-lg font-bold">
+									<PlusCircle class="size-6 text-primary" />
+									Registration
+								</CardTitle>
+							</CardHeader>
+							<CardContent class="space-y-4">
+								<div class="space-y-3">
+									<div class="flex items-center gap-2 bg-secondary/50 pl-4 pr-1 rounded-xl border border-input/50 h-14">
+										<code class="text-xs flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-muted-foreground/80 font-mono">
+											{props.origin}/{props.id}/register
+										</code>
+										<Button
+											size="icon"
+											variant="ghost"
+											class="shrink-0 h-12 w-12 rounded-lg"
+											onClick={(e) =>
+												handleCopy(
+													`${props.origin}/${props.id}/register`,
+													e.currentTarget,
+												)
+											}
+											title="Copy"
 										>
-											Delete
-										</AlertDialogAction>
-									</AlertDialogFooter>
-								</AlertDialogContent>
-							</AlertDialog>
-						</div>
-					</Show>
-				</div>
+											<ClipboardList class="size-5" />
+										</Button>
+									</div>
+									<a
+										href={`/${props.id}/register`}
+										target="_blank"
+										rel="noopener noreferrer"
+										class="block"
+									>
+										<Button
+											class="w-full h-14 justify-between pl-5 pr-4 font-medium rounded-xl transition-all active:scale-[0.98]"
+											variant="outline"
+										>
+											<span class="text-base">Open Registration Page</span>
+											<div class="flex items-center gap-1.5 text-primary/70">
+												<ExternalLink class="size-6" />
+											</div>
+										</Button>
+									</a>
+								</div>
+							</CardContent>
+						</Card>
+
+						{/* Public Room Card */}
+						<Card class="rounded-xl border-border/50">
+							<CardHeader class="pb-4">
+								<CardTitle class="flex items-center gap-2 text-lg font-bold">
+									<ClipboardList class="size-6 text-primary" />
+									Public Room
+								</CardTitle>
+							</CardHeader>
+							<CardContent class="space-y-4">
+								<div class="space-y-3">
+									<div class="flex items-center gap-2 bg-secondary/50 pl-4 pr-1 rounded-xl border border-input/50 h-14">
+										<code class="text-xs flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-muted-foreground/80 font-mono">
+											{props.origin}/{props.id}/room
+										</code>
+										<Button
+											size="icon"
+											variant="ghost"
+											class="shrink-0 h-12 w-12 rounded-lg"
+											onClick={(e) =>
+												handleCopy(
+													`${props.origin}/${props.id}/room`,
+													e.currentTarget,
+												)
+											}
+											title="Copy"
+										>
+											<ClipboardList class="size-5" />
+										</Button>
+									</div>
+									<a
+										href={`/${props.id}/room`}
+										target="_blank"
+										rel="noopener noreferrer"
+										class="block"
+									>
+										<Button
+											class="w-full h-14 justify-between pl-5 pr-4 font-medium rounded-xl transition-all active:scale-[0.98]"
+											variant="outline"
+										>
+											<span class="text-base">Open Public View</span>
+											<div class="flex items-center gap-1.5 text-primary/70">
+												<ExternalLink class="size-6" />
+											</div>
+										</Button>
+									</a>
+								</div>
+							</CardContent>
+						</Card>
+
+						{/* Danger Zone */}
+						<Show when={currentItem()?.isOwner}>
+							<div class="pt-8 space-y-4">
+								<div class="flex items-center gap-4 px-1">
+									<div class="h-px flex-1 bg-destructive/20" />
+									<span class="text-[10px] font-bold text-destructive/60 uppercase tracking-[0.2em]">
+										Danger Zone
+									</span>
+									<div class="h-px flex-1 bg-destructive/20" />
+								</div>
+								<AlertDialog
+									open={isDeleteOpen()}
+									onOpenChange={setIsDeleteOpen}
+								>
+									<AlertDialogTrigger
+										class={cn(
+											buttonVariants({ variant: "destructive" }),
+											"w-full h-14 font-bold text-lg flex items-center justify-center gap-2.5 rounded-xl transition-all active:scale-[0.98] shadow-sm shadow-destructive/20",
+										)}
+									>
+										<Trash2 class="size-6" />
+										Delete
+									</AlertDialogTrigger>
+									<AlertDialogContent>
+										<AlertDialogHeader>
+											<AlertDialogTitle>Delete?</AlertDialogTitle>
+										</AlertDialogHeader>
+										<AlertDialogFooter>
+											<AlertDialogCancel>Cancel</AlertDialogCancel>
+											<AlertDialogAction
+												variant="destructive"
+												onClick={handleDelete}
+											>
+												Delete
+											</AlertDialogAction>
+										</AlertDialogFooter>
+									</AlertDialogContent>
+								</AlertDialog>
+							</div>
+						</Show>
+					</div>
+				</Show>
 			</main>
 		</>
 	);

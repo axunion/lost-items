@@ -1,6 +1,7 @@
 import { Camera, Send, X } from "lucide-solid";
 import { type Component, createSignal, Show } from "solid-js";
 import { Button } from "~/components/ui/button";
+import Loading from "~/components/ui/loading";
 import {
 	TextField,
 	TextFieldLabel,
@@ -50,6 +51,9 @@ const RegisterForm: Component<RegisterFormProps> = (props) => {
 	return (
 		<div class="space-y-8">
 			<form onSubmit={handleSubmit} class="space-y-8">
+				<Show when={isSubmitting()}>
+					<Loading variant="fullscreen" text="Registering..." />
+				</Show>
 				{/* Photo Section */}
 				<div class="space-y-4">
 					<div class="flex items-center gap-2 px-1">
@@ -119,17 +123,10 @@ const RegisterForm: Component<RegisterFormProps> = (props) => {
 					class="w-full h-14 text-lg font-bold rounded-xl shadow-md transition-all active:scale-[0.98]"
 					disabled={isSubmitting()}
 				>
-					<Show
-						when={isSubmitting()}
-						fallback={
-							<div class="flex items-center gap-2">
-								<Send class="size-6" />
-								<span>Register</span>
-							</div>
-						}
-					>
-						<span>Registering...</span>
-					</Show>
+					<div class="flex items-center gap-2">
+						<Send class="size-6" />
+						<span>Register</span>
+					</div>
 				</Button>
 			</form>
 		</div>

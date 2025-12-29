@@ -1,6 +1,7 @@
 import { Search } from "lucide-solid";
 import { type Component, createSignal, For, onMount, Show } from "solid-js";
 import { Card, CardContent } from "~/components/ui/card";
+import Loading from "~/components/ui/loading";
 import { getItems, type LostItem } from "~/lib/store";
 
 type ItemListProps = {
@@ -26,11 +27,7 @@ const ItemList: Component<ItemListProps> = (props) => {
 		<div class="w-full">
 			<Show
 				when={!loading()}
-				fallback={
-					<div class="text-center py-8 text-muted-foreground">
-						Loading items...
-					</div>
-				}
+				fallback={<Loading variant="fullscreen" text="Loading items..." />}
 			>
 				<Show
 					when={items().length > 0}
