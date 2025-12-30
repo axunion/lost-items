@@ -23,6 +23,7 @@
       "bucket_name": "lost-items-images"
     }
   ],
+  // Required by @astrojs/cloudflare for session support (unused but prevents deploy errors)
   "kv_namespaces": [
     {
       "binding": "SESSION",

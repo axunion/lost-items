@@ -94,10 +94,25 @@ listsRoute.delete("/:id", async (c) => {
 		return c.json({ error: "List not found" }, 404);
 	}
 
-	// Delete associated items first
-	await db.delete(items).where(eq(items.listId, id));
-	// Delete the list
-	await db.delete(lists).where(eq(lists.id, id));
+	// Get items to clean up R2 images
+	const itemsToDelete = await db
+		.select()
+		.from(items)
+		.where(eq(items.listId, id));
+
+	// Delete images from R2
+	for (const item of itemsToDelete) {
+		if (item.imageUrl) {
+			const key = item.imageUrl.replace("/api/images/", "");
+			await c.env.BUCKET.delete(key);
+		}
+	}
+
+	// Delete from database using transaction
+	await db.transaction(async (tx) => {
+		await tx.delete(items).where(eq(items.listId, id));
+		await tx.delete(lists).where(eq(lists.id, id));
+	});
 
 	return c.json({ success: true });
 });
@@ -142,8 +157,11 @@ listsRoute.post(
 				return c.json({ error: "File too large (max 5MB)" }, 400);
 			}
 
-			const key = `${listId}/${crypto.randomUUID()}-${image.name}`;
-			await c.env.BUCKET.put(key, image);
+			const safeName = image.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+			const key = `${listId}/${crypto.randomUUID()}-${safeName}`;
+			await c.env.BUCKET.put(key, image, {
+				httpMetadata: { contentType: image.type },
+			});
 			imageUrl = `/api/images/${key}`;
 		}
 
