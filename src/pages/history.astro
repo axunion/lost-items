@@ -1,13 +1,19 @@
 ---
+import { desc } from "drizzle-orm";
 import HistoryList from "~/components/features/history-list";
 import AppHeader from "~/components/ui/app-header";
+import { createDb } from "~/server/db";
+import { lists } from "~/server/db/schema";
 import Layout from "../layouts/Layout.astro";
+
+const db = createDb(Astro.locals.runtime.env.DB);
+const allLists = await db.select().from(lists).orderBy(desc(lists.createdAt));
 ---
 
 <Layout title="History">
   <AppHeader title="History" showBack backUrl="/" client:load />
 
   <main class="px-4 py-6 space-y-6">
-    <HistoryList client:only="solid-js" />
+    <HistoryList lists={allLists} />
   </main>
 </Layout>

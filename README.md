@@ -80,6 +80,14 @@ Each room has a **Public Page** URL. Share this with people who may have lost so
 pnpm install
 ```
 
+### Database Setup
+
+Run database migrations (required before first run):
+
+```bash
+pnpm db:migrate
+```
+
 ### Development
 
 Start the local development server:
@@ -89,14 +97,6 @@ pnpm dev
 ```
 
 The application will be available at `http://localhost:4321`.
-
-### Database Setup
-
-Run database migrations:
-
-```bash
-pnpm db:migrate
-```
 
 ## Build & Deploy
 

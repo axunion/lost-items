@@ -1,9 +1,19 @@
 ---
+import { desc } from "drizzle-orm";
 import { ChevronRight, Clock, DoorOpen } from "lucide-solid";
 import HistoryList from "~/components/features/history-list";
 import RoomCreateForm from "~/components/features/room-create-form";
 import AppHeader from "~/components/ui/app-header";
+import { createDb } from "~/server/db";
+import { lists } from "~/server/db/schema";
 import Layout from "../layouts/Layout.astro";
+
+const db = createDb(Astro.locals.runtime.env.DB);
+const recentLists = await db
+	.select()
+	.from(lists)
+	.orderBy(desc(lists.createdAt))
+	.limit(3);
 ---
 
 <Layout title="Dashboard">
@@ -31,7 +41,7 @@ import Layout from "../layouts/Layout.astro";
           <ChevronRight class="size-4" />
         </a>
       </div>
-      <HistoryList client:only="solid-js" maxItems={3} />
+      <HistoryList lists={recentLists} />
     </div>
   </main>
 </Layout>

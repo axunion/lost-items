@@ -1,15 +1,32 @@
 ---
+import { desc, eq } from "drizzle-orm";
 import ItemList from "~/components/features/item-list";
 import AppHeader from "~/components/ui/app-header";
+import { createDb } from "~/server/db";
+import { items, lists } from "~/server/db/schema";
 import Layout from "../../layouts/Layout.astro";
 
 const { id = "" } = Astro.params;
+const db = createDb(Astro.locals.runtime.env.DB);
+
+const list = await db.select().from(lists).where(eq(lists.id, id)).get();
+if (!list) {
+	return Astro.redirect("/");
+}
+
+const itemList = await db
+	.select()
+	.from(items)
+	.where(eq(items.listId, id))
+	.orderBy(desc(items.createdAt));
+
+const title = list.name || "Room Items";
 ---
 
-<Layout title="Room Items">
-  <AppHeader title="Room Items" client:load />
+<Layout title={title}>
+  <AppHeader title={title} client:load />
 
   <main class="px-4 py-6">
-    <ItemList listId={id} client:load />
+    <ItemList items={itemList} />
   </main>
 </Layout>

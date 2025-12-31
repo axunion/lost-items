@@ -1,4 +1,4 @@
-import { Loader } from "lucide-solid";
+import { LoaderCircle } from "lucide-solid";
 import { type Component, mergeProps } from "solid-js";
 import { cn } from "~/lib/utils";
 
@@ -29,7 +29,7 @@ const Loading: Component<LoadingProps> = (rawProps) => {
 				props.class,
 			)}
 		>
-			<Loader
+			<LoaderCircle
 				class={cn(
 					"animate-spin text-primary",
 					sizeClasses[props.size as keyof typeof sizeClasses],
