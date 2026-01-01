@@ -1,13 +1,24 @@
 ---
+import { eq } from "drizzle-orm";
+import AppHeader from "~/components/astro/app-header.astro";
 import RegisterForm from "~/components/features/register-form";
-import AppHeader from "~/components/ui/app-header";
+import { createDb } from "~/server/db";
+import { lists } from "~/server/db/schema";
 import Layout from "../../layouts/Layout.astro";
 
 const { id = "" } = Astro.params;
+const db = createDb(Astro.locals.runtime.env.DB);
+
+const list = await db.select().from(lists).where(eq(lists.id, id)).get();
+if (!list) {
+	return Astro.redirect("/");
+}
+
+const title = list.name || "Register Item";
 ---
 
-<Layout title="Register Item">
-  <AppHeader title="Register Item" client:load />
+<Layout title={title}>
+  <AppHeader title={title} />
 
   <main class="px-4 py-6">
     <RegisterForm listId={id} client:load />

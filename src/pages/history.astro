@@ -1,7 +1,7 @@
 ---
 import { desc } from "drizzle-orm";
+import AppHeader from "~/components/astro/app-header.astro";
 import HistoryList from "~/components/features/history-list";
-import AppHeader from "~/components/ui/app-header";
 import { createDb } from "~/server/db";
 import { lists } from "~/server/db/schema";
 import Layout from "../layouts/Layout.astro";
@@ -11,9 +11,9 @@ const allLists = await db.select().from(lists).orderBy(desc(lists.createdAt));
 ---
 
 <Layout title="History">
-  <AppHeader title="History" showBack backUrl="/" client:load />
+  <AppHeader title="History" showBack backUrl="/" />
 
   <main class="px-4 py-6 space-y-6">
-    <HistoryList lists={allLists} />
+    <HistoryList lists={allLists} origin={Astro.url.origin} client:load />
   </main>
 </Layout>

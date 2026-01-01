@@ -2,6 +2,8 @@ import { Plus } from "lucide-solid";
 import { type Component, createSignal, Show } from "solid-js";
 import { Button } from "~/components/ui/button";
 import Loading from "~/components/ui/loading";
+import { TextField, TextFieldInput } from "~/components/ui/text-field";
+import { createList } from "~/lib/api";
 
 const RoomCreateForm: Component = () => {
 	const [name, setName] = createSignal("");
@@ -15,17 +17,7 @@ const RoomCreateForm: Component = () => {
 		setIsSubmitting(true);
 
 		try {
-			const res = await fetch("/api/lists", {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ name: currentName }),
-			});
-
-			if (!res.ok) {
-				throw new Error("Failed to create room");
-			}
-
-			const { id } = (await res.json()) as { id: string };
+			const { id } = await createList(currentName);
 			window.location.href = `/${id}`;
 		} catch (error) {
 			console.error("Failed to create room:", error);
@@ -38,17 +30,14 @@ const RoomCreateForm: Component = () => {
 			<Show when={isSubmitting()}>
 				<Loading variant="fullscreen" text="Creating..." />
 			</Show>
-			<div class="space-y-2">
-				<input
-					type="text"
-					value={name()}
-					onInput={(e) => setName(e.currentTarget.value)}
+			<TextField value={name()} onChange={setName}>
+				<TextFieldInput
 					placeholder="Room Name"
-					class="flex h-14 w-full rounded-xl border border-input bg-background px-4 py-2 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-1 transition-all"
+					class="h-14 rounded-xl px-4 border-input bg-background focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-1"
 					required
 					disabled={isSubmitting()}
 				/>
-			</div>
+			</TextField>
 			<Button
 				type="submit"
 				class="w-full h-14 text-lg font-bold flex items-center justify-center gap-2 rounded-xl transition-all active:scale-[0.98]"

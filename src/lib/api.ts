@@ -1,15 +1,21 @@
-export type LostItem = {
+export type Item = {
 	id: string;
 	listId: string;
-	comment: string;
-	imageUrl?: string;
+	comment: string | null;
+	imageUrl: string | null;
+	createdAt: string | Date;
+};
+
+export type List = {
+	id: string;
+	name: string | null;
 	createdAt: string | Date;
 };
 
 export const addItem = async (
 	listId: string,
 	item: { comment: string; image?: File },
-): Promise<LostItem> => {
+): Promise<Item> => {
 	const formData = new FormData();
 	formData.append("comment", item.comment);
 	if (item.image) {
@@ -26,4 +32,43 @@ export const addItem = async (
 	}
 
 	return await res.json();
+};
+
+export const createList = async (name: string): Promise<{ id: string }> => {
+	const res = await fetch("/api/lists", {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify({ name }),
+	});
+
+	if (!res.ok) {
+		throw new Error(`Failed to create list: ${res.status}`);
+	}
+
+	return await res.json();
+};
+
+export const updateList = async (
+	id: string,
+	data: { name: string },
+): Promise<void> => {
+	const res = await fetch(`/api/lists/${id}`, {
+		method: "PATCH",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify(data),
+	});
+
+	if (!res.ok) {
+		throw new Error(`Failed to update list: ${res.status}`);
+	}
+};
+
+export const deleteList = async (id: string): Promise<void> => {
+	const res = await fetch(`/api/lists/${id}`, {
+		method: "DELETE",
+	});
+
+	if (!res.ok) {
+		throw new Error(`Failed to delete list: ${res.status}`);
+	}
 };

@@ -1,17 +1,11 @@
 import { Search } from "lucide-solid";
 import { type Component, For, Show } from "solid-js";
 import { Card, CardContent } from "~/components/ui/card";
-
-export type ItemData = {
-	id: string;
-	listId: string;
-	comment: string | null;
-	imageUrl: string | null;
-	createdAt: string | Date;
-};
+import type { Item } from "~/lib/api";
+import { formatDate } from "~/lib/utils";
 
 type ItemListProps = {
-	items: ItemData[];
+	items: Item[];
 };
 
 const ItemList: Component<ItemListProps> = (props) => {
@@ -45,7 +39,7 @@ const ItemList: Component<ItemListProps> = (props) => {
 										loading="lazy"
 									/>
 									<div class="absolute top-2 right-2 bg-background/90 text-[10px] font-bold px-1.5 py-0.5 rounded shadow-sm border border-border/50">
-										{new Date(item.createdAt).toISOString().split("T")[0]}
+										{formatDate(item.createdAt)}
 									</div>
 								</div>
 								<Show when={item.comment}>

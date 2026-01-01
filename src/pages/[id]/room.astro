@@ -1,7 +1,7 @@
 ---
 import { desc, eq } from "drizzle-orm";
+import AppHeader from "~/components/astro/app-header.astro";
 import ItemList from "~/components/features/item-list";
-import AppHeader from "~/components/ui/app-header";
 import { createDb } from "~/server/db";
 import { items, lists } from "~/server/db/schema";
 import Layout from "../../layouts/Layout.astro";
@@ -24,7 +24,7 @@ const title = list.name || "Room Items";
 ---
 
 <Layout title={title}>
-  <AppHeader title={title} client:load />
+  <AppHeader title={title} />
 
   <main class="px-4 py-6">
     <ItemList items={itemList} />
