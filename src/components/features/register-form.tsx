@@ -1,4 +1,4 @@
-import { Camera, Send, X } from "lucide-solid";
+import { Camera, MessageSquare, Send, X } from "lucide-solid";
 import { type Component, createSignal, Show } from "solid-js";
 import { Button } from "~/components/ui/button";
 import Loading from "~/components/ui/loading";
@@ -105,9 +105,7 @@ const RegisterForm: Component<RegisterFormProps> = (props) => {
 				{/* Comment Section */}
 				<TextField value={comment()} onChange={setComment} class="space-y-4">
 					<div class="flex items-center gap-2 px-1">
-						<div class="size-6 flex items-center justify-center">
-							<div class="size-2 rounded-full bg-primary" />
-						</div>
+						<MessageSquare class="size-6 text-primary" />
 						<TextFieldLabel class="text-lg font-bold contents">
 							Comment
 						</TextFieldLabel>

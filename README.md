@@ -60,6 +60,7 @@ Each room has a **Public Page** URL. Share this with people who may have lost so
 
 - **Framework:** [Astro](https://astro.build/)
 - **UI Library:** [SolidJS](https://www.solidjs.com/)
+- **Icons:** [Lucide](https://lucide.dev/) (lucide-solid, astro-icon)
 - **API/Backend:** [Hono](https://hono.dev/)
 - **Database:** [Cloudflare D1](https://developers.cloudflare.com/d1/)
 - **Storage:** [Cloudflare R2](https://developers.cloudflare.com/r2/)
