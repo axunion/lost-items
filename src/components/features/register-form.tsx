@@ -1,4 +1,10 @@
-import { Camera, MessageSquare, Send, X } from "lucide-solid";
+import {
+	Camera,
+	Image as ImageIcon,
+	MessageSquare,
+	Send,
+	X,
+} from "lucide-solid";
 import { type Component, createSignal, Show } from "solid-js";
 import { Button } from "~/components/ui/button";
 import Loading from "~/components/ui/loading";
@@ -8,6 +14,7 @@ import {
 	TextFieldTextArea,
 } from "~/components/ui/text-field";
 import { addItem } from "~/lib/api";
+import { compressImage } from "~/lib/image-utils";
 
 type RegisterFormProps = {
 	listId: string;
@@ -19,16 +26,28 @@ const RegisterForm: Component<RegisterFormProps> = (props) => {
 	const [imageFile, setImageFile] = createSignal<File | undefined>(undefined);
 	const [isSubmitting, setIsSubmitting] = createSignal(false);
 
-	const handleImageUpload = (e: Event) => {
+	let cameraInputRef: HTMLInputElement | undefined;
+	let fileInputRef: HTMLInputElement | undefined;
+
+	const handleImageUpload = async (e: Event) => {
 		const file = (e.target as HTMLInputElement).files?.[0];
 		if (file) {
-			setImageFile(file);
-			const reader = new FileReader();
-			reader.onloadend = () => {
-				setImagePreview(reader.result as string);
-			};
-			reader.readAsDataURL(file);
+			try {
+				const compressedFile = await compressImage(file);
+				setImageFile(compressedFile);
+
+				const reader = new FileReader();
+				reader.onloadend = () => {
+					setImagePreview(reader.result as string);
+				};
+				reader.readAsDataURL(compressedFile);
+			} catch (error) {
+				console.error("Failed to compress image:", error);
+				alert("画像の処理に失敗しました。もう一度お試しください。");
+			}
 		}
+		// Reset input value to allow selecting the same file again
+		(e.target as HTMLInputElement).value = "";
 	};
 
 	const handleSubmit = async (e: Event) => {
@@ -62,24 +81,44 @@ const RegisterForm: Component<RegisterFormProps> = (props) => {
 					</div>
 
 					<Show when={!imagePreview()}>
-						<div class="flex justify-center w-full">
-							<div class="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-input rounded-xl bg-secondary/30 relative hover:bg-secondary/50 transition-colors group">
-								<div class="flex flex-col items-center justify-center py-4 pointer-events-none transition-transform group-active:scale-95">
-									<Camera class="w-10 h-10 text-muted-foreground/40 mb-2" />
-									<p class="text-sm text-muted-foreground/60 font-bold">
-										Tap to capture
-									</p>
-								</div>
-								<input
-									type="file"
-									accept="image/*"
-									capture="environment"
-									class="absolute inset-0 opacity-0 cursor-pointer"
-									onChange={handleImageUpload}
-								/>
-							</div>
+						<div class="grid grid-cols-2 gap-3">
+							<Button
+								type="button"
+								variant="outline"
+								class="h-24 flex-col gap-2 rounded-xl border-2 border-dashed"
+								onClick={() => cameraInputRef?.click()}
+							>
+								<Camera class="size-8 text-muted-foreground" />
+								<span class="text-sm font-medium">カメラで撮影</span>
+							</Button>
+							<Button
+								type="button"
+								variant="outline"
+								class="h-24 flex-col gap-2 rounded-xl border-2 border-dashed"
+								onClick={() => fileInputRef?.click()}
+							>
+								<ImageIcon class="size-8 text-muted-foreground" />
+								<span class="text-sm font-medium">写真を選択</span>
+							</Button>
 						</div>
 					</Show>
+
+					{/* Hidden file inputs */}
+					<input
+						ref={cameraInputRef}
+						type="file"
+						accept="image/*"
+						capture="environment"
+						class="hidden"
+						onChange={handleImageUpload}
+					/>
+					<input
+						ref={fileInputRef}
+						type="file"
+						accept="image/*"
+						class="hidden"
+						onChange={handleImageUpload}
+					/>
 
 					<Show when={imagePreview()}>
 						<div class="relative w-full h-48 rounded-xl overflow-hidden border border-border shadow-sm">
