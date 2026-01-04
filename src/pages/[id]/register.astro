@@ -1,9 +1,10 @@
 ---
-import { eq } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import AppHeader from "~/components/astro/app-header.astro";
+import ItemList from "~/components/features/item-list";
 import RegisterForm from "~/components/features/register-form";
 import { createDb } from "~/server/db";
-import { lists } from "~/server/db/schema";
+import { items, lists } from "~/server/db/schema";
 import Layout from "../../layouts/Layout.astro";
 
 const { id = "" } = Astro.params;
@@ -14,13 +15,26 @@ if (!list) {
 	return Astro.redirect("/");
 }
 
+const itemList = await db
+	.select()
+	.from(items)
+	.where(eq(items.listId, id))
+	.orderBy(desc(items.createdAt));
+
 const title = list.name || "Register Item";
 ---
 
 <Layout title={title}>
   <AppHeader title={title} />
 
-  <main class="px-4 py-6">
+  <main class="px-4 py-6 space-y-6">
     <RegisterForm listId={id} client:load />
+
+    <ItemList
+      items={itemList}
+      listId={id}
+      onItemUpdated={() => window.location.reload()}
+      client:load
+    />
   </main>
 </Layout>

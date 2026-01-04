@@ -1,5 +1,5 @@
 import { zValidator } from "@hono/zod-validator";
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { z } from "zod";
 import type { Bindings } from "../bindings";
@@ -178,3 +178,83 @@ listsRoute.post(
 		return c.json(newItem);
 	},
 );
+
+// Update item comment
+listsRoute.patch(
+	"/:id/items/:itemId",
+	zValidator(
+		"json",
+		z.object({
+			comment: z.string().max(1000),
+		}),
+	),
+	async (c) => {
+		const listId = c.req.param("id");
+		const itemId = c.req.param("itemId");
+		const { comment } = c.req.valid("json");
+		const db = createDb(c.env.DB);
+
+		const existing = await db
+			.select()
+			.from(items)
+			.where(and(eq(items.id, itemId), eq(items.listId, listId)))
+			.get();
+
+		if (!existing) {
+			return c.json({ error: "Item not found" }, 404);
+		}
+
+		await db.update(items).set({ comment }).where(eq(items.id, itemId));
+
+		return c.json({ ...existing, comment });
+	},
+);
+
+// Soft delete an item
+listsRoute.delete("/:id/items/:itemId", async (c) => {
+	const listId = c.req.param("id");
+	const itemId = c.req.param("itemId");
+	const db = createDb(c.env.DB);
+
+	const existing = await db
+		.select()
+		.from(items)
+		.where(and(eq(items.id, itemId), eq(items.listId, listId)))
+		.get();
+
+	if (!existing) {
+		return c.json({ error: "Item not found" }, 404);
+	}
+
+	await db
+		.update(items)
+		.set({ deletedAt: new Date() })
+		.where(eq(items.id, itemId));
+
+	return c.json({ success: true });
+});
+
+// Restore a deleted item
+listsRoute.post("/:id/items/:itemId/restore", async (c) => {
+	const listId = c.req.param("id");
+	const itemId = c.req.param("itemId");
+	const db = createDb(c.env.DB);
+
+	const existing = await db
+		.select()
+		.from(items)
+		.where(and(eq(items.id, itemId), eq(items.listId, listId)))
+		.get();
+
+	if (!existing) {
+		return c.json({ error: "Item not found" }, 404);
+	}
+
+	if (!existing.deletedAt) {
+		return c.json({ error: "Item is not deleted" }, 400);
+	}
+
+	await db.update(items).set({ deletedAt: null }).where(eq(items.id, itemId));
+
+	return c.json({ success: true });
+});

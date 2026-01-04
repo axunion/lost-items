@@ -15,6 +15,13 @@
       "when": 1766671781411,
       "tag": "0001_demonic_surge",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1767533704917,
+      "tag": "0002_modern_killer_shrike",
+      "breakpoints": true
     }
   ]
 }

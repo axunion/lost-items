@@ -14,4 +14,5 @@ export const items = sqliteTable("items", {
 	comment: text("comment"),
 	imageUrl: text("image_url"),
 	createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+	deletedAt: integer("deleted_at", { mode: "timestamp" }),
 });

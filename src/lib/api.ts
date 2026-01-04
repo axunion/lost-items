@@ -4,6 +4,7 @@ export type Item = {
 	comment: string | null;
 	imageUrl: string | null;
 	createdAt: string | Date;
+	deletedAt: string | Date | null;
 };
 
 export type List = {
@@ -70,5 +71,49 @@ export const deleteList = async (id: string): Promise<void> => {
 
 	if (!res.ok) {
 		throw new Error(`Failed to delete list: ${res.status}`);
+	}
+};
+
+export const updateItemComment = async (
+	listId: string,
+	itemId: string,
+	comment: string,
+): Promise<Item> => {
+	const res = await fetch(`/api/lists/${listId}/items/${itemId}`, {
+		method: "PATCH",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify({ comment }),
+	});
+
+	if (!res.ok) {
+		throw new Error(`Failed to update item: ${res.status}`);
+	}
+
+	return await res.json();
+};
+
+export const deleteItem = async (
+	listId: string,
+	itemId: string,
+): Promise<void> => {
+	const res = await fetch(`/api/lists/${listId}/items/${itemId}`, {
+		method: "DELETE",
+	});
+
+	if (!res.ok) {
+		throw new Error(`Failed to delete item: ${res.status}`);
+	}
+};
+
+export const restoreItem = async (
+	listId: string,
+	itemId: string,
+): Promise<void> => {
+	const res = await fetch(`/api/lists/${listId}/items/${itemId}/restore`, {
+		method: "POST",
+	});
+
+	if (!res.ok) {
+		throw new Error(`Failed to restore item: ${res.status}`);
 	}
 };

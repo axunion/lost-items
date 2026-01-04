@@ -11,6 +11,7 @@ Lost Items allows you to create "rooms" to organize lost items by location or ev
 - **No account required** - Use immediately without sign-up
 - **URL-based sharing** - Share registration and viewing URLs easily
 - **Photo support** - Upload images of lost items (up to 5MB)
+- **Edit & delete items** - Modify comments or soft-delete items from the registration page
 - **Simple interface** - Minimal, focused design
 
 ## How It Works
@@ -21,9 +22,11 @@ Enter a room name on the homepage (e.g., "2025 New Year Party", "3F Meeting Room
 
 ### 2. Register Lost Items
 
-Each room has a **Registration Page** URL. Share this with staff or finders. They can register items with:
-- A photo (optional)
-- A comment (optional)
+Each room has a **Registration Page** URL. Share this with staff or finders. They can:
+- Register items with a photo and/or comment
+- Edit comments on existing items
+- Delete items (soft delete - items remain visible but grayed out)
+- Restore deleted items
 
 ### 3. View Lost Items
 
@@ -35,8 +38,8 @@ Each room has a **Public Page** URL. Share this with people who may have lost so
 |--------|-------------|
 | Dashboard | Create rooms, view all rooms |
 | Room Manager | Manage room settings, copy URLs, rename, delete |
-| Registration Page | Form to register lost items |
-| Public Page | List of registered lost items |
+| Registration Page | Register, edit, delete, and restore lost items (admin) |
+| Public Page | View-only list of registered lost items |
 
 ## Use Case Example
 
