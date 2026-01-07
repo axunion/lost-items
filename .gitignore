@@ -26,3 +26,10 @@ pnpm-debug.log*
 # Cloudflare Wrangler
 .wrangler/
 .dev.vars
+
+# Testing
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+coverage/
