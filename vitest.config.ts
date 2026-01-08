@@ -12,7 +12,7 @@ export default defineConfig({
 		exclude: ["node_modules", "tests/e2e"],
 		server: {
 			deps: {
-				inline: [/@kobalte\/core/],
+				inline: [/@kobalte\/core/, "lucide-solid"],
 			},
 		},
 		alias: {
