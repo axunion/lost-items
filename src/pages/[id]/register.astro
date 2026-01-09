@@ -30,11 +30,13 @@ const title = list.name || "Register Item";
   <main class="px-4 py-6 space-y-6">
     <RegisterForm listId={id} client:load />
 
-    <ItemList
-      items={itemList}
-      listId={id}
-      onItemUpdated={() => window.location.reload()}
-      client:load
-    />
+    <div class="mt-8 pt-8 border-t border-border/50">
+      <ItemList
+        items={itemList}
+        listId={id}
+        onItemUpdated={() => window.location.reload()}
+        client:load
+      />
+    </div>
   </main>
 </Layout>

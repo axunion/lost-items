@@ -145,17 +145,19 @@ const ItemList: Component<ItemListProps> = (props) => {
 										>
 											<Button
 												variant="ghost"
-												size="sm"
+												size="icon"
+												class="h-11 w-11"
 												onClick={() => handleEdit(item)}
 											>
-												<Edit class="size-4" />
+												<Edit class="size-5" />
 											</Button>
 											<Button
 												variant="ghost"
-												size="sm"
+												size="icon"
+												class="h-11 w-11 text-destructive hover:text-destructive hover:bg-destructive/10"
 												onClick={() => handleDelete(item)}
 											>
-												<Trash2 class="size-4" />
+												<Trash2 class="size-5" />
 											</Button>
 										</Show>
 									</div>

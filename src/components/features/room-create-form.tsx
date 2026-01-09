@@ -33,14 +33,15 @@ const RoomCreateForm: Component = () => {
 			<TextField value={name()} onChange={setName}>
 				<TextFieldInput
 					placeholder="Room Name"
-					class="h-14 rounded-xl px-4 border-input bg-background focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-1"
+					class="h-14 px-4 bg-background"
 					required
 					disabled={isSubmitting()}
 				/>
 			</TextField>
 			<Button
 				type="submit"
-				class="w-full h-14 text-lg font-bold flex items-center justify-center gap-2 rounded-xl transition-all active:scale-[0.98]"
+				size="xl"
+				class="w-full font-bold shadow-lg shadow-primary/20 active:scale-[0.98]"
 				disabled={isSubmitting()}
 			>
 				<Plus class="size-6" />
