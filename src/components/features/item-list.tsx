@@ -2,6 +2,7 @@ import { Edit, RotateCcw, Search, Trash2 } from "lucide-solid";
 import { type Component, createSignal, For, Show } from "solid-js";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent } from "~/components/ui/card";
+import { ConfirmDialog } from "~/components/ui/confirm-dialog";
 import {
 	Dialog,
 	DialogContent,
@@ -14,6 +15,7 @@ import {
 	TextFieldLabel,
 	TextFieldTextArea,
 } from "~/components/ui/text-field";
+import { showToast } from "~/components/ui/toast";
 import {
 	deleteItem,
 	type Item,
@@ -33,6 +35,7 @@ const ItemList: Component<ItemListProps> = (props) => {
 	const [editingItem, setEditingItem] = createSignal<Item | null>(null);
 	const [editComment, setEditComment] = createSignal("");
 	const [isSubmitting, setIsSubmitting] = createSignal(false);
+	const [deletingItem, setDeletingItem] = createSignal<Item | null>(null);
 
 	const handleEdit = (item: Item) => {
 		setEditingItem(item);
@@ -50,21 +53,23 @@ const ItemList: Component<ItemListProps> = (props) => {
 			props.onItemUpdated?.();
 		} catch (error) {
 			console.error("Failed to update comment:", error);
-			alert("コメントの更新に失敗しました");
+			showToast("Failed to update comment", "error");
 		} finally {
 			setIsSubmitting(false);
 		}
 	};
 
-	const handleDelete = async (item: Item) => {
-		if (!confirm("このアイテムを削除しますか？")) return;
+	const handleDeleteConfirm = async () => {
+		const item = deletingItem();
+		if (!item) return;
 
 		try {
 			await deleteItem(props.listId, item.id);
+			setDeletingItem(null);
 			props.onItemUpdated?.();
 		} catch (error) {
 			console.error("Failed to delete item:", error);
-			alert("削除に失敗しました");
+			showToast("Failed to delete", "error");
 		}
 	};
 
@@ -74,7 +79,7 @@ const ItemList: Component<ItemListProps> = (props) => {
 			props.onItemUpdated?.();
 		} catch (error) {
 			console.error("Failed to restore item:", error);
-			alert("復元に失敗しました");
+			showToast("Failed to restore", "error");
 		}
 	};
 
@@ -118,7 +123,7 @@ const ItemList: Component<ItemListProps> = (props) => {
 									</div>
 									<Show when={isDeleted(item)}>
 										<div class="absolute top-2 left-2 bg-destructive/90 text-destructive-foreground text-[10px] font-bold px-1.5 py-0.5 rounded">
-											削除済み
+											Deleted
 										</div>
 									</Show>
 								</div>
@@ -155,7 +160,7 @@ const ItemList: Component<ItemListProps> = (props) => {
 												variant="ghost"
 												size="icon"
 												class="h-11 w-11 text-destructive hover:text-destructive hover:bg-destructive/10"
-												onClick={() => handleDelete(item)}
+												onClick={() => setDeletingItem(item)}
 											>
 												<Trash2 class="size-5" />
 											</Button>
@@ -174,29 +179,39 @@ const ItemList: Component<ItemListProps> = (props) => {
 			>
 				<DialogContent>
 					<DialogHeader>
-						<DialogTitle>コメントを編集</DialogTitle>
+						<DialogTitle>Edit Comment</DialogTitle>
 					</DialogHeader>
 					<TextField
 						value={editComment()}
 						onChange={setEditComment}
 						class="space-y-2"
 					>
-						<TextFieldLabel>コメント</TextFieldLabel>
+						<TextFieldLabel>Comment</TextFieldLabel>
 						<TextFieldTextArea
-							placeholder="コメントを入力..."
+							placeholder="Enter comment..."
 							class="min-h-[100px]"
 						/>
 					</TextField>
 					<DialogFooter class="gap-2">
 						<Button variant="outline" onClick={() => setEditingItem(null)}>
-							キャンセル
+							Cancel
 						</Button>
 						<Button onClick={handleSaveComment} disabled={isSubmitting()}>
-							保存
+							Save
 						</Button>
 					</DialogFooter>
 				</DialogContent>
 			</Dialog>
+
+			<ConfirmDialog
+				open={deletingItem() !== null}
+				onOpenChange={(open) => !open && setDeletingItem(null)}
+				onConfirm={handleDeleteConfirm}
+				title="Delete Item"
+				description="Are you sure you want to delete this item?"
+				confirmLabel="Delete"
+				variant="destructive"
+			/>
 		</div>
 	);
 };

@@ -10,6 +10,9 @@ vi.mock("~/lib/api", () => ({
 vi.mock("~/lib/image-utils", () => ({
 	compressImage: vi.fn(),
 }));
+vi.mock("~/components/ui/toast", () => ({
+	showToast: vi.fn(),
+}));
 
 describe("RegisterForm", () => {
 	const listId = "test-list-id";

@@ -13,6 +13,7 @@ import {
 	TextFieldLabel,
 	TextFieldTextArea,
 } from "~/components/ui/text-field";
+import { showToast } from "~/components/ui/toast";
 import { addItem } from "~/lib/api";
 import { compressImage } from "~/lib/image-utils";
 
@@ -43,7 +44,7 @@ const RegisterForm: Component<RegisterFormProps> = (props) => {
 				reader.readAsDataURL(compressedFile);
 			} catch (error) {
 				console.error("Failed to compress image:", error);
-				alert("画像の処理に失敗しました。もう一度お試しください。");
+				showToast("Failed to process image", "error");
 			}
 		}
 		// Reset input value to allow selecting the same file again
@@ -62,7 +63,7 @@ const RegisterForm: Component<RegisterFormProps> = (props) => {
 			window.location.href = `/${props.listId}`;
 		} catch (error) {
 			console.error("Failed to register item:", error);
-			alert("Failed to register item. Please try again.");
+			showToast("Failed to register", "error");
 			setIsSubmitting(false);
 		}
 	};
@@ -89,7 +90,7 @@ const RegisterForm: Component<RegisterFormProps> = (props) => {
 								onClick={() => cameraInputRef?.click()}
 							>
 								<Camera class="size-8 text-muted-foreground" />
-								<span class="text-sm font-medium">カメラで撮影</span>
+								<span class="text-sm font-medium">Take Photo</span>
 							</Button>
 							<Button
 								type="button"
@@ -98,7 +99,7 @@ const RegisterForm: Component<RegisterFormProps> = (props) => {
 								onClick={() => fileInputRef?.click()}
 							>
 								<ImageIcon class="size-8 text-muted-foreground" />
-								<span class="text-sm font-medium">写真を選択</span>
+								<span class="text-sm font-medium">Choose Photo</span>
 							</Button>
 						</div>
 					</Show>

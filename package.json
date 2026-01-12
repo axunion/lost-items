@@ -31,7 +31,6 @@
 		"astro-icon": "^1.1.5",
 		"class-variance-authority": "^0.7.1",
 		"clsx": "^2.1.1",
-		"drizzle-kit": "^0.31.7",
 		"drizzle-orm": "^0.44.7",
 		"hono": "^4.10.6",
 		"lucide-solid": "^0.554.0",
@@ -42,6 +41,7 @@
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.3.6",
+		"drizzle-kit": "^0.31.7",
 		"@cloudflare/workers-types": "^4.20251121.0",
 		"@libsql/client": "^0.15.15",
 		"@playwright/test": "^1.57.0",

@@ -1,5 +1,6 @@
 ---
 import "~/styles/global.css";
+import { ToastRegion } from "~/components/ui/toast";
 
 interface Props {
 	title?: string;
@@ -24,5 +25,6 @@ const { title = "Lost Items", description = "Manage lost and found items" } =
 		<div class="max-w-lg mx-auto bg-background min-h-screen">
 			<slot />
 		</div>
+		<ToastRegion client:load />
 	</body>
 </html>
