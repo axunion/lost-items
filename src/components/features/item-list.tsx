@@ -100,7 +100,7 @@ const ItemList: Component<ItemListProps> = (props) => {
 					</div>
 				}
 			>
-				<div class="grid grid-cols-2 gap-3">
+				<div class="grid grid-cols-1 gap-3">
 					<For each={props.items}>
 						{(item) => (
 							<Card
@@ -110,10 +110,7 @@ const ItemList: Component<ItemListProps> = (props) => {
 							>
 								<div class="aspect-square relative overflow-hidden bg-secondary">
 									<img
-										src={
-											item.imageUrl ||
-											"https://placehold.co/300x300?text=No+Image"
-										}
+										src={item.imageUrl || "/placeholder.svg"}
 										alt="Lost Item"
 										class="w-full h-full object-cover"
 										loading="lazy"

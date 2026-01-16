@@ -132,7 +132,7 @@ const HistoryList: Component<HistoryListProps> = (props) => {
 						<For each={localLists()}>
 							{(item) => (
 								<div class="relative group">
-									<Card class="rounded-xl transition-all hover:bg-secondary/50">
+									<Card class="rounded-xl">
 										<CardHeader class="p-4 pr-12">
 											<CardTitle class="text-base font-normal">
 												<div class="flex flex-col gap-1.5 min-w-0">
