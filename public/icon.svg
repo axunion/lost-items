@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <!-- background -->
+  <rect x="0" y="0" width="512" height="512" rx="96" fill="#F4F7FB"/>
+
+  <!-- box -->
+  <rect x="128" y="200" width="256" height="180" rx="32"
+        fill="#FFFFFF" stroke="#333" stroke-width="16"/>
+
+  <!-- box lid -->
+  <path d="M128 248h256"
+        stroke="#333" stroke-width="16"/>
+
+  <!-- magnifying glass -->
+  <circle cx="300" cy="200" r="56"
+          fill="#FFE066" stroke="#333" stroke-width="16"/>
+
+  <line x1="340" y1="240" x2="392" y2="292"
+        stroke="#333" stroke-width="20" stroke-linecap="round"/>
+
+  <!-- sparkle (pop accent) -->
+  <path d="M196 164l8 20 20 8-20 8-8 20-8-20-20-8 20-8z"
+        fill="#FF8FAB"/>
+</svg>
