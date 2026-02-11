@@ -6,7 +6,13 @@ import {
 	Pencil,
 	Trash2,
 } from "lucide-solid";
-import { type Component, createSignal, For, Show } from "solid-js";
+import {
+	type Component,
+	createEffect,
+	createSignal,
+	For,
+	Show,
+} from "solid-js";
 import { Button } from "~/components/ui/button";
 import { Card, CardHeader, CardTitle } from "~/components/ui/card";
 import {
@@ -32,6 +38,8 @@ import { formatDate } from "~/lib/utils";
 type HistoryListProps = {
 	lists: List[];
 	origin: string;
+	newList?: List | null;
+	maxItems?: number;
 };
 
 type UrlGroup = {
@@ -48,6 +56,23 @@ const HistoryList: Component<HistoryListProps> = (props) => {
 	const [targetId, setTargetId] = createSignal<string | null>(null);
 	const [tempName, setTempName] = createSignal("");
 	const [copiedUrl, setCopiedUrl] = createSignal<string | null>(null);
+
+	createEffect(() => {
+		const base = props.maxItems
+			? props.lists.slice(0, props.maxItems)
+			: props.lists;
+		setLocalLists(base);
+	});
+
+	createEffect(() => {
+		const created = props.newList;
+		if (!created) return;
+
+		setLocalLists((prev) => {
+			const next = [created, ...prev.filter((item) => item.id !== created.id)];
+			return props.maxItems ? next.slice(0, props.maxItems) : next;
+		});
+	});
 
 	const getName = (item: List) => {
 		return listNames()[item.id] ?? item.name ?? "Untitled Room";

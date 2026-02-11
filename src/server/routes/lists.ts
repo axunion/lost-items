@@ -146,6 +146,16 @@ listsRoute.post(
 		const db = createDb(c.env.DB);
 		const { comment, image } = c.req.valid("form");
 
+		const list = await db
+			.select()
+			.from(lists)
+			.where(eq(lists.id, listId))
+			.get();
+
+		if (!list) {
+			return c.json({ error: "List not found" }, 404);
+		}
+
 		let imageUrl: string | undefined;
 
 		if (image && image.size > 0) {

@@ -14,11 +14,12 @@ import {
 	TextFieldTextArea,
 } from "~/components/ui/text-field";
 import { showToast } from "~/components/ui/toast";
-import { addItem } from "~/lib/api";
+import { addItem, type Item } from "~/lib/api";
 import { compressImage } from "~/lib/image-utils";
 
 type RegisterFormProps = {
 	listId: string;
+	onCreated?: (item: Item) => void;
 };
 
 const RegisterForm: Component<RegisterFormProps> = (props) => {
@@ -56,14 +57,19 @@ const RegisterForm: Component<RegisterFormProps> = (props) => {
 		setIsSubmitting(true);
 
 		try {
-			await addItem(props.listId, {
+			const newItem = await addItem(props.listId, {
 				comment: comment(),
 				image: imageFile(),
 			});
-			window.location.href = `/${props.listId}`;
+			props.onCreated?.(newItem);
+			setComment("");
+			setImagePreview(null);
+			setImageFile(undefined);
+			showToast("Item registered", "success");
 		} catch (error) {
 			console.error("Failed to register item:", error);
 			showToast("Failed to register", "error");
+		} finally {
 			setIsSubmitting(false);
 		}
 	};

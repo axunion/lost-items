@@ -3,24 +3,37 @@ import { type Component, createSignal, Show } from "solid-js";
 import { Button } from "~/components/ui/button";
 import Loading from "~/components/ui/loading";
 import { TextField, TextFieldInput } from "~/components/ui/text-field";
-import { createList } from "~/lib/api";
+import { showToast } from "~/components/ui/toast";
+import { createList, type List } from "~/lib/api";
 
-const RoomCreateForm: Component = () => {
+type RoomCreateFormProps = {
+	onCreated?: (list: List) => void;
+};
+
+const RoomCreateForm: Component<RoomCreateFormProps> = (props) => {
 	const [name, setName] = createSignal("");
 	const [isSubmitting, setIsSubmitting] = createSignal(false);
 
 	const handleSubmit = async (e: Event) => {
 		e.preventDefault();
-		const currentName = name();
+		const currentName = name().trim();
 		if (!currentName) return;
 
 		setIsSubmitting(true);
 
 		try {
 			const { id } = await createList(currentName);
-			window.location.href = `/${id}`;
+			props.onCreated?.({
+				id,
+				name: currentName,
+				createdAt: new Date(),
+			});
+			setName("");
+			showToast("Room created", "success");
 		} catch (error) {
 			console.error("Failed to create room:", error);
+			showToast("Failed to create room", "error");
+		} finally {
 			setIsSubmitting(false);
 		}
 	};

@@ -35,6 +35,16 @@ export const addItem = async (
 	return await res.json();
 };
 
+export const getItems = async (listId: string): Promise<Item[]> => {
+	const res = await fetch(`/api/lists/${listId}/items`);
+
+	if (!res.ok) {
+		throw new Error(`Failed to fetch items: ${res.status}`);
+	}
+
+	return await res.json();
+};
+
 export const createList = async (name: string): Promise<{ id: string }> => {
 	const res = await fetch("/api/lists", {
 		method: "POST",

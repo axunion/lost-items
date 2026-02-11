@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, waitFor } from "@solidjs/testing-library";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import * as api from "~/lib/api";
 import RoomCreateForm from "./room-create-form";
 
@@ -7,21 +7,13 @@ import RoomCreateForm from "./room-create-form";
 vi.mock("~/lib/api", () => ({
 	createList: vi.fn(),
 }));
+vi.mock("~/components/ui/toast", () => ({
+	showToast: vi.fn(),
+}));
 
 describe("RoomCreateForm", () => {
-	let originalLocation: Location;
-
 	beforeEach(() => {
 		vi.clearAllMocks();
-		originalLocation = window.location;
-	});
-
-	afterEach(() => {
-		Object.defineProperty(window, "location", {
-			value: originalLocation,
-			writable: true,
-			configurable: true,
-		});
 	});
 
 	it("renders correctly", () => {
@@ -33,15 +25,9 @@ describe("RoomCreateForm", () => {
 	it("submits the form with valid input", async () => {
 		const mockCreateList = vi.mocked(api.createList);
 		mockCreateList.mockResolvedValue({ id: "new-room-id" });
+		const handleCreated = vi.fn();
 
-		// Mock window.location using Object.defineProperty
-		Object.defineProperty(window, "location", {
-			value: { href: "" },
-			writable: true,
-			configurable: true,
-		});
-
-		render(() => <RoomCreateForm />);
+		render(() => <RoomCreateForm onCreated={handleCreated} />);
 
 		const input = screen.getByPlaceholderText("Room Name");
 		const button = screen.getByRole("button", { name: /create/i });
@@ -53,7 +39,12 @@ describe("RoomCreateForm", () => {
 			expect(mockCreateList).toHaveBeenCalledWith("My New Room");
 		});
 
-		expect(window.location.href).toBe("/new-room-id");
+		expect(handleCreated).toHaveBeenCalledWith(
+			expect.objectContaining({
+				id: "new-room-id",
+				name: "My New Room",
+			}),
+		);
 	});
 
 	it("shows loading state during submission", async () => {

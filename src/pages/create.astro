@@ -1,5 +1,15 @@
 ---
+import { createDb } from "~/server/db";
+import { lists } from "~/server/db/schema";
+
 export const prerender = false;
+const db = createDb(Astro.locals.runtime.env.DB);
 const id = crypto.randomUUID();
-return Astro.redirect(`/${id}`);
+await db.insert(lists).values({
+	id,
+	name: null,
+	createdAt: new Date(),
+});
+
+return Astro.redirect(`/${id}/register`);
 ---

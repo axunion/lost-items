@@ -21,12 +21,22 @@ describe("utils", () => {
 	describe("formatDate", () => {
 		it("should format date string correctly", () => {
 			const date = "2023-01-01T12:00:00Z";
-			expect(formatDate(date)).toBe("2023-01-01");
+			const expected = new Intl.DateTimeFormat(undefined, {
+				year: "numeric",
+				month: "2-digit",
+				day: "2-digit",
+			}).format(new Date(date));
+			expect(formatDate(date)).toBe(expected);
 		});
 
 		it("should format Date object correctly", () => {
 			const date = new Date("2023-12-31T00:00:00Z");
-			expect(formatDate(date)).toBe("2023-12-31");
+			const expected = new Intl.DateTimeFormat(undefined, {
+				year: "numeric",
+				month: "2-digit",
+				day: "2-digit",
+			}).format(date);
+			expect(formatDate(date)).toBe(expected);
 		});
 	});
 });

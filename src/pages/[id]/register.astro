@@ -1,8 +1,7 @@
 ---
 import { desc, eq } from "drizzle-orm";
 import AppHeader from "~/components/astro/app-header.astro";
-import ItemList from "~/components/features/item-list";
-import RegisterForm from "~/components/features/register-form";
+import RegisterPage from "~/components/features/register-page";
 import { createDb } from "~/server/db";
 import { items, lists } from "~/server/db/schema";
 import Layout from "../../layouts/Layout.astro";
@@ -27,16 +26,5 @@ const title = list.name || "Register Item";
 <Layout title={title}>
   <AppHeader title={title} />
 
-  <main class="px-4 py-6 space-y-6">
-    <RegisterForm listId={id} client:load />
-
-    <div class="mt-8 pt-8 border-t border-border/50">
-      <ItemList
-        items={itemList}
-        listId={id}
-        onItemUpdated={() => window.location.reload()}
-        client:load
-      />
-    </div>
-  </main>
+  <RegisterPage listId={id} items={itemList} client:load />
 </Layout>

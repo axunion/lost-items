@@ -1,9 +1,7 @@
 ---
-import { Icon } from "astro-icon/components";
 import { desc } from "drizzle-orm";
 import AppHeader from "~/components/astro/app-header.astro";
-import HistoryList from "~/components/features/history-list";
-import RoomCreateForm from "~/components/features/room-create-form";
+import Dashboard from "~/components/features/dashboard";
 import { createDb } from "~/server/db";
 import { lists } from "~/server/db/schema";
 import Layout from "../layouts/Layout.astro";
@@ -19,29 +17,5 @@ const recentLists = await db
 <Layout title="Dashboard">
   <AppHeader title="Dashboard" />
 
-  <main class="px-4 py-6 space-y-6">
-
-    <div class="space-y-4 py-2">
-      <h2 class="flex items-center gap-2 text-lg font-bold px-1">
-        <Icon name="lucide:door-open" class="size-6 text-primary" />
-        New Room
-      </h2>
-
-      <RoomCreateForm client:load />
-    </div>
-
-    <div class="space-y-4 pt-8 border-t border-border/50">
-      <div class="flex items-center justify-between px-1">
-        <div class="flex items-center gap-2 text-lg font-bold">
-          <Icon name="lucide:clock" class="size-6 text-primary" />
-          <span>Recent</span>
-        </div>
-        <a href="/history" class="text-sm text-primary hover:underline flex items-center gap-1 font-medium">
-          All
-          <Icon name="lucide:chevron-right" class="size-4" />
-        </a>
-      </div>
-      <HistoryList lists={recentLists} origin={Astro.url.origin} client:load />
-    </div>
-  </main>
+  <Dashboard lists={recentLists} origin={Astro.url.origin} client:load />
 </Layout>

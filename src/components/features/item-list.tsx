@@ -139,6 +139,7 @@ const ItemList: Component<ItemListProps> = (props) => {
 												<Button
 													variant="ghost"
 													size="sm"
+													aria-label="Restore item"
 													onClick={() => handleRestore(item)}
 												>
 													<RotateCcw class="size-4" />
@@ -149,6 +150,7 @@ const ItemList: Component<ItemListProps> = (props) => {
 												variant="ghost"
 												size="icon"
 												class="h-11 w-11"
+												aria-label="Edit item"
 												onClick={() => handleEdit(item)}
 											>
 												<Edit class="size-5" />
@@ -157,6 +159,7 @@ const ItemList: Component<ItemListProps> = (props) => {
 												variant="ghost"
 												size="icon"
 												class="h-11 w-11 text-destructive hover:text-destructive hover:bg-destructive/10"
+												aria-label="Delete item"
 												onClick={() => setDeletingItem(item)}
 											>
 												<Trash2 class="size-5" />

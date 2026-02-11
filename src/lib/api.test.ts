@@ -12,6 +12,7 @@ import {
 	createList,
 	deleteItem,
 	deleteList,
+	getItems,
 	restoreItem,
 	updateItemComment,
 	updateList,
@@ -103,6 +104,28 @@ describe("api", () => {
 
 			await expect(addItem("list-1", { comment: "test" })).rejects.toThrow(
 				"Failed to add item: 400",
+			);
+		});
+	});
+
+	describe("getItems", () => {
+		it("should fetch items for a list", async () => {
+			const mockResponse = [{ id: "item-1", listId: "list-1" }];
+			fetchSpy.mockResolvedValue({
+				ok: true,
+				json: async () => mockResponse,
+			});
+
+			const result = await getItems("list-1");
+
+			expect(fetchSpy).toHaveBeenCalledWith("/api/lists/list-1/items");
+			expect(result).toEqual(mockResponse);
+		});
+
+		it("should throw error on failure", async () => {
+			fetchSpy.mockResolvedValue({ ok: false, status: 500 });
+			await expect(getItems("list-1")).rejects.toThrow(
+				"Failed to fetch items: 500",
 			);
 		});
 	});
