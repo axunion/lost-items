@@ -125,5 +125,69 @@ describe("image-utils", () => {
 			expect(mockCanvas.width).toBe(1000);
 			expect(mockCanvas.height).toBe(500);
 		});
+
+		it("should reject when canvas context is unavailable", async () => {
+			const mockCanvas = {
+				width: 0,
+				height: 0,
+				getContext: vi.fn(() => null),
+				toBlob: vi.fn(),
+			};
+			vi.spyOn(document, "createElement").mockReturnValue(
+				mockCanvas as unknown as HTMLElement,
+			);
+
+			const file = new File(["mock"], "test.png", { type: "image/png" });
+			await expect(compressImage(file)).rejects.toThrow(
+				"Failed to get canvas context",
+			);
+		});
+
+		it("should reject when blob creation fails", async () => {
+			const mockCanvas = {
+				width: 0,
+				height: 0,
+				getContext: vi.fn(() => ({ drawImage: vi.fn() })),
+				toBlob: vi.fn((callback) => callback(null)),
+			};
+			vi.spyOn(document, "createElement").mockReturnValue(
+				mockCanvas as unknown as HTMLElement,
+			);
+
+			const file = new File(["mock"], "test.png", { type: "image/png" });
+			await expect(compressImage(file)).rejects.toThrow(
+				"Failed to create blob",
+			);
+		});
+
+		it("should reject when image loading fails", async () => {
+			global.Image = class {
+				onload: (() => void) | null = null;
+				onerror: (() => void) | null = null;
+				set src(_value: string) {
+					setTimeout(() => {
+						if (this.onerror) this.onerror();
+					}, 0);
+				}
+			} as unknown as typeof Image;
+
+			const file = new File(["mock"], "test.png", { type: "image/png" });
+			await expect(compressImage(file)).rejects.toThrow("Failed to load image");
+		});
+
+		it("should reject when file reading fails", async () => {
+			global.FileReader = class {
+				onload: ((e: { target: { result: string } }) => void) | null = null;
+				onerror: ((e: Event) => void) | null = null;
+				readAsDataURL() {
+					setTimeout(() => {
+						if (this.onerror) this.onerror(new Event("error"));
+					}, 0);
+				}
+			} as unknown as typeof FileReader;
+
+			const file = new File(["mock"], "test.png", { type: "image/png" });
+			await expect(compressImage(file)).rejects.toThrow("Failed to read file");
+		});
 	});
 });

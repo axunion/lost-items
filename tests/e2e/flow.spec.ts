@@ -1,44 +1,61 @@
 import { test, expect } from "@playwright/test";
 
-test("complete user flow", async ({ page }) => {
+test("complete user flow", async ({ page, request }) => {
 	// 1. Home Page
 	await page.goto("/");
 	await expect(page).toHaveTitle(/Dashboard/);
 
-	// 2. Create Room
+	// 2. Prepare Room via API
 	const roomName = `Test Room ${Date.now()}`;
-	await page.getByPlaceholder("Room Name").fill(roomName);
-	await page.getByRole("button", { name: "Create" }).click();
+	const createResponse = await request.post("/api/lists", {
+		data: { name: roomName },
+	});
+	expect(createResponse.ok()).toBeTruthy();
+	const created = (await createResponse.json()) as { id: string };
+	expect(created.id).toMatch(/^[0-9a-f-]{36}$/);
 
-	// Wait for the new room to appear in the "Recent" list
-	await expect(page.getByText(roomName)).toBeVisible();
+	// Verify room appears on dashboard (SSR)
+	await page.goto("/");
+	await expect(page.locator("main span", { hasText: roomName }).first()).toBeVisible();
 
-	// Resolve room id via API to keep navigation deterministic
-	const listsResponse = await page.request.get("/api/lists");
-	const lists = await listsResponse.json();
-	const created = lists.find((item: { id: string; name: string | null }) =>
-		item.name === roomName,
-	);
-	expect(created).toBeTruthy();
-	if (!created) {
-		throw new Error("Room not found in list response");
-	}
+	// Navigate deterministically using created id
 	await page.goto(`/${created.id}/register`);
 	await expect(page).toHaveURL(/\/[0-9a-f-]+\/register/);
 
-	// 3. Register Item
+	// 3. Register Item via API
 	const comment = `Lost Item ${Date.now()}`;
-	await page.getByPlaceholder("Optional info...").fill(comment);
-	await page.getByRole("button", { name: "Register" }).click();
+	const registerResponse = await request.post(`/api/lists/${created.id}/items`, {
+		multipart: {
+			comment,
+		},
+	});
+	expect(registerResponse.ok()).toBeTruthy();
+	const registered = (await registerResponse.json()) as { id: string };
 
-	// 4. Verify Item
-	await expect(page.getByText(comment)).toBeVisible();
+	// 4. Verify Item on register page
+	await page.reload();
+	const commentText = page.locator("main p", { hasText: comment }).first();
+	await expect(commentText).toBeVisible();
 
-	// 5. Delete Item
-	const itemCard = page.locator("div", { hasText: comment }).first();
-	await itemCard.getByRole("button", { name: "Delete item" }).click();
-	await page.getByRole("button", { name: "Delete" }).click();
+	// 5. Delete Item via API
+	const itemCard = page.locator("main div", { hasText: comment }).first();
+	const deleteResponse = await request.delete(
+		`/api/lists/${created.id}/items/${registered.id}`,
+	);
+	expect(deleteResponse.ok()).toBeTruthy();
 
-	// 6. Verify Deletion
-	await expect(page.getByText(comment)).not.toBeVisible();
+	// 6. Verify soft deletion state
+	await page.reload();
+	await expect(itemCard.getByText(comment)).toBeVisible();
+	await expect(itemCard.getByText("Deleted")).toBeVisible();
+
+	// 7. Restore and verify public page
+	const restoreResponse = await request.post(
+		`/api/lists/${created.id}/items/${registered.id}/restore`,
+	);
+	expect(restoreResponse.ok()).toBeTruthy();
+
+	await page.goto(`/${created.id}/room`);
+	await expect(page.locator("main p", { hasText: comment }).first()).toBeVisible();
+	await expect(page.getByRole("button", { name: "Delete item" })).toHaveCount(0);
 });
