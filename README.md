@@ -61,20 +61,20 @@ Each room has a **Public Page** URL. Share this with people who may have lost so
 
 ## Tech Stack
 
-- **Framework:** [Astro](https://astro.build/)
+- **Framework:** [Astro 6](https://astro.build/) + [@astrojs/cloudflare v13](https://docs.astro.build/en/guides/deploy/cloudflare/)
 - **UI Library:** [SolidJS](https://www.solidjs.com/)
 - **Icons:** [Lucide](https://lucide.dev/) (lucide-solid, astro-icon)
 - **API/Backend:** [Hono](https://hono.dev/)
 - **Database:** [Cloudflare D1](https://developers.cloudflare.com/d1/)
 - **Storage:** [Cloudflare R2](https://developers.cloudflare.com/r2/)
 - **ORM:** [Drizzle ORM](https://orm.drizzle.team/)
-- **Styling:** [Tailwind CSS](https://tailwindcss.com/)
+- **Styling:** [Tailwind CSS v4](https://tailwindcss.com/)
 
 ## Getting Started
 
 ### Prerequisites
 
-- **Node.js** (v20+ recommended)
+- **Node.js** (v22.12.0+ required)
 - **pnpm** (Package manager)
 - **Wrangler** (Cloudflare CLI)
 
@@ -134,6 +134,7 @@ public/             # Static assets
 |--------|-------------|
 | `pnpm dev` | Start development server |
 | `pnpm build` | Build for production |
+| `pnpm preview` | Preview production build on local workerd |
 | `pnpm deploy` | Build and deploy to Cloudflare |
 | `pnpm db:migrate` | Run local database migrations |
 | `pnpm db:migrate:prod` | Run production database migrations |

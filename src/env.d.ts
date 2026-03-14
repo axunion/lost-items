@@ -1,8 +1,6 @@
 /// <reference path="../.astro/types.d.ts" />
 
-type Runtime = import("@astrojs/cloudflare").Runtime<
-	import("./server/bindings").Bindings
->;
+import type { Runtime } from "@astrojs/cloudflare";
 
 declare namespace App {
 	interface Locals extends Runtime {}

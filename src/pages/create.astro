@@ -1,9 +1,11 @@
 ---
+import { env } from "cloudflare:workers";
+import type { Bindings } from "~/server/bindings";
 import { createDb } from "~/server/db";
 import { lists } from "~/server/db/schema";
 
 export const prerender = false;
-const db = createDb(Astro.locals.runtime.env.DB);
+const db = createDb((env as Bindings).DB);
 const id = crypto.randomUUID();
 await db.insert(lists).values({
 	id,
