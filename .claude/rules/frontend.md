@@ -1,5 +1,6 @@
 ---
-description: Frontend guidelines, UI design system, and SolidJS component rules for the Lost Items project.
+description: Frontend guidelines, UI design system, and SolidJS component rules
+globs: src/components/**,src/pages/**,src/layouts/**,src/styles/**
 ---
 
 # Frontend Guidelines
@@ -12,7 +13,7 @@ description: Frontend guidelines, UI design system, and SolidJS component rules 
     - **ボーダー**: `border-border/50` のように不透明度を下げて馴染ませます。
     - **フォーカスリング**: 原則として `ring-1` (または `ring-ring/30`) を使用し、デザインを邪魔しない繊細なフィードバックを徹底します。
 - **インタラクション**: すべてのユーザー操作に対して、ホバーエフェクトやマイクロアニメーション（タップ時の縮小など）によるフィードバックを実装します。
-- **脱プレースホルダー**: デモやプレビューが必要な場合は、`generate_image` ツールを使用して具体的なイメージを作成します。
+- **脱プレースホルダー**: デモやプレビューが必要な場合は、具体的なイメージを作成します。
 
 ## 2. 実装アーキテクチャ
 AstroとSolidJSの役割を明確に分離します。
@@ -55,6 +56,6 @@ AstroとSolidJSの役割を明確に分離します。
 
 ## 6. 品質・検証ワークフロー (Verification)
 UIの追加や変更を行った後は、必ず以下の手順で品質を確認します。
-1. **Linterの確認**: `pnpm run check` (Biome) を実行し、警告やエラーがないことを確認します。
+1. **Linterの確認**: `pnpm check` (Biome) を実行し、警告やエラーがないことを確認します。
 2. **型チェック**: TypeScriptによる型エラーがないか確認し、`any` の使用を避けます。
 3. **実機・ブラウザ検証**: スタイルの崩れがないか、レスポンシブ対応がなされているかを確認します。
