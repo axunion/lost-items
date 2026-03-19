@@ -22,6 +22,9 @@ type RegisterFormProps = {
 	onCreated?: (item: Item) => void;
 };
 
+const photoButtonClass =
+	"h-24 flex-col gap-2 rounded-xl border border-dashed border-border/60";
+
 const RegisterForm: Component<RegisterFormProps> = (props) => {
 	const [comment, setComment] = createSignal("");
 	const [imagePreview, setImagePreview] = createSignal<string | null>(null);
@@ -84,7 +87,7 @@ const RegisterForm: Component<RegisterFormProps> = (props) => {
 				<div class="space-y-4">
 					<div class="flex items-center gap-2 px-1">
 						<Camera class="size-6 text-primary" />
-						<span class="text-lg font-bold">Photo</span>
+						<span class="text-lg font-bold tracking-wide">Photo</span>
 					</div>
 
 					<Show when={!imagePreview()}>
@@ -92,7 +95,7 @@ const RegisterForm: Component<RegisterFormProps> = (props) => {
 							<Button
 								type="button"
 								variant="outline"
-								class="h-24 flex-col gap-2 rounded-xl border-2 border-dashed"
+								class={photoButtonClass}
 								onClick={() => cameraInputRef?.click()}
 							>
 								<Camera class="size-8 text-muted-foreground" />
@@ -101,7 +104,7 @@ const RegisterForm: Component<RegisterFormProps> = (props) => {
 							<Button
 								type="button"
 								variant="outline"
-								class="h-24 flex-col gap-2 rounded-xl border-2 border-dashed"
+								class={photoButtonClass}
 								onClick={() => fileInputRef?.click()}
 							>
 								<ImageIcon class="size-8 text-muted-foreground" />
@@ -152,7 +155,7 @@ const RegisterForm: Component<RegisterFormProps> = (props) => {
 				<TextField value={comment()} onChange={setComment} class="space-y-4">
 					<div class="flex items-center gap-2 px-1">
 						<MessageSquare class="size-6 text-primary" />
-						<TextFieldLabel class="text-lg font-bold contents">
+						<TextFieldLabel class="text-lg font-bold tracking-wide contents">
 							Comment
 						</TextFieldLabel>
 					</div>

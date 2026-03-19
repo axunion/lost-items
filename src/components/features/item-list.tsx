@@ -90,7 +90,7 @@ const ItemList: Component<ItemListProps> = (props) => {
 			<Show
 				when={props.items.length > 0}
 				fallback={
-					<div class="text-center py-12 px-4 bg-secondary/30 rounded-xl border-2 border-dashed border-input/50">
+					<div class="text-center py-12 px-4 bg-secondary/30 rounded-xl border border-dashed border-border/40">
 						<div class="bg-secondary/50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
 							<Search class="h-8 w-8 text-muted-foreground/40" />
 						</div>
@@ -115,7 +115,7 @@ const ItemList: Component<ItemListProps> = (props) => {
 										class="w-full h-full object-cover"
 										loading="lazy"
 									/>
-									<div class="absolute top-2 right-2 bg-background/90 text-[10px] font-bold px-1.5 py-0.5 rounded shadow-sm border border-border/50">
+									<div class="absolute top-2 right-2 bg-background/90 text-[10px] font-bold px-1.5 py-0.5 rounded shadow-sm border border-border/30">
 										{formatDate(item.createdAt)}
 									</div>
 									<Show when={isDeleted(item)}>

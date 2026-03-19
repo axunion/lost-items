@@ -54,7 +54,7 @@ const RoomCreateForm: Component<RoomCreateFormProps> = (props) => {
 			<Button
 				type="submit"
 				size="xl"
-				class="w-full font-bold shadow-lg shadow-primary/20 active:scale-[0.98]"
+				class="w-full font-bold shadow-md shadow-primary/15 active:scale-[0.98]"
 				disabled={isSubmitting()}
 			>
 				<Plus class="size-6" />

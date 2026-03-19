@@ -23,7 +23,7 @@ const toastIcons: Record<ToastType, Component<{ class?: string }>> = {
 };
 
 const toastStyles: Record<ToastType, string> = {
-	success: "border-green-500/50 bg-green-50 text-green-900",
+	success: "border-emerald-600/30 bg-emerald-50/80 text-emerald-900",
 	error: "border-destructive/50 bg-destructive/10 text-destructive",
 	info: "border-primary/50 bg-primary/10 text-primary",
 };
@@ -55,7 +55,7 @@ const ToastRegion: Component = () => {
 						return (
 							<div
 								class={cn(
-									"flex items-start gap-3 rounded-lg border p-4 shadow-lg",
+									"flex items-start gap-3 rounded-xl border p-4 shadow-lg",
 									"animate-in fade-in-0 slide-in-from-top-2",
 									toastStyles[toast.type],
 								)}

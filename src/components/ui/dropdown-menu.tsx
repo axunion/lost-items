@@ -37,7 +37,7 @@ const DropdownMenuContent = <T extends ValidComponent = "div">(
 		<DropdownMenuPrimitive.Portal>
 			<DropdownMenuPrimitive.Content
 				class={cn(
-					"z-50 min-w-[180px] overflow-hidden rounded-lg border border-border/20 bg-background p-1 shadow-lg data-expanded:animate-in data-closed:animate-out data-closed:fade-out-0 data-expanded:fade-in-0 data-closed:zoom-out-95 data-expanded:zoom-in-95",
+					"z-50 min-w-[180px] overflow-hidden rounded-xl border border-border/30 bg-background p-1 shadow-lg data-expanded:animate-in data-closed:animate-out data-closed:fade-out-0 data-expanded:fade-in-0 data-closed:zoom-out-95 data-expanded:zoom-in-95",
 					local.class,
 				)}
 				{...rest}
@@ -58,7 +58,7 @@ const DropdownMenuItem = <T extends ValidComponent = "div">(
 	return (
 		<DropdownMenuPrimitive.Item
 			class={cn(
-				"relative flex cursor-pointer select-none items-center gap-2 rounded-md px-3 py-2.5 text-sm outline-none transition-colors data-highlighted:bg-secondary data-highlighted:text-accent-foreground data-disabled:pointer-events-none data-disabled:opacity-50",
+				"relative flex cursor-pointer select-none items-center gap-2 rounded-lg px-3 py-2.5 text-sm outline-none transition-colors data-highlighted:bg-secondary data-highlighted:text-accent-foreground data-disabled:pointer-events-none data-disabled:opacity-50",
 				local.class,
 			)}
 			{...rest}

@@ -1,29 +1,33 @@
+@import "@fontsource-variable/inter";
+@import "@fontsource-variable/noto-sans-jp";
 @import "tailwindcss";
 
 @theme {
-	--color-border: hsl(214.3 31.8% 91.4%);
-	--color-input: hsl(214.3 31.8% 91.4%);
-	--color-ring: hsl(222.2 84% 4.9%);
-	--color-background: hsl(0 0% 100%);
-	--color-foreground: hsl(222.2 84% 4.9%);
+	--font-sans: "Inter Variable", "Noto Sans JP Variable", system-ui, sans-serif;
 
-	--color-primary: hsl(222.2 47.4% 31.2%);
-	--color-primary-foreground: hsl(210 40% 98%);
+	--color-border: hsl(30 10% 88%);
+	--color-input: hsl(30 10% 88%);
+	--color-ring: hsl(220 12% 28%);
+	--color-background: hsl(40 20% 99%);
+	--color-foreground: hsl(20 10% 12%);
 
-	--color-secondary: hsl(210 40% 96.1%);
-	--color-secondary-foreground: hsl(222.2 47.4% 11.2%);
+	--color-primary: hsl(220 12% 28%);
+	--color-primary-foreground: hsl(40 20% 98%);
 
-	--color-destructive: hsl(0 84.2% 60.2%);
-	--color-destructive-foreground: hsl(210 40% 98%);
+	--color-secondary: hsl(30 12% 93%);
+	--color-secondary-foreground: hsl(220 12% 18%);
 
-	--color-muted: hsl(210 40% 96.1%);
-	--color-muted-foreground: hsl(215.4 16.3% 46.9%);
+	--color-destructive: hsl(4 60% 55%);
+	--color-destructive-foreground: hsl(40 20% 98%);
 
-	--color-accent: hsl(210 40% 96.1%);
-	--color-accent-foreground: hsl(222.2 47.4% 11.2%);
+	--color-muted: hsl(30 12% 93%);
+	--color-muted-foreground: hsl(20 6% 46%);
 
-	--color-card: hsl(0 0% 100%);
-	--color-card-foreground: hsl(222.2 84% 4.9%);
+	--color-accent: hsl(150 8% 90%);
+	--color-accent-foreground: hsl(220 12% 18%);
+
+	--color-card: hsl(40 15% 98%);
+	--color-card-foreground: hsl(20 10% 12%);
 }
 
 html {
@@ -31,6 +35,8 @@ html {
 }
 
 body {
-	background-color: hsl(210 40% 96.1%);
-	color: hsl(222.2 84% 4.9%);
+	background-color: hsl(35 12% 95%);
+	color: hsl(20 10% 12%);
+	font-feature-settings: "cv11", "ss01";
+	-webkit-font-smoothing: antialiased;
 }

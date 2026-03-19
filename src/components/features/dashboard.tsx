@@ -15,7 +15,7 @@ const Dashboard: Component<DashboardProps> = (props) => {
 	return (
 		<main class="px-4 py-6 space-y-6">
 			<div class="space-y-4 py-2">
-				<h2 class="flex items-center gap-2 text-lg font-bold px-1">
+				<h2 class="flex items-center gap-2 text-lg font-bold tracking-wide px-1">
 					<DoorOpen class="size-6 text-primary" />
 					New Room
 				</h2>
@@ -23,9 +23,9 @@ const Dashboard: Component<DashboardProps> = (props) => {
 				<RoomCreateForm onCreated={setNewList} />
 			</div>
 
-			<div class="space-y-4 pt-8 border-t border-border/50">
+			<div class="space-y-4 pt-8 border-t border-border/30">
 				<div class="flex items-center justify-between px-1">
-					<div class="flex items-center gap-2 text-lg font-bold">
+					<div class="flex items-center gap-2 text-lg font-bold tracking-wide">
 						<Clock class="size-6 text-primary" />
 						<span>Recent</span>
 					</div>

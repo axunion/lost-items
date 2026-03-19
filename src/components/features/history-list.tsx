@@ -148,7 +148,7 @@ const HistoryList: Component<HistoryListProps> = (props) => {
 				<Show
 					when={localLists().length > 0}
 					fallback={
-						<div class="text-center py-8 text-muted-foreground bg-secondary rounded-lg">
+						<div class="text-center py-8 text-muted-foreground bg-secondary/50 rounded-xl">
 							<p class="text-base">No rooms found.</p>
 						</div>
 					}

@@ -10,7 +10,7 @@ interface Props {
 const { title, showBack = false, backUrl = "/" } = Astro.props;
 ---
 
-<header class="sticky top-0 z-50 w-full bg-background/80 backdrop-blur-md border-b border-border/50">
+<header class="sticky top-0 z-50 w-full bg-background/85 backdrop-blur-lg border-b border-border/30">
 	<div class="max-w-lg mx-auto h-16 px-4 flex items-center justify-between relative">
 		<div class="flex items-center gap-3 min-w-0">
 			{showBack && (
@@ -24,7 +24,7 @@ const { title, showBack = false, backUrl = "/" } = Astro.props;
 		</div>
 		<h1
 			id="header-title"
-			class="absolute left-1/2 -translate-x-1/2 text-xl font-black tracking-tight truncate max-w-[60%] text-center"
+			class="absolute left-1/2 -translate-x-1/2 text-lg font-bold tracking-normal truncate max-w-[60%] text-center"
 		>
 			{title}
 		</h1>
