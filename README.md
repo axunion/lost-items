@@ -128,6 +128,13 @@ migrations/         # Database migrations
 public/             # Static assets
 ```
 
+## Testing
+
+```bash
+pnpm test          # Run unit tests (Vitest)
+pnpm test:e2e      # Run E2E tests (Playwright, requires dev server running)
+```
+
 ## Scripts
 
 | Script | Description |
@@ -136,6 +143,10 @@ public/             # Static assets
 | `pnpm build` | Build for production |
 | `pnpm preview` | Preview production build on local workerd |
 | `pnpm deploy` | Build and deploy to Cloudflare |
-| `pnpm db:migrate` | Run local database migrations |
-| `pnpm db:migrate:prod` | Run production database migrations |
-| `pnpm check` | Run Biome code check |
+| `pnpm check` | Run Biome lint/format check |
+| `pnpm check:write` | Auto-fix lint/format issues |
+| `pnpm test` | Run unit tests (Vitest) |
+| `pnpm test:e2e` | Run E2E tests (Playwright) |
+| `pnpm db:generate` | Generate Drizzle migration from schema changes |
+| `pnpm db:migrate` | Apply migrations locally |
+| `pnpm db:migrate:prod` | Apply migrations to production D1 |

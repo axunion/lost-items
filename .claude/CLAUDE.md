@@ -33,45 +33,6 @@ Browser → Astro SSR (pages/*.astro)     → D1 via Drizzle (server-side data f
        → Hono API  (api/[...route].ts)  → D1 / R2 (client-side mutations)
 ```
 
-### Cloudflare bindings access
-
-Astro pages and the API route use `cloudflare:workers` to access bindings:
-
-```typescript
-import { env } from "cloudflare:workers";
-import type { Bindings } from "~/server/bindings";
-const db = createDb((env as Bindings).DB);
-```
-
-Bindings: `DB` (D1), `BUCKET` (R2), `ASSETS` (static files).
-
-### Backend (src/server/)
-
-- `index.ts` — Hono app entry, mounts route groups
-- `routes/lists.ts` — CRUD for lists and items (POST items accepts multipart with image upload to R2, max 5MB)
-- `routes/images.ts` — Serves images from R2 with 1-year cache
-- `db/schema.ts` — Drizzle schema: `lists` and `items` tables. Items use soft delete (`deletedAt` column)
-- `bindings.ts` — TypeScript type for Cloudflare bindings
-
-### Frontend (src/components/)
-
-- `ui/` — Reusable components built on Kobalte (headless) + cva for variants
-- `features/` — Page-level SolidJS components (dashboard, register-page, item-list, etc.)
-- `astro/` — Astro-only components (app-header)
-
-Utility: `src/lib/utils.ts` exports `cn()` (clsx + tailwind-merge) and `formatDate()`. API client functions are in `src/lib/api.ts`.
-
-### Styling
-
-Tailwind CSS v4 with CSS-based config in `src/styles/global.css` (`@theme` block). No `tailwind.config.mjs` — all tokens defined via `--color-*` CSS custom properties.
-
-### Testing
-
-- **Unit tests** colocated with source (`*.test.ts(x)` next to the file they test)
-- **E2E tests** in `tests/e2e/` — Playwright with Chromium against the dev server
-- Route tests mock `createDb` and test Hono handlers directly
-- Component tests use `@solidjs/testing-library`
-
 ### mockDebugPlugin (astro.config.mjs)
 
 A Vite plugin that stubs the `debug` npm package. Required because `debug` uses CJS `module.exports` which is unavailable in the workerd runtime. This is a workaround for a transitive dependency issue in the Astro ecosystem, not a project code concern.
@@ -99,5 +60,11 @@ After making changes, verify in this order:
 
 ## Additional configuration
 
-- **`.claude/rules/`** — Context-specific guidelines auto-loaded by glob pattern (e.g., frontend rules for `src/components/**`)
-- **`.claude/settings.json`** — Permission allowlist for safe commands
+- **`.claude/rules/`** — Context-specific guidelines auto-loaded by glob pattern:
+  - `frontend.md` — SolidJS components, UI design system (`src/components/**`, `src/pages/**`)
+  - `backend.md` — Hono API patterns, bindings, R2 (`src/server/**`)
+  - `testing.md` — Unit/E2E test patterns (`src/**/*.test.*`, `tests/e2e/**`)
+  - `database.md` — Drizzle schema, migrations, soft delete (`src/server/db/**`, `migrations/**`)
+- **`.claude/settings.json`** — Shared permission allowlist (safe commands auto-approved, deploy/prod-migrate denied)
+- **`.claude/agents/`** — Custom agents: `@code-reviewer`, `@test-writer`
+- **`.claude/skills/`** — Slash commands: `/deploy`, `/db-migrate [local|prod]`, `/quality-check [--fix]`

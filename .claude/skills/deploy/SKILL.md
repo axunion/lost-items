@@ -1,0 +1,15 @@
+---
+description: Run quality checks then deploy to Cloudflare Workers. Aborts on any failure.
+disable-model-invocation: true
+allowed-tools:
+  - Bash
+---
+
+Deploy to Cloudflare Workers after running quality checks.
+
+Steps:
+1. Run `pnpm check` — if it fails, stop and report the lint/format errors
+2. Run `pnpm test --run` — if any tests fail, stop and report the failures
+3. Run `pnpm build && pnpm deploy` — deploy to Cloudflare Workers
+
+If any step fails, abort immediately and report what failed. Do not proceed to the next step.

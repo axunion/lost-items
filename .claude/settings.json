@@ -1,0 +1,25 @@
+{
+	"permissions": {
+		"allow": [
+			"Bash(find:*)",
+			"Bash(ls:*)",
+			"Bash(git status:*)",
+			"Bash(git log:*)",
+			"Bash(git diff:*)",
+			"Bash(git branch:*)",
+			"Bash(git show:*)",
+			"Bash(pnpm check:*)",
+			"Bash(pnpm check\\:write:*)",
+			"Bash(pnpm test:*)",
+			"Bash(pnpm build:*)",
+			"Bash(pnpm dev:*)",
+			"Bash(pnpm db\\:generate:*)",
+			"Bash(pnpm db\\:check:*)"
+		],
+		"deny": [
+			"Bash(pnpm deploy:*)",
+			"Bash(pnpm db\\:migrate\\:prod:*)",
+			"Bash(rm -rf:*)"
+		]
+	}
+}

@@ -1,6 +1,10 @@
 ---
 description: Frontend guidelines, UI design system, and SolidJS component rules
-globs: src/components/**,src/pages/**,src/layouts/**,src/styles/**
+globs:
+  - src/components/**
+  - src/pages/**
+  - src/layouts/**
+  - src/styles/**
 ---
 
 # Frontend Guidelines
