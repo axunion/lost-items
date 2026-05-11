@@ -1,5 +1,5 @@
 ---
-description: Run lint, tests, and build check. Pass --fix to auto-fix lint issues.
+description: Run the full quality check pipeline (Biome lint, Vitest unit tests, production build). Use before committing, when verifying changes are clean, or when the user asks to check, test, or validate the codebase. Pass --fix to auto-fix lint/format issues.
 disable-model-invocation: false
 argument-hint: "[--fix]"
 allowed-tools:

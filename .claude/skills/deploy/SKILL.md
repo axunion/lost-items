@@ -1,5 +1,5 @@
 ---
-description: Run quality checks then deploy to Cloudflare Workers. Aborts on any failure.
+description: Deploy the app to Cloudflare Workers after running quality checks. Use this whenever the user wants to ship, release, go live, or push changes to production.
 disable-model-invocation: true
 allowed-tools:
   - Bash

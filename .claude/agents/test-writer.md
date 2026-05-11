@@ -2,6 +2,7 @@
 name: test-writer
 description: Analyzes source code and writes tests following existing patterns. Use when you want tests generated for a specific file or feature.
 tools: Read, Write, Edit, Glob, Grep, Bash
+model: claude-sonnet-4-6
 maxTurns: 20
 ---
 

@@ -65,6 +65,7 @@ After making changes, verify in this order:
   - `backend.md` — Hono API patterns, bindings, R2 (`src/server/**`)
   - `testing.md` — Unit/E2E test patterns (`src/**/*.test.*`, `tests/e2e/**`)
   - `database.md` — Drizzle schema, migrations, soft delete (`src/server/db/**`, `migrations/**`)
-- **`.claude/settings.json`** — Shared permission allowlist (safe commands auto-approved, deploy/prod-migrate denied)
-- **`.claude/agents/`** — Custom agents: `@code-reviewer`, `@test-writer`
-- **`.claude/skills/`** — Slash commands: `/deploy`, `/db-migrate [local|prod]`, `/quality-check [--fix]`
+- **`.claude/settings.json`** — Shared permission config: sandbox enabled, deny list for destructive git/rm/credential ops
+- **`.mcp.json`** — MCP servers: `context7` (live docs lookup), `playwright` (browser automation for UI verification)
+- **`.claude/agents/`** — Custom agents: `@code-reviewer`, `@test-writer`, `@db-reviewer`
+- **`.claude/skills/`** — Slash commands: `/deploy`, `/db-migrate [local|prod]`, `/quality-check [--fix]`, `/new-component <Name> [ui|features]`
