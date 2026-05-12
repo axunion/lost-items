@@ -75,7 +75,7 @@ Each room has a **Public Page** URL. Share this with people who may have lost so
 ### Prerequisites
 
 - **Node.js** (v22.12.0+ required)
-- **pnpm** (Package manager)
+- **pnpm** v11+ (Package manager)
 - **Wrangler** (Cloudflare CLI)
 
 ### Installation
@@ -144,7 +144,7 @@ pnpm test:e2e      # Run E2E tests (Playwright, requires dev server running)
 | `pnpm preview` | Preview production build on local workerd |
 | `pnpm deploy` | Build and deploy to Cloudflare |
 | `pnpm check` | Run Biome lint/format check |
-| `pnpm check:write` | Auto-fix lint/format issues |
+| `pnpm fix` | Auto-fix lint/format issues |
 | `pnpm test` | Run unit tests (Vitest) |
 | `pnpm test:e2e` | Run E2E tests (Playwright) |
 | `pnpm db:generate` | Generate Drizzle migration from schema changes |

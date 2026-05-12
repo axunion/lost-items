@@ -10,8 +10,8 @@ pnpm build            # Build for production
 pnpm preview          # Preview production build on local workerd
 pnpm deploy           # Build + deploy to Cloudflare Workers
 
-pnpm check            # Biome lint/format check (src/)
-pnpm check:write      # Biome auto-fix
+pnpm check            # Biome lint/format + astro check (TS type errors)
+pnpm fix              # Biome auto-fix (format/lint only)
 
 pnpm test             # Run unit tests (Vitest)
 pnpm test -- src/server/routes/lists.test.ts  # Run a single test file
@@ -54,7 +54,7 @@ Use conventional prefixes with **English** message body:
 
 After making changes, verify in this order:
 
-1. `pnpm check` — Biome lint/format (auto-fix with `pnpm check:write`)
+1. `pnpm check` — Biome lint/format + TypeScript type check (`astro check`); Biome auto-fix only with `pnpm fix`
 2. `pnpm test --run` — Unit tests (Vitest)
 3. `pnpm build` — Production build succeeds
 
