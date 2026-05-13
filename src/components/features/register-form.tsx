@@ -16,14 +16,20 @@ import {
 import { showToast } from "~/components/ui/toast";
 import { addItem, type Item } from "~/lib/api";
 import { compressImage } from "~/lib/image-utils";
+import styles from "./register-form.module.css";
 
 type RegisterFormProps = {
 	listId: string;
 	onCreated?: (item: Item) => void;
 };
 
-const photoButtonClass =
-	"h-24 flex-col gap-2 rounded-xl border border-dashed border-border/60";
+const photoButtonStyle = {
+	height: "6rem",
+	"flex-direction": "column" as const,
+	gap: "0.5rem",
+	"border-radius": "0.75rem",
+	"border-style": "dashed" as const,
+};
 
 const RegisterForm: Component<RegisterFormProps> = (props) => {
 	const [comment, setComment] = createSignal("");
@@ -51,7 +57,6 @@ const RegisterForm: Component<RegisterFormProps> = (props) => {
 				showToast("Failed to process image", "error");
 			}
 		}
-		// Reset input value to allow selecting the same file again
 		(e.target as HTMLInputElement).value = "";
 	};
 
@@ -78,64 +83,63 @@ const RegisterForm: Component<RegisterFormProps> = (props) => {
 	};
 
 	return (
-		<div class="space-y-8">
-			<form onSubmit={handleSubmit} class="space-y-8">
+		<div class={styles.wrapper}>
+			<form onSubmit={handleSubmit} class={styles.form}>
 				<Show when={isSubmitting()}>
 					<Loading variant="fullscreen" text="Registering..." />
 				</Show>
-				{/* Photo Section */}
-				<div class="space-y-4">
-					<div class="flex items-center gap-2 px-1">
-						<Camera class="size-6 text-primary" />
-						<span class="text-lg font-bold tracking-wide">Photo</span>
+
+				<div class={styles.section}>
+					<div class={styles.sectionTitle}>
+						<Camera class={styles.sectionIcon} />
+						<span class={styles.sectionLabel}>Photo</span>
 					</div>
 
 					<Show when={!imagePreview()}>
-						<div class="grid grid-cols-2 gap-3">
+						<div class={styles.photoGrid}>
 							<Button
 								type="button"
 								variant="outline"
-								class={photoButtonClass}
+								style={photoButtonStyle}
 								onClick={() => cameraInputRef?.click()}
 							>
-								<Camera class="size-8 text-muted-foreground" />
-								<span class="text-sm font-medium">Take Photo</span>
+								<Camera class={styles.sectionIcon} />
+								<span class={styles.sectionLabel}>Take Photo</span>
 							</Button>
 							<Button
 								type="button"
 								variant="outline"
-								class={photoButtonClass}
+								style={photoButtonStyle}
 								onClick={() => fileInputRef?.click()}
 							>
-								<ImageIcon class="size-8 text-muted-foreground" />
-								<span class="text-sm font-medium">Choose Photo</span>
+								<ImageIcon class={styles.sectionIcon} />
+								<span class={styles.sectionLabel}>Choose Photo</span>
 							</Button>
 						</div>
 					</Show>
 
-					{/* Hidden file inputs */}
 					<input
 						ref={cameraInputRef}
 						type="file"
 						accept="image/*"
 						capture="environment"
-						class="hidden"
+						class={styles.hiddenInput}
 						onChange={handleImageUpload}
 					/>
 					<input
 						ref={fileInputRef}
 						type="file"
 						accept="image/*"
-						class="hidden"
+						class={styles.hiddenInput}
 						onChange={handleImageUpload}
 					/>
 
 					<Show when={imagePreview()}>
-						<div class="relative w-full h-48 rounded-xl overflow-hidden border border-border shadow-sm">
+						<div class={styles.previewContainer}>
 							<img
 								src={imagePreview() || ""}
 								alt="Preview"
-								class="w-full h-full object-cover"
+								class={styles.previewImage}
 							/>
 							<button
 								type="button"
@@ -143,35 +147,37 @@ const RegisterForm: Component<RegisterFormProps> = (props) => {
 									setImagePreview(null);
 									setImageFile(undefined);
 								}}
-								class="absolute top-2 right-2 p-2 bg-background/90 rounded-full shadow-md hover:bg-destructive hover:text-destructive-foreground transition-all active:scale-90"
+								class={styles.clearButton}
 							>
-								<X class="w-5 h-5" />
+								<X class={styles.clearIcon} />
 							</button>
 						</div>
 					</Show>
 				</div>
 
-				{/* Comment Section */}
-				<TextField value={comment()} onChange={setComment} class="space-y-4">
-					<div class="flex items-center gap-2 px-1">
-						<MessageSquare class="size-6 text-primary" />
-						<TextFieldLabel class="text-lg font-bold tracking-wide contents">
-							Comment
-						</TextFieldLabel>
+				<TextField
+					value={comment()}
+					onChange={setComment}
+					class={styles.commentField}
+				>
+					<div class={styles.sectionTitle}>
+						<MessageSquare class={styles.sectionIcon} />
+						<TextFieldLabel class={styles.sectionLabel}>Comment</TextFieldLabel>
 					</div>
 					<TextFieldTextArea
 						placeholder="Optional info..."
-						class="resize-none min-h-[120px] text-base p-4 rounded-xl focus-visible:ring-primary/40 focus-visible:ring-offset-1 border-input bg-background"
+						class={styles.commentTextarea}
 					/>
 				</TextField>
 
 				<Button
 					type="submit"
-					class="w-full h-14 text-lg font-bold rounded-xl shadow-md transition-all active:scale-[0.98]"
+					size="xl"
+					class={styles.submitButton}
 					disabled={isSubmitting()}
 				>
-					<div class="flex items-center gap-2">
-						<Send class="size-6" />
+					<div class={styles.submitButtonContent}>
+						<Send class={styles.submitIcon} />
 						<span>Register</span>
 					</div>
 				</Button>

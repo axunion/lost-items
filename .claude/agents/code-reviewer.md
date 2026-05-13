@@ -31,7 +31,7 @@ You are a code reviewer for this Astro + Hono + SolidJS project on Cloudflare Wo
 ## フロントエンド規約チェック
 
 - Astro ページにクライアントサイド JS が書かれていないか（SolidJS に委譲しているか）
-- タッチターゲット: メインボタンが `h-14`、アイコンボタンが `h-11` 以上か
+- タッチターゲット: メインボタンが `56px` 以上、アイコンボタンが `44px` 以上か
 - `lucide-solid` 以外のアイコンライブラリを使っていないか
 - インポートパスが `~/` エイリアスを使っているか
 

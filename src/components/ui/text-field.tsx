@@ -1,10 +1,10 @@
 import type { PolymorphicProps } from "@kobalte/core";
 import * as TextFieldPrimitive from "@kobalte/core/text-field";
-import { cva } from "class-variance-authority";
 import type { ValidComponent } from "solid-js";
 import { mergeProps, splitProps } from "solid-js";
 
-import { cn } from "~/lib/utils";
+import { cx } from "~/lib/utils";
+import styles from "./text-field.module.css";
 
 type TextFieldRootProps<T extends ValidComponent = "div"> =
 	TextFieldPrimitive.TextFieldRootProps<T> & {
@@ -16,10 +16,7 @@ const TextField = <T extends ValidComponent = "div">(
 ) => {
 	const [local, others] = splitProps(props as TextFieldRootProps, ["class"]);
 	return (
-		<TextFieldPrimitive.Root
-			class={cn("flex flex-col gap-1", local.class)}
-			{...others}
-		/>
+		<TextFieldPrimitive.Root class={cx(styles.root, local.class)} {...others} />
 	);
 };
 
@@ -65,10 +62,7 @@ const TextFieldInput = <T extends ValidComponent = "input">(
 	return (
 		<TextFieldPrimitive.Input
 			type={local.type}
-			class={cn(
-				"flex h-10 w-full rounded-lg border border-input/40 bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring/30 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-invalid:border-error-foreground data-invalid:text-error-foreground",
-				local.class,
-			)}
+			class={cx(styles.input, local.class)}
 			{...others}
 		/>
 	);
@@ -85,18 +79,11 @@ const TextFieldTextArea = <T extends ValidComponent = "textarea">(
 	]);
 	return (
 		<TextFieldPrimitive.TextArea
-			class={cn(
-				"flex min-h-[80px] w-full rounded-lg border border-input/40 bg-background px-3 py-2 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring/30 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
-				local.class,
-			)}
+			class={cx(styles.textarea, local.class)}
 			{...others}
 		/>
 	);
 };
-
-const labelVariants = cva(
-	"text-sm font-medium tracking-wide text-foreground/80 leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 data-invalid:text-destructive",
-);
 
 type TextFieldLabelProps<T extends ValidComponent = "label"> =
 	TextFieldPrimitive.TextFieldLabelProps<T> & { class?: string | undefined };
@@ -107,7 +94,7 @@ const TextFieldLabel = <T extends ValidComponent = "label">(
 	const [local, others] = splitProps(props as TextFieldLabelProps, ["class"]);
 	return (
 		<TextFieldPrimitive.Label
-			class={cn(labelVariants(), local.class)}
+			class={cx(styles.label, local.class)}
 			{...others}
 		/>
 	);

@@ -3,6 +3,7 @@ import { type Component, createSignal } from "solid-js";
 import HistoryList from "~/components/features/history-list";
 import RoomCreateForm from "~/components/features/room-create-form";
 import type { List } from "~/lib/api";
+import styles from "./dashboard.module.css";
 
 type DashboardProps = {
 	lists: List[];
@@ -13,28 +14,25 @@ const Dashboard: Component<DashboardProps> = (props) => {
 	const [newList, setNewList] = createSignal<List | null>(null);
 
 	return (
-		<main class="px-4 py-6 space-y-6">
-			<div class="space-y-4 py-2">
-				<h2 class="flex items-center gap-2 text-lg font-bold tracking-wide px-1">
-					<DoorOpen class="size-6 text-primary" />
+		<main class={styles.main}>
+			<div class={styles.newRoomSection}>
+				<h2 class={styles.sectionTitle}>
+					<DoorOpen class={styles.sectionIcon} />
 					New Room
 				</h2>
 
 				<RoomCreateForm onCreated={setNewList} />
 			</div>
 
-			<div class="space-y-4 pt-8 border-t border-border/30">
-				<div class="flex items-center justify-between px-1">
-					<div class="flex items-center gap-2 text-lg font-bold tracking-wide">
-						<Clock class="size-6 text-primary" />
+			<div class={styles.recentSection}>
+				<div class={styles.recentHeader}>
+					<div class={styles.recentTitle}>
+						<Clock class={styles.sectionIcon} />
 						<span>Recent</span>
 					</div>
-					<a
-						href="/history"
-						class="text-sm text-primary hover:underline flex items-center gap-1 font-medium"
-					>
+					<a href="/history" class={styles.allLink}>
 						All
-						<ChevronRight class="size-4" />
+						<ChevronRight class={styles.allLinkIcon} />
 					</a>
 				</div>
 				<HistoryList

@@ -1,7 +1,6 @@
 import { fileURLToPath, URL } from "node:url";
 import cloudflare from "@astrojs/cloudflare";
 import solidJs from "@astrojs/solid-js";
-import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "astro/config";
 import icon from "astro-icon";
 
@@ -33,7 +32,7 @@ export default defineConfig({
 	integrations: [solidJs(), icon()],
 
 	vite: {
-		plugins: [tailwindcss(), mockDebugPlugin()],
+		plugins: [mockDebugPlugin()],
 		resolve: {
 			alias: {
 				"~": fileURLToPath(new URL("./src", import.meta.url)),

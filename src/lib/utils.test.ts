@@ -1,20 +1,22 @@
 import { describe, expect, it } from "vitest";
-import { cn, formatDate } from "./utils";
+import { cx, formatDate } from "./utils";
 
 describe("utils", () => {
-	describe("cn", () => {
+	describe("cx", () => {
 		it("should merge class names", () => {
-			expect(cn("class1", "class2")).toBe("class1 class2");
+			expect(cx("class1", "class2")).toBe("class1 class2");
 		});
 
 		it("should handle conditional classes", () => {
-			expect(cn("class1", true && "class2", false && "class3")).toBe(
+			expect(cx("class1", true && "class2", false && "class3")).toBe(
 				"class1 class2",
 			);
 		});
 
-		it("should merge tailwind classes", () => {
-			expect(cn("p-2", "p-4")).toBe("p-4");
+		it("should filter falsy values", () => {
+			expect(cx("class1", undefined, null, false, "class2")).toBe(
+				"class1 class2",
+			);
 		});
 	});
 

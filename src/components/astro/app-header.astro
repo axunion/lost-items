@@ -10,26 +10,90 @@ interface Props {
 const { title, showBack = false, backUrl = "/" } = Astro.props;
 ---
 
-<header class="sticky top-0 z-50 w-full bg-background/85 backdrop-blur-lg border-b border-border/30">
-	<div class="max-w-lg mx-auto h-16 px-4 flex items-center justify-between relative">
-		<div class="flex items-center gap-3 min-w-0">
+<header class="app-header">
+	<div class="app-header__inner">
+		<div class="app-header__left">
 			{showBack && (
-				<a
-					href={backUrl}
-					class="p-2 -ml-2 rounded-full hover:bg-secondary transition-colors"
-				>
-					<Icon name="lucide:chevron-left" class="size-6" />
+				<a href={backUrl} class="app-header__back">
+					<Icon name="lucide:chevron-left" class="app-header__back-icon" />
 				</a>
 			)}
 		</div>
-		<h1
-			id="header-title"
-			class="absolute left-1/2 -translate-x-1/2 text-lg font-bold tracking-normal truncate max-w-[60%] text-center"
-		>
-			{title}
-		</h1>
-		<div class="flex items-center gap-1">
+		<h1 class="app-header__title">{title}</h1>
+		<div class="app-header__right">
 			<slot name="right" />
 		</div>
 	</div>
 </header>
+
+<style>
+	.app-header {
+		position: sticky;
+		top: 0;
+		z-index: 50;
+		width: 100%;
+		background-color: hsl(40 20% 99% / 0.85);
+		backdrop-filter: blur(12px);
+		border-bottom: 1px solid hsl(30 10% 88% / 0.3);
+	}
+
+	.app-header__inner {
+		max-width: 32rem;
+		margin: 0 auto;
+		height: 4rem;
+		padding: 0 1rem;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		position: relative;
+	}
+
+	.app-header__left {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		min-width: 0;
+	}
+
+	.app-header__back {
+		padding: 0.5rem;
+		margin-left: -0.5rem;
+		border-radius: 50%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		color: var(--color-foreground);
+		text-decoration: none;
+		transition: background-color 150ms;
+	}
+
+	.app-header__back:hover {
+		background-color: var(--color-secondary);
+	}
+
+	.app-header__back-icon {
+		width: 1.5rem;
+		height: 1.5rem;
+	}
+
+	.app-header__title {
+		position: absolute;
+		left: 50%;
+		transform: translateX(-50%);
+		font-size: 1.125rem;
+		font-weight: 700;
+		letter-spacing: 0.01em;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		max-width: 60%;
+		text-align: center;
+		margin: 0;
+	}
+
+	.app-header__right {
+		display: flex;
+		align-items: center;
+		gap: 0.25rem;
+	}
+</style>

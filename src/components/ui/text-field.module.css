@@ -1,0 +1,70 @@
+.root {
+	display: flex;
+	flex-direction: column;
+	gap: 0.25rem;
+}
+
+.input,
+.textarea {
+	display: flex;
+	width: 100%;
+	border-radius: 0.5rem;
+	border: 1px solid hsl(30 10% 88% / 0.4);
+	background-color: var(--color-background);
+	padding: 0.5rem 0.75rem;
+	font-size: 1rem;
+	font-family: inherit;
+	color: var(--color-foreground);
+	transition: box-shadow 150ms;
+}
+
+.input {
+	height: 2.5rem;
+}
+
+.textarea {
+	min-height: 80px;
+	resize: vertical;
+}
+
+.input::placeholder,
+.textarea::placeholder {
+	color: var(--color-muted-foreground);
+}
+
+.input:focus-visible,
+.textarea:focus-visible {
+	outline: none;
+	box-shadow: 0 0 0 1px hsl(220 12% 28% / 0.3);
+}
+
+.input:disabled,
+.textarea:disabled {
+	cursor: not-allowed;
+	opacity: 0.5;
+}
+
+.input[data-invalid],
+.textarea[data-invalid] {
+	border-color: var(--color-destructive);
+	color: var(--color-destructive);
+}
+
+.input::file-selector-button {
+	border: 0;
+	background: transparent;
+	font-size: 0.875rem;
+	font-weight: 500;
+}
+
+.label {
+	font-size: 0.875rem;
+	font-weight: 500;
+	letter-spacing: 0.025em;
+	color: hsl(20 10% 12% / 0.8);
+	line-height: 1;
+}
+
+.label[data-invalid] {
+	color: var(--color-destructive);
+}

@@ -1,33 +1,31 @@
 @import "@fontsource-variable/inter";
 @import "@fontsource-variable/noto-sans-jp";
-@import "tailwindcss";
 
-@theme {
+:root {
 	--font-sans: "Inter Variable", "Noto Sans JP Variable", system-ui, sans-serif;
-
 	--color-border: hsl(30 10% 88%);
 	--color-input: hsl(30 10% 88%);
 	--color-ring: hsl(220 12% 28%);
 	--color-background: hsl(40 20% 99%);
 	--color-foreground: hsl(20 10% 12%);
-
 	--color-primary: hsl(220 12% 28%);
 	--color-primary-foreground: hsl(40 20% 98%);
-
 	--color-secondary: hsl(30 12% 93%);
 	--color-secondary-foreground: hsl(220 12% 18%);
-
 	--color-destructive: hsl(4 60% 55%);
 	--color-destructive-foreground: hsl(40 20% 98%);
-
 	--color-muted: hsl(30 12% 93%);
 	--color-muted-foreground: hsl(20 6% 46%);
-
 	--color-accent: hsl(150 8% 90%);
 	--color-accent-foreground: hsl(220 12% 18%);
-
 	--color-card: hsl(40 15% 98%);
 	--color-card-foreground: hsl(20 10% 12%);
+}
+
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
 }
 
 html {
@@ -35,8 +33,10 @@ html {
 }
 
 body {
+	margin: 0;
+	font-family: var(--font-sans);
 	background-color: hsl(35 12% 95%);
-	color: hsl(20 10% 12%);
+	color: var(--color-foreground);
 	font-feature-settings: "cv11", "ss01";
 	-webkit-font-smoothing: antialiased;
 }

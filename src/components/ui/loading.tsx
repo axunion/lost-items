@@ -1,6 +1,8 @@
 import { LoaderCircle } from "lucide-solid";
-import { type Component, mergeProps } from "solid-js";
-import { cn } from "~/lib/utils";
+import type { Component } from "solid-js";
+
+import { cx } from "~/lib/utils";
+import styles from "./loading.module.css";
 
 type LoadingProps = {
 	variant?: "default" | "fullscreen" | "inline";
@@ -9,41 +11,34 @@ type LoadingProps = {
 	text?: string;
 };
 
-const Loading: Component<LoadingProps> = (rawProps) => {
-	const props = mergeProps({ variant: "default", size: "md" }, rawProps);
+const variantClass = {
+	default: styles.variantDefault,
+	fullscreen: styles.variantFullscreen,
+	inline: styles.variantInline,
+} as const;
 
-	const sizeClasses: Record<NonNullable<LoadingProps["size"]>, string> = {
-		sm: "size-4",
-		md: "size-8",
-		lg: "size-12",
-	};
+const sizeClass = {
+	sm: styles.sizeSm,
+	md: styles.sizeMd,
+	lg: styles.sizeLg,
+} as const;
 
-	const Content = () => (
-		<div
-			class={cn(
-				"flex items-center justify-center gap-3 text-muted-foreground",
-				props.variant === "fullscreen" &&
-					"fixed inset-0 z-50 bg-background/80 backdrop-blur-sm",
-				props.variant === "default" && "w-full py-12",
-				props.variant === "inline" && "inline-flex w-auto py-0",
-				props.class,
-			)}
-		>
-			<LoaderCircle
-				class={cn(
-					"animate-spin text-primary",
-					sizeClasses[props.size as keyof typeof sizeClasses],
-				)}
-			/>
-			{props.text && (
-				<span class={cn("font-medium", props.size === "sm" && "text-xs")}>
-					{props.text}
-				</span>
-			)}
+const textClass = {
+	sm: styles.textSm,
+	md: styles.textDefault,
+	lg: styles.textDefault,
+} as const;
+
+const Loading: Component<LoadingProps> = (props) => {
+	const variant = () => props.variant ?? "default";
+	const size = () => props.size ?? "md";
+
+	return (
+		<div class={cx(styles.wrapper, variantClass[variant()], props.class)}>
+			<LoaderCircle class={cx(styles.spinner, sizeClass[size()])} />
+			{props.text && <span class={textClass[size()]}>{props.text}</span>}
 		</div>
 	);
-
-	return <Content />;
 };
 
 export default Loading;

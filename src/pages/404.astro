@@ -7,26 +7,93 @@ import Layout from "~/layouts/Layout.astro";
 <Layout title="Page Not Found">
   <AppHeader title="Not Found" />
 
-  <main class="px-4 py-12">
-    <div class="text-center space-y-6">
-      <div class="bg-secondary/50 w-20 h-20 rounded-full flex items-center justify-center mx-auto">
-        <Icon name="lucide:file-question" class="size-10 text-muted-foreground" />
+  <main class="not-found-main">
+    <div class="not-found-content">
+      <div class="not-found-icon-wrapper">
+        <Icon name="lucide:file-question" class="not-found-icon" />
       </div>
 
-      <div class="space-y-2">
-        <h1 class="text-2xl font-bold text-foreground">Page Not Found</h1>
-        <p class="text-muted-foreground">
+      <div class="not-found-text">
+        <h1 class="not-found-heading">Page Not Found</h1>
+        <p class="not-found-desc">
           The page you're looking for doesn't exist or has been removed.
         </p>
       </div>
 
-      <a
-        href="/"
-        class="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-xl font-medium hover:bg-primary/90 transition-colors"
-      >
-        <Icon name="lucide:home" class="size-5" />
+      <a href="/" class="not-found-link">
+        <Icon name="lucide:home" class="not-found-link-icon" />
         Back to Home
       </a>
     </div>
   </main>
 </Layout>
+
+<style>
+  .not-found-main {
+    padding: 3rem 1rem;
+  }
+
+  .not-found-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    text-align: center;
+  }
+
+  .not-found-icon-wrapper {
+    background-color: hsl(30 12% 93% / 0.5);
+    width: 5rem;
+    height: 5rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .not-found-icon {
+    width: 2.5rem;
+    height: 2.5rem;
+    color: var(--color-muted-foreground);
+  }
+
+  .not-found-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .not-found-heading {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-foreground);
+    margin: 0;
+  }
+
+  .not-found-desc {
+    color: var(--color-muted-foreground);
+    margin: 0;
+  }
+
+  .not-found-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background-color: var(--color-primary);
+    color: var(--color-primary-foreground);
+    border-radius: 0.75rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background-color 150ms;
+  }
+
+  .not-found-link:hover {
+    background-color: hsl(220 12% 28% / 0.9);
+  }
+
+  .not-found-link-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+</style>

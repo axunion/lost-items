@@ -1,4 +1,4 @@
-import { Edit, RotateCcw, Search, Trash2 } from "lucide-solid";
+import { RotateCcw, Search, SquarePen, Trash2 } from "lucide-solid";
 import { type Component, createSignal, For, Show } from "solid-js";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent } from "~/components/ui/card";
@@ -22,7 +22,8 @@ import {
 	restoreItem,
 	updateItemComment,
 } from "~/lib/api";
-import { formatDate } from "~/lib/utils";
+import { cx, formatDate } from "~/lib/utils";
+import styles from "./item-list.module.css";
 
 type ItemListProps = {
 	items: Item[];
@@ -86,83 +87,76 @@ const ItemList: Component<ItemListProps> = (props) => {
 	const isDeleted = (item: Item) => item.deletedAt !== null;
 
 	return (
-		<div class="w-full">
+		<div class={styles.container}>
 			<Show
 				when={props.items.length > 0}
 				fallback={
-					<div class="text-center py-12 px-4 bg-secondary/30 rounded-xl border border-dashed border-border/40">
-						<div class="bg-secondary/50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-							<Search class="h-8 w-8 text-muted-foreground/40" />
+					<div class={styles.emptyState}>
+						<div class={styles.emptyIconWrapper}>
+							<Search class={styles.emptyIcon} />
 						</div>
-						<p class="text-base font-bold text-muted-foreground/40">
-							No items found
-						</p>
+						<p class={styles.emptyText}>No items found</p>
 					</div>
 				}
 			>
-				<div class="grid grid-cols-1 gap-3">
+				<div class={styles.grid}>
 					<For each={props.items}>
 						{(item) => (
 							<Card
-								class={`overflow-hidden rounded-xl border-border/50 transition-all ${
-									isDeleted(item) ? "opacity-50 grayscale" : ""
-								}`}
+								class={cx(
+									styles.card,
+									isDeleted(item) ? styles.cardDeleted : undefined,
+								)}
 							>
-								<div class="aspect-square relative overflow-hidden bg-secondary">
+								<div class={styles.imageWrapper}>
 									<img
 										src={item.imageUrl || "/placeholder.svg"}
 										alt="Lost Item"
-										class="w-full h-full object-cover"
+										class={styles.image}
 										loading="lazy"
 									/>
-									<div class="absolute top-2 right-2 bg-background/90 text-[10px] font-bold px-1.5 py-0.5 rounded shadow-sm border border-border/30">
+									<div class={styles.dateBadge}>
 										{formatDate(item.createdAt)}
 									</div>
 									<Show when={isDeleted(item)}>
-										<div class="absolute top-2 left-2 bg-destructive/90 text-destructive-foreground text-[10px] font-bold px-1.5 py-0.5 rounded">
-											Deleted
-										</div>
+										<div class={styles.deletedBadge}>Deleted</div>
 									</Show>
 								</div>
 								<Show when={item.comment}>
-									<CardContent class="p-3">
-										<p class="text-xs leading-relaxed line-clamp-2 text-foreground/80">
-											{item.comment}
-										</p>
+									<CardContent class={styles.commentContent}>
+										<p class={styles.comment}>{item.comment}</p>
 									</CardContent>
 								</Show>
 								<Show when={!props.readonly}>
-									<div class="flex justify-end gap-1 p-2 border-t border-border/30">
+									<div class={styles.actions}>
 										<Show
 											when={!isDeleted(item)}
 											fallback={
 												<Button
 													variant="ghost"
-													size="sm"
+													size="icon"
 													aria-label="Restore item"
 													onClick={() => handleRestore(item)}
 												>
-													<RotateCcw class="size-4" />
+													<RotateCcw />
 												</Button>
 											}
 										>
 											<Button
 												variant="ghost"
 												size="icon"
-												class="h-11 w-11"
 												aria-label="Edit item"
 												onClick={() => handleEdit(item)}
 											>
-												<Edit class="size-5" />
+												<SquarePen />
 											</Button>
 											<Button
-												variant="ghost"
+												variant="destructiveGhost"
 												size="icon"
-												class="h-11 w-11 text-destructive hover:text-destructive hover:bg-destructive/10"
 												aria-label="Delete item"
 												onClick={() => setDeletingItem(item)}
 											>
-												<Trash2 class="size-5" />
+												<Trash2 />
 											</Button>
 										</Show>
 									</div>
@@ -184,15 +178,12 @@ const ItemList: Component<ItemListProps> = (props) => {
 					<TextField
 						value={editComment()}
 						onChange={setEditComment}
-						class="space-y-2"
+						class={styles.editField}
 					>
 						<TextFieldLabel>Comment</TextFieldLabel>
-						<TextFieldTextArea
-							placeholder="Enter comment..."
-							class="min-h-[100px]"
-						/>
+						<TextFieldTextArea placeholder="Enter comment..." />
 					</TextField>
-					<DialogFooter class="gap-2">
+					<DialogFooter>
 						<Button variant="outline" onClick={() => setEditingItem(null)}>
 							Cancel
 						</Button>

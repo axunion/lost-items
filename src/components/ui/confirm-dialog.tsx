@@ -7,6 +7,7 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "~/components/ui/dialog";
+import styles from "./confirm-dialog.module.css";
 
 type ConfirmDialogProps = {
 	open: boolean;
@@ -32,9 +33,9 @@ const ConfirmDialog: Component<ConfirmDialogProps> = (props) => {
 					<DialogTitle>{props.title}</DialogTitle>
 				</DialogHeader>
 				{props.description && (
-					<p class="text-sm text-muted-foreground">{props.description}</p>
+					<p class={styles.description}>{props.description}</p>
 				)}
-				<DialogFooter class="gap-2">
+				<DialogFooter>
 					<Button variant="outline" onClick={() => props.onOpenChange(false)}>
 						{props.cancelLabel ?? "Cancel"}
 					</Button>

@@ -34,6 +34,7 @@ import {
 import { TextField, TextFieldInput } from "~/components/ui/text-field";
 import { deleteList, type List, updateList } from "~/lib/api";
 import { formatDate } from "~/lib/utils";
+import styles from "./history-list.module.css";
 
 type HistoryListProps = {
 	lists: List[];
@@ -144,44 +145,41 @@ const HistoryList: Component<HistoryListProps> = (props) => {
 
 	return (
 		<>
-			<div class="space-y-3">
+			<div class={styles.wrapper}>
 				<Show
 					when={localLists().length > 0}
 					fallback={
-						<div class="text-center py-8 text-muted-foreground bg-secondary/50 rounded-xl">
-							<p class="text-base">No rooms found.</p>
+						<div class={styles.emptyState}>
+							<p class={styles.emptyText}>No rooms found.</p>
 						</div>
 					}
 				>
-					<div class="space-y-2">
+					<div class={styles.list}>
 						<For each={localLists()}>
-							{(item) => (
-								<div class="relative group">
-									<Card class="rounded-xl">
-										<CardHeader class="p-4 pr-12">
-											<CardTitle class="text-base font-normal">
-												<div class="flex flex-col gap-1.5 min-w-0">
-													<span class="text-xs text-muted-foreground">
-														{formatDate(item.createdAt)}
-													</span>
-													<span class="text-base font-bold truncate text-foreground">
-														{getName(item)}
-													</span>
-													<span class="font-mono text-xs text-muted-foreground/60 break-all leading-tight">
-														{item.id}
-													</span>
-												</div>
-											</CardTitle>
-										</CardHeader>
-									</Card>
+							{(item) => {
+								const urlGroups = getUrlGroups(item.id);
+								return (
+									<div class={styles.listItem}>
+										<Card>
+											<CardHeader class={styles.cardHeader}>
+												<CardTitle class={styles.cardTitle}>
+													<div class={styles.cardMeta}>
+														<span class={styles.date}>
+															{formatDate(item.createdAt)}
+														</span>
+														<span class={styles.name}>{getName(item)}</span>
+														<span class={styles.id}>{item.id}</span>
+													</div>
+												</CardTitle>
+											</CardHeader>
+										</Card>
 
-									<div class="absolute top-3 right-3">
 										<DropdownMenu modal={false}>
-											<DropdownMenuTrigger class="p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors">
-												<MoreVertical class="size-4" />
+											<DropdownMenuTrigger class={styles.menuTrigger}>
+												<MoreVertical class={styles.menuTriggerIcon} />
 											</DropdownMenuTrigger>
 											<DropdownMenuContent>
-												<For each={getUrlGroups(item.id)}>
+												<For each={urlGroups}>
 													{(group, index) => (
 														<>
 															<DropdownMenuGroup>
@@ -198,24 +196,24 @@ const HistoryList: Component<HistoryListProps> = (props) => {
 																			copiedUrl() ===
 																			`${props.origin}${group.path}`
 																		}
-																		fallback={<ClipboardList class="size-4" />}
+																		fallback={<ClipboardList />}
 																	>
-																		<Check class="size-4 text-primary" />
+																		<Check
+																			style={{
+																				color: "var(--color-primary)",
+																			}}
+																		/>
 																	</Show>
 																	<span>Copy URL</span>
 																</DropdownMenuItem>
 																<DropdownMenuItem
 																	onSelect={() => handleOpenPage(group.path)}
 																>
-																	<ExternalLink class="size-4" />
+																	<ExternalLink />
 																	<span>Open Page</span>
 																</DropdownMenuItem>
 															</DropdownMenuGroup>
-															<Show
-																when={
-																	index() < getUrlGroups(item.id).length - 1
-																}
-															>
+															<Show when={index() < urlGroups.length - 1}>
 																<DropdownMenuSeparator />
 															</Show>
 														</>
@@ -228,22 +226,22 @@ const HistoryList: Component<HistoryListProps> = (props) => {
 													closeOnSelect={false}
 													onSelect={() => handleEditClick(item)}
 												>
-													<Pencil class="size-4" />
+													<Pencil />
 													<span>Rename</span>
 												</DropdownMenuItem>
 												<DropdownMenuItem
-													class="text-destructive data-highlighted:text-destructive"
+													class={styles.destructiveItem}
 													closeOnSelect={false}
 													onSelect={() => handleDeleteClick(item.id)}
 												>
-													<Trash2 class="size-4" />
+													<Trash2 />
 													<span>Delete</span>
 												</DropdownMenuItem>
 											</DropdownMenuContent>
 										</DropdownMenu>
 									</div>
-								</div>
-							)}
+								);
+							}}
 						</For>
 					</div>
 				</Show>
@@ -264,7 +262,7 @@ const HistoryList: Component<HistoryListProps> = (props) => {
 							<DialogHeader>
 								<DialogTitle>Name</DialogTitle>
 							</DialogHeader>
-							<div class="py-4">
+							<div class={styles.dialogBody}>
 								<TextField>
 									<TextFieldInput
 										value={tempName()}

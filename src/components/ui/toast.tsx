@@ -2,7 +2,7 @@ import { AlertCircle, CheckCircle, Info, X } from "lucide-solid";
 import { type Component, createSignal, For } from "solid-js";
 import { Portal } from "solid-js/web";
 
-import { cn } from "~/lib/utils";
+import styles from "./toast.module.css";
 
 type ToastType = "success" | "error" | "info";
 
@@ -22,10 +22,10 @@ const toastIcons: Record<ToastType, Component<{ class?: string }>> = {
 	info: Info,
 };
 
-const toastStyles: Record<ToastType, string> = {
-	success: "border-emerald-600/30 bg-emerald-50/80 text-emerald-900",
-	error: "border-destructive/50 bg-destructive/10 text-destructive",
-	info: "border-primary/50 bg-primary/10 text-primary",
+const toastTypeClass: Record<ToastType, string> = {
+	success: styles.success,
+	error: styles.error,
+	info: styles.info,
 };
 
 function showToast(
@@ -48,31 +48,25 @@ function dismissToast(id: number) {
 const ToastRegion: Component = () => {
 	return (
 		<Portal>
-			<div class="fixed top-4 right-4 z-50 flex flex-col gap-2 w-full max-w-sm">
+			<div class={styles.region}>
 				<For each={toasts()}>
 					{(toast) => {
 						const IconComponent = toastIcons[toast.type];
 						return (
-							<div
-								class={cn(
-									"flex items-start gap-3 rounded-xl border p-4 shadow-lg",
-									"animate-in fade-in-0 slide-in-from-top-2",
-									toastStyles[toast.type],
-								)}
-							>
-								<IconComponent class="size-5 shrink-0" />
-								<div class="flex-1 space-y-1">
-									<p class="text-sm font-semibold">{toast.title}</p>
+							<div class={`${styles.toast} ${toastTypeClass[toast.type]}`}>
+								<IconComponent class={styles.icon} />
+								<div class={styles.body}>
+									<p class={styles.title}>{toast.title}</p>
 									{toast.description && (
-										<p class="text-sm opacity-80">{toast.description}</p>
+										<p class={styles.description}>{toast.description}</p>
 									)}
 								</div>
 								<button
 									type="button"
-									class="rounded-md p-1 opacity-70 hover:opacity-100 transition-opacity"
+									class={styles.dismiss}
 									onClick={() => dismissToast(toast.id)}
 								>
-									<X class="size-4" />
+									<X class={styles.dismissIcon} />
 								</button>
 							</div>
 						);

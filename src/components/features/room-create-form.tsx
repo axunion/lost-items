@@ -5,6 +5,7 @@ import Loading from "~/components/ui/loading";
 import { TextField, TextFieldInput } from "~/components/ui/text-field";
 import { showToast } from "~/components/ui/toast";
 import { createList, type List } from "~/lib/api";
+import styles from "./room-create-form.module.css";
 
 type RoomCreateFormProps = {
 	onCreated?: (list: List) => void;
@@ -39,14 +40,14 @@ const RoomCreateForm: Component<RoomCreateFormProps> = (props) => {
 	};
 
 	return (
-		<form onSubmit={handleSubmit} class="space-y-4">
+		<form onSubmit={handleSubmit} class={styles.form}>
 			<Show when={isSubmitting()}>
 				<Loading variant="fullscreen" text="Creating..." />
 			</Show>
 			<TextField value={name()} onChange={setName}>
 				<TextFieldInput
 					placeholder="Room Name"
-					class="h-14 px-4 bg-background"
+					class={styles.input}
 					required
 					disabled={isSubmitting()}
 				/>
@@ -54,10 +55,10 @@ const RoomCreateForm: Component<RoomCreateFormProps> = (props) => {
 			<Button
 				type="submit"
 				size="xl"
-				class="w-full font-bold shadow-md shadow-primary/15 active:scale-[0.98]"
+				class={styles.button}
 				disabled={isSubmitting()}
 			>
-				<Plus class="size-6" />
+				<Plus style={{ width: "1.5rem", height: "1.5rem" }} />
 				Create
 			</Button>
 		</form>

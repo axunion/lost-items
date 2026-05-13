@@ -28,7 +28,13 @@ const title = list.name || "Room Items";
 <Layout title={title}>
   <AppHeader title={title} />
 
-  <main class="px-4 py-6">
+  <main class="room-main">
     <ItemList items={itemList} listId={id} readonly />
   </main>
 </Layout>
+
+<style>
+  .room-main {
+    padding: 1.5rem 1rem;
+  }
+</style>

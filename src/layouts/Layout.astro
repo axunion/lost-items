@@ -23,10 +23,19 @@ const { title = "Lost Items", description = "Manage lost and found items" } =
 		<meta name="generator" content={Astro.generator} />
 		<title>{title}</title>
 	</head>
-	<body class="min-h-screen">
-		<div class="max-w-lg mx-auto bg-background min-h-screen">
+	<body>
+		<div class="app-shell">
 			<slot />
 		</div>
 		<ToastRegion client:load />
 	</body>
 </html>
+
+<style>
+	.app-shell {
+		max-width: 32rem;
+		margin: 0 auto;
+		background-color: var(--color-background);
+		min-height: 100vh;
+	}
+</style>

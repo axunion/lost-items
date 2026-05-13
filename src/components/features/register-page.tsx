@@ -3,6 +3,7 @@ import ItemList from "~/components/features/item-list";
 import RegisterForm from "~/components/features/register-form";
 import { showToast } from "~/components/ui/toast";
 import { getItems, type Item } from "~/lib/api";
+import styles from "./register-page.module.css";
 
 type RegisterPageProps = {
 	listId: string;
@@ -27,10 +28,10 @@ const RegisterPage: Component<RegisterPageProps> = (props) => {
 	};
 
 	return (
-		<main class="px-4 py-6 space-y-6">
+		<main class={styles.main}>
 			<RegisterForm listId={props.listId} onCreated={handleCreated} />
 
-			<div class="mt-8 pt-8 border-t border-border/50">
+			<div class={styles.itemsSection}>
 				<ItemList
 					items={items()}
 					listId={props.listId}

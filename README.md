@@ -68,7 +68,7 @@ Each room has a **Public Page** URL. Share this with people who may have lost so
 - **Database:** [Cloudflare D1](https://developers.cloudflare.com/d1/)
 - **Storage:** [Cloudflare R2](https://developers.cloudflare.com/r2/)
 - **ORM:** [Drizzle ORM](https://orm.drizzle.team/)
-- **Styling:** [Tailwind CSS v4](https://tailwindcss.com/)
+- **Styling:** CSS Modules
 
 ## Getting Started
 
