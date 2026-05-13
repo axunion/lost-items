@@ -9,12 +9,12 @@ globs:
 
 # Testing Guidelines
 
-## ルートテスト (Hono)
+## Route Tests (Hono)
 
-`vi.hoisted` + `vi.mock` でDBをモックし、`route.request()` でハンドラを直接テストします。
+Use `vi.hoisted` + `vi.mock` to mock the DB and test handlers directly via `route.request()`.
 
 ```typescript
-// lists.test.ts のパターン
+// Pattern from lists.test.ts
 const { mockDb } = vi.hoisted(() => {
   const mockDb = {
     select: vi.fn().mockReturnThis(),
@@ -29,13 +29,13 @@ vi.mock("../db", () => ({
   createDb: vi.fn(() => mockDb),
 }));
 
-// テスト内
+// Inside a test
 const res = await route.request("/lists", { method: "GET" });
 expect(res.status).toBe(200);
 const body = await res.json();
 ```
 
-チェーン可能なモックの作成パターン:
+Chainable mock creation pattern:
 
 ```typescript
 const mockDb = {
@@ -48,9 +48,9 @@ const mockDb = {
 };
 ```
 
-## コンポーネントテスト (SolidJS)
+## Component Tests (SolidJS)
 
-`@solidjs/testing-library` を使います:
+Use `@solidjs/testing-library`:
 
 ```typescript
 import { render, screen } from "@solidjs/testing-library";
@@ -62,9 +62,9 @@ test("renders correctly", () => {
 });
 ```
 
-## ユーティリティテスト
+## Utility Tests
 
-ロジックを持つ関数は直接インポートしてテストします:
+Import functions directly and test them:
 
 ```typescript
 import { formatDate } from "./utils";
@@ -74,32 +74,50 @@ test("formats date correctly", () => {
 });
 ```
 
-## E2E テスト (Playwright)
+## E2E Tests (Playwright)
 
-- テストファイル: `tests/e2e/*.spec.ts`
-- ブラウザ: Chromium のみ
-- 前提: `pnpm dev` でサーバーが起動していること
+- Test files: `tests/e2e/*.spec.ts`
+- Browser: Chromium only
+- Prerequisite: dev server must be running via `pnpm dev`
 
-パターン:
+Pattern:
 
 ```typescript
-// APIでデータをセットアップ → UIで検証
+// Set up data via API → verify in UI
 test("can create and view list", async ({ page }) => {
-  // セットアップ
+  // Setup
   await fetch("http://localhost:4321/api/lists", {
     method: "POST",
     body: JSON.stringify({ name: "Test List" }),
   });
 
-  // UI検証
+  // UI verification
   await page.goto("/");
   await expect(page.getByText("Test List")).toBeVisible();
 });
 ```
 
-## 共通規約
+## General Conventions
 
-- `beforeEach` で `vi.clearAllMocks()` を呼ぶ
-- テストファイルはソースと同じディレクトリに配置 (`foo.ts` → `foo.test.ts`)
-- E2E のみ `tests/e2e/` に分離
-- テストの説明は英語で記述
+- Call `vi.clearAllMocks()` in `beforeEach`
+- Place test files alongside source files (`foo.ts` → `foo.test.ts`)
+- E2E tests only in `tests/e2e/`
+- Write test descriptions in English
+
+## Dev Server Management
+
+When starting a dev server for UI verification or E2E tests, always stop the process after verification is complete.
+
+```bash
+# Track PID on startup
+pnpm dev &
+DEV_PID=$!
+
+# Stop after verification
+kill $DEV_PID
+# Or stop an already-running process
+lsof -ti :4321 | xargs kill
+```
+
+- Any process started during a session must be stopped before the session ends
+- Before starting, check for existing processes with `lsof -i :4321` to avoid running multiple instances

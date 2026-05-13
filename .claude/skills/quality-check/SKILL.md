@@ -11,7 +11,7 @@ Run the full quality check pipeline.
 If the argument is `--fix`, run `pnpm fix` instead of `pnpm check` to auto-fix lint/format issues.
 
 Steps:
-1. Run `pnpm check` (or `pnpm check:write` if `--fix` was passed)
+1. Run `pnpm check` (or `pnpm fix` if `--fix` was passed)
 2. Run `pnpm test --run`
 3. Run `pnpm build`
 

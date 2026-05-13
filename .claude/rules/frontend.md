@@ -9,68 +9,74 @@ globs:
 
 # Frontend Guidelines
 
-## 1. デザインの美学 (Aesthetics)
-ユーザーを魅了（WOW）させる、プレミアムで現代的なUIを目指します。
-- **プレミアムな質感**: 単純な原色は避け、HSL値を調整した洗練されたパレットを使用します。
-- **奥行きと動き**: Glassmorphism、繊細なボーダー、適切なシャドウ、不透明度を活用して奥行きを表現します。
-- **スタイリングの繊細さ**: 強すぎるリングやボーダーを避けます。
-    - **ボーダー**: `border: 1px solid hsl(30 10% 88% / 0.3)` のように不透明度を下げて馴染ませます。
-    - **フォーカスリング**: `outline: 2px solid hsl(var(--color-ring) / 0.3)` を使用し、デザインを邪魔しない繊細なフィードバックを徹底します。
-- **インタラクション**: すべてのユーザー操作に対して、ホバーエフェクトやマイクロアニメーション（タップ時の縮小など）によるフィードバックを実装します。
-- **脱プレースホルダー**: デモやプレビューが必要な場合は、具体的なイメージを作成します。
+## 1. Design Aesthetics
 
-## 2. 実装アーキテクチャ
-AstroとSolidJSの役割を明確に分離します。
-- **Astro**: ルーティング、SSR、静的レイアウト（`src/pages`, `src/layouts`）を担当。ページ内のインタラクティブなJSは原則として禁止し、SolidJSに委譲します。
-- **SolidJS**: クライアントサイドのすべての動的ロジック、状態管理、フォーム処理を担当。
-- **Kobalte / SolidUI**: ヘッドレスUIプリミティブおよび基本コンポーネントのベースとして使用します。
-    - **原則**: コンポーネントの追加・刷新には `solidui-cli` を使用し、公式の設計標準（`PolymorphicProps` 等）に完全準拠させます。手動での独自実装は最小限に留めます。
+Aim for premium, modern UI that delights users.
+- **Premium quality**: Avoid plain primary colors; use refined palettes with tuned HSL values.
+- **Depth and motion**: Use glassmorphism, subtle borders, appropriate shadows, and opacity to convey depth.
+- **Styling subtlety**: Avoid overly strong rings or borders.
+    - **Borders**: Use reduced opacity to blend naturally — e.g. `border: 1px solid hsl(30 10% 88% / 0.3)`.
+    - **Focus rings**: Use `outline: 2px solid hsl(var(--color-ring) / 0.3)` for subtle feedback that doesn't disrupt the design.
+- **Interactions**: Implement feedback for every user action via hover effects and micro-animations (e.g. scale-down on tap).
+- **No placeholders**: When demos or previews are needed, create concrete visuals rather than placeholder content.
 
-## 3. コンポーネント設計と分割
-保守性と再利用性を高めるため、コンポーネントを適切に分割します。
-- **UIコンポーネント (`src/components/ui`)**:
-    - 表示とスタイリングに特化した、ロジックを持たない純粋なコンポーネント。
-    - 各コンポーネントは `.tsx` と `.module.css` のペアで構成します。
-    - `cx()` ユーティリティ（`~/lib/utils`）を使用して外部から `class` prop でスタイルを上書き可能にします。
-- **フィーチャーコンポーネント (`src/components/features`)**:
-    - 特定のドメインロジック（API通信、状態管理など）を持つコンポーネント。
-    - **適切な分割**: 1つのファイルが肥大化しないよう、サブコンポーネントとして分割し、関心の分離を徹底します。
-- **インポートパス**: エイリアス `~/` を使用します（例: `~/components/ui/button`）。
+## 2. Implementation Architecture
 
-## 4. デザイン標準 (Tokens)
-- **CSS カスタムプロパティ (Design Tokens)**:
-    - すべてのカラー・スペーシング等は `src/styles/global.css` の `:root {}` で定義されたトークンを使用します。
-    - 主なトークン: `--color-primary`, `--color-background`, `--color-foreground`, `--color-border`, `--color-muted-foreground`, `--color-destructive`, `--color-accent`, `--color-secondary` など。
-    - **Radius**: カードやメイン要素の角丸は `border-radius: 0.75rem` (12px) を基本とします。
-- **スタイリング手法**:
-    - **`.tsx` (SolidJS)**: CSS Modules (`.module.css`) を使用します。各コンポーネントと同ディレクトリに配置します。
-    - **`.astro`**: Astro scoped `<style>` ブロックを使用します。
-    - **variants**: lookup オブジェクト方式（例: `const variantClass = { default: styles.variantDefault, ... }`）で解決します。
-    - **Kobalte の状態スタイル**: `[data-expanded]`, `[data-closed]`, `[data-highlighted]`, `[data-invalid]` 等の attribute selector を `.module.css` 内で直接使用します。
-- **スマートフォンファースト & タッチターゲット**:
-    - **メインアクション**: 高さ `56px` を確保し、指での操作性を最優先します。
-    - **アイコンボタン**: 編集・削除などの操作ボタンは `44px` 相当以上を確保し、誤操作を防ぎます。
-- **カラーリング**:
-    - **背景**: `var(--color-background)` (暖色系ベージュ) を基調とします。
-    - **アクセント**: `var(--color-primary)` を基調とします。
-- **アイコン**: `lucide-solid` を使用。
-- **UXと表記の簡素化**:
-    - 視覚的な**アイコン**と**最小限の英単語**で直感的に伝えます。
-    - 装飾的な説明テキストは排除します。
+Keep Astro and SolidJS responsibilities clearly separated.
+- **Astro**: Handles routing, SSR, and static layouts (`src/pages`, `src/layouts`). Interactive JS on pages is forbidden — delegate to SolidJS.
+- **SolidJS**: Handles all client-side dynamic logic, state management, and form processing.
+- **Kobalte / SolidUI**: Used as the base for headless UI primitives and foundational components.
+    - **Principle**: Use `solidui-cli` to add or refresh components, fully conforming to the official design standards (`PolymorphicProps` etc.). Minimize custom manual implementations.
 
-## 5. UIコンポーネント規格 (Components)
+## 3. Component Design and Splitting
+
+Split components appropriately for maintainability and reusability.
+- **UI components (`src/components/ui`)**:
+    - Pure components focused on display and styling, with no business logic.
+    - Each component consists of a `.tsx` + `.module.css` pair.
+    - Use the `cx()` utility (`~/lib/utils`) to allow external `class` prop overrides.
+- **Feature components (`src/components/features`)**:
+    - Components with specific domain logic (API calls, state management, etc.).
+    - **Appropriate splitting**: Split into sub-components to prevent file bloat and enforce separation of concerns.
+- **Import paths**: Use the `~/` alias (e.g. `~/components/ui/button`).
+
+## 4. Design Standards (Tokens)
+
+- **CSS Custom Properties (Design Tokens)**:
+    - All colors, spacing, etc. must use tokens defined in `:root {}` in `src/styles/global.css`.
+    - Key tokens: `--color-primary`, `--color-background`, `--color-foreground`, `--color-border`, `--color-muted-foreground`, `--color-destructive`, `--color-accent`, `--color-secondary`, etc.
+    - **Radius**: Use `border-radius: 0.75rem` (12px) as the base for cards and main elements.
+- **Styling approach**:
+    - **`.tsx` (SolidJS)**: Use CSS Modules (`.module.css`). Place alongside the component in the same directory.
+    - **`.astro`**: Use Astro scoped `<style>` blocks.
+    - **Variants**: Resolve via lookup object — e.g. `const variantClass = { default: styles.variantDefault, ... }`.
+    - **Kobalte state styles**: Use attribute selectors like `[data-expanded]`, `[data-closed]`, `[data-highlighted]`, `[data-invalid]` directly in `.module.css`.
+- **Mobile-first & touch targets**:
+    - **Main actions**: Ensure `56px` height to prioritize finger operability.
+    - **Icon buttons**: Edit/delete buttons must be `44px` or larger to prevent mis-taps.
+- **Colors**:
+    - **Background**: Base on `var(--color-background)` (warm beige tone).
+    - **Accent**: Base on `var(--color-primary)`.
+- **Icons**: Use `lucide-solid`.
+- **UX and label simplicity**:
+    - Communicate intuitively via visual **icons** and **minimal English words**.
+    - Remove decorative explanatory text.
+
+## 5. UI Component Standards
+
 - **Button**:
-    - **メイン (Call to Action)**: `size="xl"` (56px高, `border-radius: 0.75rem`) を使用します。
-    - **サブ/アイコン**: `size="icon"` または `variant="ghost"` を使用しますが、サイズは 44px 以上を確保してタップしやすくします。
-    - **スタイル上書き**: `class` prop でモジュールクラスを渡すか、CSS カスケードで解決できない場合は `style` prop（インラインスタイル）を使用します。
+    - **Main (Call to Action)**: Use `size="xl"` (56px height, `border-radius: 0.75rem`).
+    - **Sub / Icon**: Use `size="icon"` or `variant="ghost"`, but ensure minimum 44px size for tap accessibility.
+    - **Style overrides**: Pass a module class via the `class` prop; use the `style` prop (inline style) only when CSS cascade cannot resolve it.
 - **Input / Form**:
-    - 入力フィールドも 56px を基準とし、ボタンと高さを揃えます。
-- **アニメーション**:
-    - Dialog・DropdownMenu・Toast のアニメーションは各コンポーネントの `.module.css` に `@keyframes` をローカル定義します。
-    - Kobalte の `[data-expanded]` / `[data-closed]` attribute selector で開閉に対応します。
+    - Input fields also use 56px as the baseline height to align with buttons.
+- **Animations**:
+    - Define `@keyframes` locally in each component's `.module.css` for Dialog, DropdownMenu, and Toast animations.
+    - Use Kobalte's `[data-expanded]` / `[data-closed]` attribute selectors to handle open/close transitions.
 
-## 6. 品質・検証ワークフロー (Verification)
-UIの追加や変更を行った後は、必ず以下の手順で品質を確認します。
-1. **Linterの確認**: `pnpm check` (Biome) を実行し、警告やエラーがないことを確認します。
-2. **型チェック**: TypeScriptによる型エラーがないか確認し、`any` の使用を避けます。
-3. **実機・ブラウザ検証**: スタイルの崩れがないか、レスポンシブ対応がなされているかを確認します。
+## 6. Quality and Verification Workflow
+
+After adding or changing UI, always verify quality in this order:
+1. **Lint check**: Run `pnpm check` (Biome) and confirm no warnings or errors.
+2. **Type check**: Verify no TypeScript errors; avoid using `any`.
+3. **Browser verification**: Check for layout breakage and confirm responsive behavior.

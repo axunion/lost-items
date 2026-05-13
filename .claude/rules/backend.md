@@ -7,22 +7,22 @@ globs:
 
 # Backend Guidelines
 
-## Hono API パターン
+## Hono API Patterns
 
-### Bindings へのアクセス
+### Accessing Bindings
 
-Hono ルートでは `c.env` を使ってバインディングにアクセスします:
+In Hono routes, access bindings via `c.env`:
 
 ```typescript
 import { createDb } from "~/server/db";
 import type { Bindings } from "~/server/bindings";
 
-// ルートハンドラ内
+// Inside a route handler
 const db = createDb(c.env.DB);
 const bucket = c.env.BUCKET;
 ```
 
-Astro ページでは `cloudflare:workers` モジュールを使います:
+In Astro pages, use the `cloudflare:workers` module:
 
 ```typescript
 import { env } from "cloudflare:workers";
@@ -30,9 +30,9 @@ import type { Bindings } from "~/server/bindings";
 const db = createDb((env as Bindings).DB);
 ```
 
-### バリデーション
+### Validation
 
-入力バリデーションには必ず `zValidator` を使用します:
+Always use `zValidator` for input validation:
 
 ```typescript
 import { zValidator } from "@hono/zod-validator";
@@ -48,26 +48,26 @@ app.post(
 );
 ```
 
-### エラーレスポンス形式
+### Error Response Format
 
-エラーは常に `{ error: "message" }` の形式で返します:
+Always return errors in `{ error: "message" }` format:
 
 ```typescript
 return c.json({ error: "List not found" }, 404);
 return c.json({ error: "File too large" }, 400);
 ```
 
-成功レスポンスでは直接オブジェクトを返します:
+Return objects directly for success responses:
 
 ```typescript
 return c.json({ id, name, createdAt });
 ```
 
-## R2 ストレージ
+## R2 Storage
 
-### キー命名規則
+### Key Naming Convention
 
-R2 オブジェクトキーは `{listId}/{uuid}-{filename}` の形式を使います:
+Use `{listId}/{uuid}-{filename}` format for R2 object keys:
 
 ```typescript
 const key = `${listId}/${crypto.randomUUID()}-${file.name}`;
@@ -76,22 +76,22 @@ await c.env.BUCKET.put(key, buffer, {
 });
 ```
 
-### ファイルアップロード検証
+### File Upload Validation
 
-- 最大サイズ: 5MB (`5 * 1024 * 1024` bytes)
-- 許可する Content-Type は受け取ったものをそのまま使用
-- R2 キーはコントロールされた命名規則を使い、外部入力をキーに直接使わない
+- Max size: 5MB (`5 * 1024 * 1024` bytes)
+- Pass through the received Content-Type as-is
+- R2 keys must use a controlled naming convention — never use external input directly as a key
 
-## ID 生成
+## ID Generation
 
-UUID は `crypto.randomUUID()` を使います（Node.js の `uuid` パッケージ不使用）:
+Use `crypto.randomUUID()` for UUIDs (do not use the Node.js `uuid` package):
 
 ```typescript
 const id = crypto.randomUUID();
 ```
 
-## タイムスタンプ規約
+## Timestamp Convention
 
-- 保存: Unix タイムスタンプ（秒）を `integer` 型で格納
-- 取得: そのまま数値として返す（フロントエンド側でフォーマット）
-- 現在時刻: `Math.floor(Date.now() / 1000)`
+- Storage: store as Unix timestamps (seconds) using `integer` type
+- Retrieval: return as-is as a number (formatting is handled on the frontend)
+- Current time: `Math.floor(Date.now() / 1000)`
