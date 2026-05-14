@@ -1,6 +1,6 @@
 {
 	"$schema": "https://json.schemastore.org/claude-code-settings.json",
-	"enabledMcpjsonServers": ["context7", "playwright"],
+	"enabledMcpjsonServers": ["context7"],
 	"permissions": {
 		"allow": [
 			"Bash(pnpm install *)",
@@ -12,6 +12,8 @@
 			"Bash(pnpm deploy)",
 			"Bash(pnpm test *)",
 			"Bash(pnpm test:e2e)",
+			"Bash(pnpm test:e2e *)",
+			"Bash(pnpm test:e2e:*)",
 			"Bash(pnpm astro *)",
 			"Bash(pnpm db:check)",
 			"Bash(pnpm db:generate)",

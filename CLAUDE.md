@@ -15,7 +15,8 @@ pnpm fix              # Biome auto-fix (format/lint only)
 
 pnpm test             # Run unit tests (Vitest)
 pnpm test -- src/server/routes/lists.test.ts  # Run a single test file
-pnpm test:e2e         # Run e2e tests (Playwright, requires dev server)
+pnpm test:e2e         # Run e2e tests (Playwright, dev server auto-starts via webServer)
+pnpm test:e2e:headed  # Same, with browser visible (debugging)
 
 pnpm db:generate      # Generate Drizzle migration from schema changes
 pnpm db:migrate       # Apply migrations locally
@@ -66,6 +67,6 @@ After making changes, verify in this order:
   - `testing.md` — Unit/E2E test patterns (`src/**/*.test.*`, `tests/e2e/**`)
   - `database.md` — Drizzle schema, migrations, soft delete (`src/server/db/**`, `migrations/**`)
 - **`.claude/settings.json`** — Shared permission config: sandbox enabled, deny list for destructive git/rm/credential ops
-- **`.mcp.json`** — MCP servers: `context7` (live docs lookup), `playwright` (browser automation for UI verification)
+- **`.mcp.json`** — MCP servers: `context7` (live docs lookup)
 - **`.claude/agents/`** — Custom agents: `@code-reviewer`, `@test-writer`, `@db-reviewer`
 - **`.claude/skills/`** — Slash commands: `/deploy`, `/db-migrate [local|prod]`, `/quality-check [--fix]`, `/new-component <Name> [ui|features]`

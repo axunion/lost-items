@@ -76,24 +76,38 @@ test("formats date correctly", () => {
 
 ## E2E Tests (Playwright)
 
-- Test files: `tests/e2e/*.spec.ts`
-- Browser: Chromium only
-- Prerequisite: dev server must be running via `pnpm dev`
+Two spec files only — keep scope here, do not add UI-interaction-heavy flows:
 
-Pattern:
+- `tests/e2e/api-flow.spec.ts` — API-driven end-to-end: create room → register item → delete (soft) → restore → public read-only check
+- `tests/e2e/ui-smoke.spec.ts` — SSR/routing smoke: dashboard renders, register/room pages are reachable, public page is read-only
+
+Run with:
+
+```bash
+pnpm test:e2e                                    # all specs (webServer auto-starts pnpm dev)
+pnpm test:e2e -- tests/e2e/api-flow.spec.ts      # single spec
+pnpm test:e2e:headed                             # headed mode for local debugging
+```
+
+**Claude must NOT use MCP Playwright tools (`mcp__playwright__*`) to run or verify E2E tests.**
+MCP-driven execution is slow (per-step round-trips) and non-reproducible (timing/state drift).
+Always run E2E via `pnpm test:e2e` through Bash.
+
+Pattern — API setup then SSR/UI assertion:
 
 ```typescript
-// Set up data via API → verify in UI
-test("can create and view list", async ({ page }) => {
-  // Setup
-  await fetch("http://localhost:4321/api/lists", {
-    method: "POST",
-    body: JSON.stringify({ name: "Test List" }),
+test("...", async ({ page, request }) => {
+  // Use Date.now()-process.pid for unique room names across parallel runs
+  const roomName = `Test Room ${Date.now()}-${process.pid}`;
+
+  // Mutating API calls require origin header (CSRF guard)
+  await request.post(`/api/lists/${id}/items`, {
+    multipart: { comment: "text" },
+    headers: { origin: "http://localhost:4321" },
   });
 
-  // UI verification
-  await page.goto("/");
-  await expect(page.getByText("Test List")).toBeVisible();
+  await page.goto(`/${id}/register`);
+  await expect(page.getByTestId("item-card")).toBeVisible();
 });
 ```
 
@@ -106,7 +120,7 @@ test("can create and view list", async ({ page }) => {
 
 ## Dev Server Management
 
-When starting a dev server for UI verification or E2E tests, always stop the process after verification is complete.
+For UI verification with the `ui-verifier` agent, always stop the process after verification:
 
 ```bash
 # Track PID on startup
@@ -121,3 +135,4 @@ lsof -ti :4321 | xargs kill
 
 - Any process started during a session must be stopped before the session ends
 - Before starting, check for existing processes with `lsof -i :4321` to avoid running multiple instances
+- For `pnpm test:e2e`, the `webServer` config handles dev server lifecycle automatically — no manual management needed

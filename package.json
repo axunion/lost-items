@@ -17,7 +17,10 @@
 		"fix": "biome check --write src",
 		"test": "vitest",
 		"test:ui": "vitest --ui",
-		"test:e2e": "playwright test"
+		"test:coverage": "vitest run --coverage",
+		"test:e2e": "playwright test",
+		"test:e2e:ui": "playwright test --ui",
+		"test:e2e:headed": "playwright test --headed"
 	},
 	"dependencies": {
 		"@astrojs/cloudflare": "^13.1.1",
@@ -43,6 +46,7 @@
 		"@playwright/test": "^1.57.0",
 		"@solidjs/testing-library": "^0.8.10",
 		"@testing-library/jest-dom": "^6.9.1",
+		"@vitest/coverage-v8": "^4.1.6",
 		"@vitest/ui": "^4.1.0",
 		"drizzle-kit": "^0.31.7",
 		"jsdom": "^27.4.0",
