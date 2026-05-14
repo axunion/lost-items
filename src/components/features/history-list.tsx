@@ -159,7 +159,7 @@ const HistoryList: Component<HistoryListProps> = (props) => {
 							{(item) => {
 								const urlGroups = getUrlGroups(item.id);
 								return (
-									<div class={styles.listItem}>
+									<div class={styles.listItem} data-testid="room-item">
 										<Card>
 											<CardHeader class={styles.cardHeader}>
 												<CardTitle class={styles.cardTitle}>
@@ -167,7 +167,9 @@ const HistoryList: Component<HistoryListProps> = (props) => {
 														<span class={styles.date}>
 															{formatDate(item.createdAt)}
 														</span>
-														<span class={styles.name}>{getName(item)}</span>
+														<span class={styles.name} data-testid="room-name">
+															{getName(item)}
+														</span>
 														<span class={styles.id}>{item.id}</span>
 													</div>
 												</CardTitle>

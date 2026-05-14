@@ -107,6 +107,7 @@ const ItemList: Component<ItemListProps> = (props) => {
 									styles.card,
 									isDeleted(item) ? styles.cardDeleted : undefined,
 								)}
+								data-testid="item-card"
 							>
 								<div class={styles.imageWrapper}>
 									<img
@@ -124,7 +125,9 @@ const ItemList: Component<ItemListProps> = (props) => {
 								</div>
 								<Show when={item.comment}>
 									<CardContent class={styles.commentContent}>
-										<p class={styles.comment}>{item.comment}</p>
+										<p class={styles.comment} data-testid="item-comment">
+											{item.comment}
+										</p>
 									</CardContent>
 								</Show>
 								<Show when={!props.readonly}>

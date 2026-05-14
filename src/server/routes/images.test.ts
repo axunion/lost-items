@@ -56,6 +56,57 @@ describe("imagesRoute", () => {
 		});
 	});
 
+	it("returns image/jpeg as default content-type when httpMetadata is absent", async () => {
+		const env = createEnv();
+		const key =
+			"aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb-item.png";
+		env.BUCKET.get.mockResolvedValueOnce({
+			body: "mock-image",
+			httpMetadata: undefined,
+		});
+
+		const response = await imagesRoute.request(
+			`/${key}`,
+			{ method: "GET" },
+			env,
+		);
+
+		expect(response.status).toBe(200);
+		expect(response.headers.get("Content-Type")).toBe("image/jpeg");
+	});
+
+	it("accepts uppercase UUID keys (regex is case-insensitive)", async () => {
+		const env = createEnv();
+		// Uppercase hex digits – the regex uses /i flag
+		const key =
+			"AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAA/BBBBBBBB-BBBB-BBBB-BBBB-BBBBBBBBBBBB-item.jpg";
+		env.BUCKET.get.mockResolvedValueOnce({
+			body: "img",
+			httpMetadata: { contentType: "image/jpeg" },
+		});
+
+		const response = await imagesRoute.request(
+			`/${key}`,
+			{ method: "GET" },
+			env,
+		);
+
+		expect(response.status).toBe(200);
+	});
+
+	it("rejects path-traversal style keys with 400", async () => {
+		const env = createEnv();
+
+		const response = await imagesRoute.request(
+			"/../etc/passwd",
+			{ method: "GET" },
+			env,
+		);
+
+		expect(response.status).toBe(400);
+		expect(env.BUCKET.get).not.toHaveBeenCalled();
+	});
+
 	it("returns image body with cache headers", async () => {
 		const env = createEnv();
 		const key =

@@ -123,6 +123,7 @@ const RegisterForm: Component<RegisterFormProps> = (props) => {
 						type="file"
 						accept="image/*"
 						capture="environment"
+						aria-label="Take a photo"
 						class={styles.hiddenInput}
 						onChange={handleImageUpload}
 					/>
@@ -130,6 +131,7 @@ const RegisterForm: Component<RegisterFormProps> = (props) => {
 						ref={fileInputRef}
 						type="file"
 						accept="image/*"
+						aria-label="Choose a photo"
 						class={styles.hiddenInput}
 						onChange={handleImageUpload}
 					/>

@@ -4,15 +4,13 @@ import { compressImage } from "./image-utils";
 describe("image-utils", () => {
 	describe("compressImage", () => {
 		let originalImage: typeof Image;
-		let originalDocument: typeof document;
 		let originalFileReader: typeof FileReader;
 
 		beforeEach(() => {
 			originalImage = global.Image;
-			originalDocument = global.document;
 			originalFileReader = global.FileReader;
 
-			// Mock Image
+			// Default mock: 2000x2000 image
 			global.Image = class {
 				onload: (() => void) | null = null;
 				onerror: (() => void) | null = null;
@@ -22,7 +20,6 @@ describe("image-utils", () => {
 
 				set src(value: string) {
 					this._src = value;
-					// Simulate async image loading
 					setTimeout(() => {
 						if (this.onload) this.onload();
 					}, 0);
@@ -32,7 +29,6 @@ describe("image-utils", () => {
 				}
 			} as unknown as typeof Image;
 
-			// Mock FileReader
 			global.FileReader = class {
 				onload: ((e: { target: { result: string } }) => void) | null = null;
 				readAsDataURL() {
@@ -47,27 +43,29 @@ describe("image-utils", () => {
 
 		afterEach(() => {
 			global.Image = originalImage;
-			global.document = originalDocument;
 			global.FileReader = originalFileReader;
 			vi.restoreAllMocks();
 		});
 
-		it("should compress an image larger than max dimensions", async () => {
-			// Mock Canvas and Context
-			const mockContext = {
-				drawImage: vi.fn(),
-			};
-			const mockCanvas = {
-				width: 0,
-				height: 0,
-				getContext: vi.fn(() => mockContext),
-				toBlob: vi.fn((callback) =>
+		function makeCanvas(
+			overrides?: Partial<{ width: number; height: number }>,
+		) {
+			const ctx = { drawImage: vi.fn() };
+			const canvas = {
+				width: overrides?.width ?? 0,
+				height: overrides?.height ?? 0,
+				getContext: vi.fn(() => ctx),
+				toBlob: vi.fn((callback: (b: Blob | null) => void) =>
 					callback(new Blob(["mock data"], { type: "image/jpeg" })),
 				),
 			};
+			return { canvas, ctx };
+		}
 
+		it("should compress an image larger than max dimensions", async () => {
+			const { canvas, ctx } = makeCanvas();
 			vi.spyOn(document, "createElement").mockReturnValue(
-				mockCanvas as unknown as HTMLElement,
+				canvas as unknown as HTMLElement,
 			);
 
 			const file = new File(["mock"], "test.png", { type: "image/png" });
@@ -79,62 +77,140 @@ describe("image-utils", () => {
 			expect(result).toBeInstanceOf(File);
 			expect(result.name).toBe("test.jpg");
 			expect(result.type).toBe("image/jpeg");
-
-			// Verify resize logic (2000x2000 -> 1000x1000)
-			expect(mockCanvas.width).toBe(1000);
-			expect(mockCanvas.height).toBe(1000);
-			expect(mockContext.drawImage).toHaveBeenCalled();
+			// 2000x2000 → 1000x1000
+			expect(canvas.width).toBe(1000);
+			expect(canvas.height).toBe(1000);
+			expect(ctx.drawImage).toHaveBeenCalled();
+			expect(canvas.toBlob).toHaveBeenCalledWith(
+				expect.any(Function),
+				"image/jpeg",
+				expect.any(Number),
+			);
 		});
 
-		it("should maintain aspect ratio", async () => {
-			// Mock Image with specific dimensions
-			const MockImage = class {
+		it("should maintain aspect ratio for landscape image", async () => {
+			global.Image = class {
 				onload: (() => void) | null = null;
 				private _src = "";
 				width = 2000;
 				height = 1000;
-				set src(value: string) {
-					this._src = value;
-					setTimeout(() => {
-						if (this.onload) this.onload();
-					}, 0);
+				set src(v: string) {
+					this._src = v;
+					setTimeout(() => this.onload?.(), 0);
 				}
 				get src() {
 					return this._src;
 				}
 			} as unknown as typeof Image;
-			global.Image = MockImage;
 
-			// Mock Canvas
-			const mockCanvas = {
-				width: 0,
-				height: 0,
-				getContext: vi.fn(() => ({ drawImage: vi.fn() })),
-				toBlob: vi.fn((callback) =>
-					callback(new Blob(["mock"], { type: "image/jpeg" })),
-				),
-			};
+			const { canvas } = makeCanvas();
 			vi.spyOn(document, "createElement").mockReturnValue(
-				mockCanvas as unknown as HTMLElement,
+				canvas as unknown as HTMLElement,
 			);
 
 			const file = new File(["mock"], "test.png", { type: "image/png" });
 			await compressImage(file, { maxWidth: 1000, maxHeight: 1000 });
 
-			// 2000x1000 -> 1000x500 (maxWidth 1000 applied)
-			expect(mockCanvas.width).toBe(1000);
-			expect(mockCanvas.height).toBe(500);
+			// 2000x1000 → 1000x500 (maxWidth constraint)
+			expect(canvas.width).toBe(1000);
+			expect(canvas.height).toBe(500);
+		});
+
+		it("should maintain aspect ratio for portrait image", async () => {
+			global.Image = class {
+				onload: (() => void) | null = null;
+				private _src = "";
+				width = 1000;
+				height = 2000;
+				set src(v: string) {
+					this._src = v;
+					setTimeout(() => this.onload?.(), 0);
+				}
+				get src() {
+					return this._src;
+				}
+			} as unknown as typeof Image;
+
+			const { canvas } = makeCanvas();
+			vi.spyOn(document, "createElement").mockReturnValue(
+				canvas as unknown as HTMLElement,
+			);
+
+			const file = new File(["mock"], "portrait.png", { type: "image/png" });
+			await compressImage(file, { maxWidth: 1000, maxHeight: 1000 });
+
+			// 1000x2000 → 500x1000 (maxHeight constraint)
+			expect(canvas.width).toBe(500);
+			expect(canvas.height).toBe(1000);
+		});
+
+		it("should not resize an image that fits within max dimensions", async () => {
+			global.Image = class {
+				onload: (() => void) | null = null;
+				private _src = "";
+				width = 800;
+				height = 600;
+				set src(v: string) {
+					this._src = v;
+					setTimeout(() => this.onload?.(), 0);
+				}
+				get src() {
+					return this._src;
+				}
+			} as unknown as typeof Image;
+
+			const { canvas } = makeCanvas();
+			vi.spyOn(document, "createElement").mockReturnValue(
+				canvas as unknown as HTMLElement,
+			);
+
+			const file = new File(["mock"], "small.png", { type: "image/png" });
+			await compressImage(file, { maxWidth: 1920, maxHeight: 1920 });
+
+			// 800x600 unchanged (within limits)
+			expect(canvas.width).toBe(800);
+			expect(canvas.height).toBe(600);
+		});
+
+		it("should convert extension to .jpg for file without extension", async () => {
+			const { canvas } = makeCanvas();
+			vi.spyOn(document, "createElement").mockReturnValue(
+				canvas as unknown as HTMLElement,
+			);
+
+			const file = new File(["mock"], "photo", { type: "image/png" });
+			const result = await compressImage(file, {
+				maxWidth: 1000,
+				maxHeight: 1000,
+			});
+
+			expect(result.name).toBe("photo.jpg");
+		});
+
+		it("should convert only the last extension for files with multiple dots", async () => {
+			const { canvas } = makeCanvas();
+			vi.spyOn(document, "createElement").mockReturnValue(
+				canvas as unknown as HTMLElement,
+			);
+
+			const file = new File(["mock"], "my.photo.heic", { type: "image/heic" });
+			const result = await compressImage(file, {
+				maxWidth: 1000,
+				maxHeight: 1000,
+			});
+
+			expect(result.name).toBe("my.photo.jpg");
 		});
 
 		it("should reject when canvas context is unavailable", async () => {
-			const mockCanvas = {
+			const canvas = {
 				width: 0,
 				height: 0,
 				getContext: vi.fn(() => null),
 				toBlob: vi.fn(),
 			};
 			vi.spyOn(document, "createElement").mockReturnValue(
-				mockCanvas as unknown as HTMLElement,
+				canvas as unknown as HTMLElement,
 			);
 
 			const file = new File(["mock"], "test.png", { type: "image/png" });
@@ -144,14 +220,14 @@ describe("image-utils", () => {
 		});
 
 		it("should reject when blob creation fails", async () => {
-			const mockCanvas = {
+			const canvas = {
 				width: 0,
 				height: 0,
 				getContext: vi.fn(() => ({ drawImage: vi.fn() })),
-				toBlob: vi.fn((callback) => callback(null)),
+				toBlob: vi.fn((callback: (b: Blob | null) => void) => callback(null)),
 			};
 			vi.spyOn(document, "createElement").mockReturnValue(
-				mockCanvas as unknown as HTMLElement,
+				canvas as unknown as HTMLElement,
 			);
 
 			const file = new File(["mock"], "test.png", { type: "image/png" });

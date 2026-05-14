@@ -10,6 +10,19 @@ export default defineConfig({
 		setupFiles: ["./vitest.setup.ts"],
 		include: ["src/**/*.{test,spec}.{js,ts,jsx,tsx}"],
 		exclude: ["node_modules", "tests/e2e"],
+		coverage: {
+			provider: "v8",
+			reporter: ["text", "html"],
+			include: ["src/**/*.{ts,tsx}"],
+			exclude: [
+				"**/*.test.*",
+				"**/*.module.css",
+				"src/env.d.ts",
+				"src/server/bindings.ts",
+				"src/server/db/schema.ts",
+				"src/pages/**/*.astro",
+			],
+		},
 		server: {
 			deps: {
 				inline: [/@kobalte\/core/, "lucide-solid"],

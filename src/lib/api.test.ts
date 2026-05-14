@@ -61,7 +61,7 @@ describe("api", () => {
 	});
 
 	describe("addItem", () => {
-		it("should add an item with comment only", async () => {
+		it("should add an item with comment only and include comment in body", async () => {
 			const mockResponse = { id: "item-1", comment: "hello" };
 			fetchSpy.mockResolvedValue({
 				ok: true,
@@ -70,18 +70,16 @@ describe("api", () => {
 
 			const result = await addItem("list-1", { comment: "hello" });
 
-			expect(fetchSpy).toHaveBeenCalledWith(
-				"/api/lists/list-1/items",
-				expect.any(Object),
-			);
 			const [url, options] = fetchSpy.mock.calls[0];
 			expect(url).toBe("/api/lists/list-1/items");
 			expect(options.method).toBe("POST");
 			expect(options.body).toBeInstanceOf(FormData);
+			expect(options.body.get("comment")).toBe("hello");
+			expect(options.body.has("image")).toBe(false);
 			expect(result).toEqual(mockResponse);
 		});
 
-		it("should add an item with image", async () => {
+		it("should add an item with image and include both comment and image in body", async () => {
 			const mockResponse = { id: "item-2", comment: "pic" };
 			fetchSpy.mockResolvedValue({
 				ok: true,
@@ -91,9 +89,10 @@ describe("api", () => {
 			const file = new File([""], "test.jpg", { type: "image/jpeg" });
 			await addItem("list-1", { comment: "pic", image: file });
 
-			expect(fetchSpy).toHaveBeenCalled();
 			const [, options] = fetchSpy.mock.calls[0];
 			expect(options.body).toBeInstanceOf(FormData);
+			expect(options.body.get("comment")).toBe("pic");
+			expect(options.body.get("image")).toBe(file);
 		});
 
 		it("should throw error on failure", async () => {
@@ -131,9 +130,11 @@ describe("api", () => {
 	});
 
 	describe("updateList", () => {
-		it("should call PATCH with correct data", async () => {
+		it("should call PATCH with correct data and resolve undefined", async () => {
 			fetchSpy.mockResolvedValue({ ok: true });
-			await updateList("list-1", { name: "Updated" });
+			await expect(
+				updateList("list-1", { name: "Updated" }),
+			).resolves.toBeUndefined();
 			expect(fetchSpy).toHaveBeenCalledWith(
 				"/api/lists/list-1",
 				expect.objectContaining({ method: "PATCH" }),
@@ -149,9 +150,9 @@ describe("api", () => {
 	});
 
 	describe("deleteList", () => {
-		it("should call DELETE", async () => {
+		it("should call DELETE and resolve undefined", async () => {
 			fetchSpy.mockResolvedValue({ ok: true });
-			await deleteList("list-1");
+			await expect(deleteList("list-1")).resolves.toBeUndefined();
 			expect(fetchSpy).toHaveBeenCalledWith(
 				"/api/lists/list-1",
 				expect.objectContaining({ method: "DELETE" }),
@@ -200,9 +201,9 @@ describe("api", () => {
 	});
 
 	describe("deleteItem", () => {
-		it("should call DELETE on item endpoint", async () => {
+		it("should call DELETE on item endpoint and resolve undefined", async () => {
 			fetchSpy.mockResolvedValue({ ok: true });
-			await deleteItem("list-1", "item-1");
+			await expect(deleteItem("list-1", "item-1")).resolves.toBeUndefined();
 			expect(fetchSpy).toHaveBeenCalledWith("/api/lists/list-1/items/item-1", {
 				method: "DELETE",
 			});
@@ -217,9 +218,9 @@ describe("api", () => {
 	});
 
 	describe("restoreItem", () => {
-		it("should call POST on restore endpoint", async () => {
+		it("should call POST on restore endpoint and resolve undefined", async () => {
 			fetchSpy.mockResolvedValue({ ok: true });
-			await restoreItem("list-1", "item-1");
+			await expect(restoreItem("list-1", "item-1")).resolves.toBeUndefined();
 			expect(fetchSpy).toHaveBeenCalledWith(
 				"/api/lists/list-1/items/item-1/restore",
 				{

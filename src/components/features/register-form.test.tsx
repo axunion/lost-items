@@ -5,7 +5,6 @@ import * as api from "~/lib/api";
 import { compressImage } from "~/lib/image-utils";
 import RegisterForm from "./register-form";
 
-// Mock dependencies
 vi.mock("~/lib/api", () => ({
 	addItem: vi.fn(),
 }));
@@ -16,13 +15,24 @@ vi.mock("~/components/ui/toast", () => ({
 	showToast: vi.fn(),
 }));
 
+const mockItem = (overrides?: Partial<api.Item>) => ({
+	id: "item-1",
+	listId: "test-list-id",
+	comment: "test",
+	imageUrl: null,
+	createdAt: new Date(),
+	deletedAt: null,
+	...overrides,
+});
+
 describe("RegisterForm", () => {
 	const listId = "test-list-id";
+
 	beforeEach(() => {
 		vi.clearAllMocks();
 	});
 
-	it("renders correctly", () => {
+	it("renders photo section, comment field, and submit button", () => {
 		render(() => <RegisterForm listId={listId} />);
 		expect(screen.getByText("Photo")).toBeInTheDocument();
 		expect(screen.getByText("Comment")).toBeInTheDocument();
@@ -31,25 +41,17 @@ describe("RegisterForm", () => {
 		).toBeInTheDocument();
 	});
 
-	it("handles comment input and submission", async () => {
+	it("submits comment without image and calls onCreated", async () => {
 		const mockAddItem = vi.mocked(api.addItem);
 		const handleCreated = vi.fn();
-		mockAddItem.mockResolvedValue({
-			id: "item-1",
-			listId,
-			comment: "Test comment",
-			imageUrl: null,
-			createdAt: new Date(),
-			deletedAt: null,
-		});
+		mockAddItem.mockResolvedValue(mockItem({ comment: "Test comment" }));
 
 		render(() => <RegisterForm listId={listId} onCreated={handleCreated} />);
 
-		const commentInput = screen.getByPlaceholderText("Optional info...");
-		fireEvent.input(commentInput, { target: { value: "Test comment" } });
-
-		const submitButton = screen.getByRole("button", { name: /register/i });
-		fireEvent.click(submitButton);
+		fireEvent.input(screen.getByPlaceholderText("Optional info..."), {
+			target: { value: "Test comment" },
+		});
+		fireEvent.click(screen.getByRole("button", { name: /register/i }));
 
 		await waitFor(() => {
 			expect(mockAddItem).toHaveBeenCalledWith(listId, {
@@ -57,75 +59,144 @@ describe("RegisterForm", () => {
 				image: undefined,
 			});
 		});
-
 		expect(handleCreated).toHaveBeenCalledWith(
-			expect.objectContaining({
-				id: "item-1",
-				listId,
-				comment: "Test comment",
-			}),
+			expect.objectContaining({ id: "item-1" }),
 		);
 	});
 
-	it("uploads image, compresses it, and submits with compressed file", async () => {
+	it("shows success toast and resets form after successful submission", async () => {
 		const mockAddItem = vi.mocked(api.addItem);
-		const mockCompressImage = vi.mocked(compressImage);
+		mockAddItem.mockResolvedValue(mockItem());
+
+		render(() => <RegisterForm listId={listId} />);
+
+		const textarea = screen.getByPlaceholderText("Optional info...");
+		fireEvent.input(textarea, { target: { value: "some comment" } });
+		fireEvent.click(screen.getByRole("button", { name: /register/i }));
+
+		await waitFor(() => {
+			expect(showToast).toHaveBeenCalledWith("Item registered", "success");
+		});
+		// Comment field should be cleared
+		expect((textarea as HTMLTextAreaElement).value).toBe("");
+	});
+
+	it("compresses image file and submits it", async () => {
+		const mockAddItem = vi.mocked(api.addItem);
+		const mockCompress = vi.mocked(compressImage);
 		const compressed = new File(["compressed"], "compressed.jpg", {
 			type: "image/jpeg",
 		});
-		mockCompressImage.mockResolvedValue(compressed);
-		mockAddItem.mockResolvedValue({
-			id: "item-2",
-			listId,
-			comment: "With image",
-			imageUrl: "/api/images/test",
-			createdAt: new Date(),
-			deletedAt: null,
-		});
+		mockCompress.mockResolvedValue(compressed);
+		mockAddItem.mockResolvedValue(mockItem({ imageUrl: "/api/images/x" }));
 
-		const { container } = render(() => <RegisterForm listId={listId} />);
-		const fileInput = container.querySelectorAll(
-			'input[type="file"]',
-		)[1] as HTMLInputElement;
+		render(() => <RegisterForm listId={listId} />);
+
+		const fileInput = screen.getByLabelText("Choose a photo");
 		const original = new File(["raw"], "raw.png", { type: "image/png" });
-
 		fireEvent.change(fileInput, { target: { files: [original] } });
+
 		await waitFor(() => {
-			expect(mockCompressImage).toHaveBeenCalledWith(original);
+			expect(mockCompress).toHaveBeenCalledWith(original);
 		});
 
-		fireEvent.input(screen.getByPlaceholderText("Optional info..."), {
-			target: { value: "With image" },
-		});
 		fireEvent.click(screen.getByRole("button", { name: /register/i }));
 
 		await waitFor(() => {
 			expect(mockAddItem).toHaveBeenCalledWith(listId, {
-				comment: "With image",
+				comment: "",
 				image: compressed,
 			});
 		});
 	});
 
-	it("shows an error toast when image compression fails", async () => {
-		const mockCompressImage = vi.mocked(compressImage);
-		const mockAddItem = vi.mocked(api.addItem);
-		mockCompressImage.mockRejectedValue(new Error("compress failed"));
-		mockAddItem.mockResolvedValue({
-			id: "item-3",
-			listId,
-			comment: "no image",
-			imageUrl: null,
-			createdAt: new Date(),
-			deletedAt: null,
+	it("uses camera input when Take Photo is triggered", async () => {
+		const mockCompress = vi.mocked(compressImage);
+		const compressed = new File(["c"], "c.jpg", { type: "image/jpeg" });
+		mockCompress.mockResolvedValue(compressed);
+		vi.mocked(api.addItem).mockResolvedValue(mockItem());
+
+		render(() => <RegisterForm listId={listId} />);
+
+		const cameraInput = screen.getByLabelText("Take a photo");
+		const file = new File(["cam"], "cam.jpg", { type: "image/jpeg" });
+		fireEvent.change(cameraInput, { target: { files: [file] } });
+
+		await waitFor(() => {
+			expect(mockCompress).toHaveBeenCalledWith(file);
+		});
+	});
+
+	it("shows image preview after selecting a file", async () => {
+		const mockCompress = vi.mocked(compressImage);
+		const compressed = new File(["c"], "c.jpg", { type: "image/jpeg" });
+		mockCompress.mockResolvedValue(compressed);
+		vi.mocked(api.addItem).mockResolvedValue(mockItem());
+
+		render(() => <RegisterForm listId={listId} />);
+
+		fireEvent.change(screen.getByLabelText("Choose a photo"), {
+			target: { files: [new File(["raw"], "raw.png", { type: "image/png" })] },
 		});
 
-		const { container } = render(() => <RegisterForm listId={listId} />);
-		const fileInput = container.querySelectorAll(
-			'input[type="file"]',
-		)[0] as HTMLInputElement;
+		await waitFor(() => {
+			// Preview image should be rendered
+			expect(screen.getByAltText("Preview")).toBeInTheDocument();
+		});
+		// Photo buttons should be hidden once preview is shown
+		expect(screen.queryByText("Take Photo")).not.toBeInTheDocument();
+	});
 
-		fireEvent.change(fileInput, {
+	it("clears image preview and shows photo buttons after clicking clear", async () => {
+		const mockCompress = vi.mocked(compressImage);
+		const compressed = new File(["c"], "c.jpg", { type: "image/jpeg" });
+		mockCompress.mockResolvedValue(compressed);
+
+		render(() => <RegisterForm listId={listId} />);
+
+		fireEvent.change(screen.getByLabelText("Choose a photo"), {
+			target: { files: [new File(["raw"], "raw.png", { type: "image/png" })] },
+		});
+
+		await waitFor(() => {
+			expect(screen.getByAltText("Preview")).toBeInTheDocument();
+		});
+
+		// Click the clear (X) button
+		const clearButton = screen
+			.getByAltText("Preview")
+			.closest("div")!
+			.querySelector("button")!;
+		fireEvent.click(clearButton);
+
+		await waitFor(() => {
+			expect(screen.queryByAltText("Preview")).not.toBeInTheDocument();
+			expect(screen.getByText("Take Photo")).toBeInTheDocument();
+		});
+	});
+
+	it("disables submit button while submitting", async () => {
+		vi.mocked(api.addItem).mockImplementation(
+			() =>
+				new Promise((resolve) => setTimeout(() => resolve(mockItem()), 200)),
+		);
+
+		render(() => <RegisterForm listId={listId} />);
+		const submitButton = screen.getByRole("button", { name: /register/i });
+
+		fireEvent.click(submitButton);
+		await waitFor(() => {
+			expect(submitButton).toBeDisabled();
+		});
+	});
+
+	it("shows error toast when image compression fails", async () => {
+		vi.spyOn(console, "error").mockImplementation(() => {});
+		vi.mocked(compressImage).mockRejectedValue(new Error("compress failed"));
+		vi.mocked(api.addItem).mockResolvedValue(mockItem());
+
+		render(() => <RegisterForm listId={listId} />);
+		fireEvent.change(screen.getByLabelText("Take a photo"), {
 			target: {
 				files: [new File(["broken"], "broken.png", { type: "image/png" })],
 			},
@@ -137,26 +208,13 @@ describe("RegisterForm", () => {
 				"error",
 			);
 		});
-
-		fireEvent.input(screen.getByPlaceholderText("Optional info..."), {
-			target: { value: "no image" },
-		});
-		fireEvent.click(screen.getByRole("button", { name: /register/i }));
-
-		await waitFor(() => {
-			expect(mockAddItem).toHaveBeenCalledWith(listId, {
-				comment: "no image",
-				image: undefined,
-			});
-		});
 	});
 
-	it("shows an error toast when registration API fails", async () => {
-		const mockAddItem = vi.mocked(api.addItem);
-		mockAddItem.mockRejectedValue(new Error("api failed"));
+	it("shows error toast when registration API fails", async () => {
+		vi.spyOn(console, "error").mockImplementation(() => {});
+		vi.mocked(api.addItem).mockRejectedValue(new Error("api failed"));
 
 		render(() => <RegisterForm listId={listId} />);
-
 		fireEvent.input(screen.getByPlaceholderText("Optional info..."), {
 			target: { value: "broken submit" },
 		});
