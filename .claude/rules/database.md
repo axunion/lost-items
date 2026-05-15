@@ -19,9 +19,9 @@ export const items = sqliteTable("items", {
   // UUID stored as text
   id: text("id").primaryKey(),
 
-  // Dates as integer(mode: "timestamp") — Unix timestamps (seconds)
+  // Dates use integer(mode: "timestamp") — Drizzle converts to/from Unix seconds automatically
+  // Use new Date() to get the current time; do NOT use Math.floor(Date.now() / 1000)
   createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
-  updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
 
   // Soft delete as nullable timestamp
   deletedAt: integer("deleted_at", { mode: "timestamp" }),
@@ -56,11 +56,14 @@ await db
   .set({ deletedAt: null })
   .where(eq(items.id, itemId));
 
-// Always filter by deletedAt is null in queries
+// Public/read-only queries: always filter out deleted records
 const activeItems = await db
   .select()
   .from(items)
   .where(and(eq(items.listId, listId), isNull(items.deletedAt)));
+
+// Queries that need to show deleted items (e.g. restore UI): pass an explicit flag
+// GET /api/lists/:id/items?includeDeleted=true
 ```
 
 ## Migration Workflow

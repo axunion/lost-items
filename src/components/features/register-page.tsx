@@ -15,7 +15,7 @@ const RegisterPage: Component<RegisterPageProps> = (props) => {
 
 	const refreshItems = async () => {
 		try {
-			const latest = await getItems(props.listId);
+			const latest = await getItems(props.listId, { includeDeleted: true });
 			setItems(latest);
 		} catch (error) {
 			console.error("Failed to refresh items:", error);

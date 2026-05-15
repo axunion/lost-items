@@ -92,6 +92,6 @@ const id = crypto.randomUUID();
 
 ## Timestamp Convention
 
-- Storage: store as Unix timestamps (seconds) using `integer` type
-- Retrieval: return as-is as a number (formatting is handled on the frontend)
-- Current time: `Math.floor(Date.now() / 1000)`
+- Storage: use `integer({ mode: "timestamp" })` in Drizzle schema — it stores as Unix seconds automatically
+- Current time: `new Date()` (Drizzle converts it to seconds; do NOT use `Math.floor(Date.now() / 1000)`)
+- Retrieval: returned as a number (Unix seconds); formatting is handled on the frontend

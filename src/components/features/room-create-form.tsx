@@ -1,7 +1,7 @@
 import { Plus } from "lucide-solid";
 import { type Component, createSignal, Show } from "solid-js";
 import { Button } from "~/components/ui/button";
-import Loading from "~/components/ui/loading";
+import { Loading } from "~/components/ui/loading";
 import { TextField, TextFieldInput } from "~/components/ui/text-field";
 import { showToast } from "~/components/ui/toast";
 import { createList, type List } from "~/lib/api";

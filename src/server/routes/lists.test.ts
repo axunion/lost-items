@@ -75,6 +75,7 @@ function setupDbMock() {
 		db,
 		enqueueOne,
 		enqueueMany,
+		fromResult,
 		whereResult,
 		insertValues,
 		setFn,
@@ -382,6 +383,43 @@ describe("listsRoute", () => {
 
 			expect(res.status).toBe(200);
 			await expect(res.json()).resolves.toEqual([]);
+		});
+
+		it("returns all items including deleted when includeDeleted=true", async () => {
+			const { db, enqueueMany } = setupDbMock();
+			createDbMock.mockReturnValue(db);
+			const allItems = [
+				{ id: "item-1", listId: "list-1", comment: "kept", deletedAt: null },
+				{
+					id: "item-2",
+					listId: "list-1",
+					comment: "deleted",
+					deletedAt: new Date().toISOString(),
+				},
+			];
+			enqueueMany(allItems);
+
+			const res = await listsRoute.request(
+				"/list-1/items?includeDeleted=true",
+				{ method: "GET" },
+				createEnv(),
+			);
+
+			expect(res.status).toBe(200);
+			await expect(res.json()).resolves.toEqual(allItems);
+		});
+
+		it("passes a compound condition to where() by default (excludes deleted)", async () => {
+			const { db, enqueueMany, fromResult } = setupDbMock();
+			createDbMock.mockReturnValue(db);
+			enqueueMany([]);
+
+			await listsRoute.request("/list-1/items", { method: "GET" }, createEnv());
+
+			const condition = fromResult.where.mock.calls[0][0];
+			// and(..., isNull(...)) produces a compound object; a plain eq() is a leaf node
+			expect(condition).toHaveProperty("queryChunks");
+			expect((condition as { queryChunks: unknown[] }).queryChunks.length).toBeGreaterThan(1);
 		});
 	});
 

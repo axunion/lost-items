@@ -1,5 +1,5 @@
 import { zValidator } from "@hono/zod-validator";
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, isNull } from "drizzle-orm";
 import { Hono } from "hono";
 import { z } from "zod";
 import type { Bindings } from "../bindings";
@@ -120,12 +120,17 @@ listsRoute.delete("/:id", async (c) => {
 // Get items for a list
 listsRoute.get("/:id/items", async (c) => {
 	const listId = c.req.param("id");
+	const includeDeleted = c.req.query("includeDeleted") === "true";
 	const db = createDb(c.env.DB);
+
+	const condition = includeDeleted
+		? eq(items.listId, listId)
+		: and(eq(items.listId, listId), isNull(items.deletedAt));
 
 	const result = await db
 		.select()
 		.from(items)
-		.where(eq(items.listId, listId))
+		.where(condition)
 		.orderBy(desc(items.createdAt));
 
 	return c.json(result);

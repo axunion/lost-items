@@ -1,12 +1,12 @@
 ---
 import { env } from "cloudflare:workers";
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq, isNull } from "drizzle-orm";
 import AppHeader from "~/components/astro/app-header.astro";
 import ItemList from "~/components/features/item-list";
+import Layout from "~/layouts/Layout.astro";
 import type { Bindings } from "~/server/bindings";
 import { createDb } from "~/server/db";
 import { items, lists } from "~/server/db/schema";
-import Layout from "../../layouts/Layout.astro";
 
 const { id = "" } = Astro.params;
 const db = createDb((env as Bindings).DB);
@@ -19,7 +19,7 @@ if (!list) {
 const itemList = await db
 	.select()
 	.from(items)
-	.where(eq(items.listId, id))
+	.where(and(eq(items.listId, id), isNull(items.deletedAt)))
 	.orderBy(desc(items.createdAt));
 
 const title = list.name || "Room Items";

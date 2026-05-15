@@ -15,6 +15,7 @@ import {
 } from "solid-js";
 import { Button } from "~/components/ui/button";
 import { Card, CardHeader, CardTitle } from "~/components/ui/card";
+import { ConfirmDialog } from "~/components/ui/confirm-dialog";
 import {
 	Dialog,
 	DialogContent,
@@ -51,10 +52,8 @@ type UrlGroup = {
 const HistoryList: Component<HistoryListProps> = (props) => {
 	const [localLists, setLocalLists] = createSignal<List[]>(props.lists);
 	const [listNames, setListNames] = createSignal<Record<string, string>>({});
-	const [dialogMode, setDialogMode] = createSignal<"edit" | "delete" | null>(
-		null,
-	);
-	const [targetId, setTargetId] = createSignal<string | null>(null);
+	const [editingId, setEditingId] = createSignal<string | null>(null);
+	const [deletingId, setDeletingId] = createSignal<string | null>(null);
 	const [tempName, setTempName] = createSignal("");
 	const [copiedUrl, setCopiedUrl] = createSignal<string | null>(null);
 
@@ -81,27 +80,24 @@ const HistoryList: Component<HistoryListProps> = (props) => {
 
 	const handleEditClick = (item: List) => {
 		setTempName(getName(item));
-		setTargetId(item.id);
-		setDialogMode("edit");
+		setEditingId(item.id);
 	};
 
 	const handleDeleteClick = (id: string) => {
-		setTargetId(id);
-		setDialogMode("delete");
+		setDeletingId(id);
 	};
 
-	const closeDialog = () => {
-		setDialogMode(null);
-		setTargetId(null);
+	const closeEditDialog = () => {
+		setEditingId(null);
 	};
 
 	const handleSave = async () => {
-		const id = targetId();
+		const id = editingId();
 		if (!id) return;
 
 		const newName = tempName().trim();
 		if (!newName) {
-			closeDialog();
+			closeEditDialog();
 			return;
 		}
 
@@ -111,11 +107,11 @@ const HistoryList: Component<HistoryListProps> = (props) => {
 		} catch (error) {
 			console.error("Failed to update name:", error);
 		}
-		closeDialog();
+		closeEditDialog();
 	};
 
 	const handleDelete = async () => {
-		const id = targetId();
+		const id = deletingId();
 		if (!id) return;
 
 		try {
@@ -124,7 +120,7 @@ const HistoryList: Component<HistoryListProps> = (props) => {
 		} catch (error) {
 			console.error("Failed to delete:", error);
 		}
-		closeDialog();
+		setDeletingId(null);
 	};
 
 	const handleCopy = (url: string) => {
@@ -250,11 +246,11 @@ const HistoryList: Component<HistoryListProps> = (props) => {
 			</div>
 
 			<Dialog
-				open={dialogMode() !== null}
-				onOpenChange={(open) => !open && closeDialog()}
+				open={editingId() !== null}
+				onOpenChange={(open) => !open && closeEditDialog()}
 			>
 				<DialogContent>
-					<Show when={dialogMode() === "edit"}>
+					<Show when={editingId() !== null}>
 						<form
 							onSubmit={(e) => {
 								e.preventDefault();
@@ -275,28 +271,28 @@ const HistoryList: Component<HistoryListProps> = (props) => {
 								</TextField>
 							</div>
 							<DialogFooter>
-								<Button type="button" variant="outline" onClick={closeDialog}>
+								<Button
+									type="button"
+									variant="outline"
+									onClick={closeEditDialog}
+								>
 									Cancel
 								</Button>
 								<Button type="submit">Save</Button>
 							</DialogFooter>
 						</form>
 					</Show>
-					<Show when={dialogMode() === "delete"}>
-						<DialogHeader>
-							<DialogTitle>Delete?</DialogTitle>
-						</DialogHeader>
-						<DialogFooter>
-							<Button variant="outline" onClick={closeDialog}>
-								Cancel
-							</Button>
-							<Button variant="destructive" onClick={handleDelete}>
-								Delete
-							</Button>
-						</DialogFooter>
-					</Show>
 				</DialogContent>
 			</Dialog>
+
+			<ConfirmDialog
+				open={deletingId() !== null}
+				onOpenChange={(open) => !open && setDeletingId(null)}
+				onConfirm={handleDelete}
+				title="Delete Room?"
+				confirmLabel="Delete"
+				variant="destructive"
+			/>
 		</>
 	);
 };

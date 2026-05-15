@@ -3,10 +3,10 @@ import { env } from "cloudflare:workers";
 import { desc } from "drizzle-orm";
 import AppHeader from "~/components/astro/app-header.astro";
 import Dashboard from "~/components/features/dashboard";
+import Layout from "~/layouts/Layout.astro";
 import type { Bindings } from "~/server/bindings";
 import { createDb } from "~/server/db";
 import { lists } from "~/server/db/schema";
-import Layout from "../layouts/Layout.astro";
 
 const db = createDb((env as Bindings).DB);
 const recentLists = await db

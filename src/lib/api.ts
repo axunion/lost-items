@@ -35,8 +35,12 @@ export const addItem = async (
 	return await res.json();
 };
 
-export const getItems = async (listId: string): Promise<Item[]> => {
-	const res = await fetch(`/api/lists/${listId}/items`);
+export const getItems = async (
+	listId: string,
+	options?: { includeDeleted?: boolean },
+): Promise<Item[]> => {
+	const query = options?.includeDeleted ? "?includeDeleted=true" : "";
+	const res = await fetch(`/api/lists/${listId}/items${query}`);
 
 	if (!res.ok) {
 		throw new Error(`Failed to fetch items: ${res.status}`);

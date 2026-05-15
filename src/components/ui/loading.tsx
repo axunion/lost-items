@@ -29,7 +29,7 @@ const textClass = {
 	lg: styles.textDefault,
 } as const;
 
-const Loading: Component<LoadingProps> = (props) => {
+export const Loading: Component<LoadingProps> = (props) => {
 	const variant = () => props.variant ?? "default";
 	const size = () => props.size ?? "md";
 
@@ -40,5 +40,3 @@ const Loading: Component<LoadingProps> = (props) => {
 		</div>
 	);
 };
-
-export default Loading;

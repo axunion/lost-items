@@ -80,7 +80,9 @@ describe("RegisterPage", () => {
 		fireEvent.click(confirmBtn);
 
 		await waitFor(() => {
-			expect(api.getItems).toHaveBeenCalledWith("list-1");
+			expect(api.getItems).toHaveBeenCalledWith("list-1", {
+				includeDeleted: true,
+			});
 		});
 		await waitFor(() => {
 			expect(screen.getByText("Fresh item")).toBeInTheDocument();
