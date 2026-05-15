@@ -12,6 +12,7 @@
 		"db:generate": "drizzle-kit generate",
 		"db:migrate": "wrangler d1 migrations apply lost-items-db --local",
 		"db:migrate:prod": "wrangler d1 migrations apply lost-items-db --remote",
+		"db:reset": "rm -rf migrations .wrangler/state/v3/d1 && pnpm db:generate && pnpm db:migrate",
 		"db:studio": "drizzle-kit studio",
 		"check": "biome check src && astro check",
 		"fix": "biome check --write src",
@@ -53,6 +54,6 @@
 		"vite": "^7.3.1",
 		"vite-plugin-solid": "^2.11.10",
 		"vitest": "^4.1.0",
-		"wrangler": "^4.73.0"
+		"wrangler": "^4.91.0"
 	}
 }

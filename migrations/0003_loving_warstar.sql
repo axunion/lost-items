@@ -1,1 +1,0 @@
-CREATE INDEX `items_list_id_idx` ON `items` (`list_id`);

@@ -43,7 +43,9 @@ test("API flow: create room → register item → delete → restore → public 
 	await expect(itemCard.getByText("Deleted")).toBeVisible();
 
 	// 6. Restore item via API
-	const restoreRes = await request.post(`/api/lists/${id}/items/${itemId}/restore`);
+	const restoreRes = await request.post(
+		`/api/lists/${id}/items/${itemId}/restore`,
+	);
 	expect(restoreRes.ok()).toBeTruthy();
 
 	// 7. Public room page is read-only
@@ -51,10 +53,8 @@ test("API flow: create room → register item → delete → restore → public 
 	await expect(
 		page.getByTestId("item-card").filter({ hasText: comment }),
 	).toBeVisible();
-	await expect(
-		page.getByRole("button", { name: "Delete item" }),
-	).toHaveCount(0);
-	await expect(
-		page.getByRole("button", { name: "Edit item" }),
-	).toHaveCount(0);
+	await expect(page.getByRole("button", { name: "Delete item" })).toHaveCount(
+		0,
+	);
+	await expect(page.getByRole("button", { name: "Edit item" })).toHaveCount(0);
 });

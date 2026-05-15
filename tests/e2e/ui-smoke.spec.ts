@@ -19,7 +19,9 @@ test("public room page hides edit and delete buttons when items exist", async ({
 	request,
 }) => {
 	const roomName = `Public Room ${Date.now()}-${process.pid}`;
-	const createRes = await request.post("/api/lists", { data: { name: roomName } });
+	const createRes = await request.post("/api/lists", {
+		data: { name: roomName },
+	});
 	expect(createRes.ok()).toBeTruthy();
 	const { id } = (await createRes.json()) as { id: string };
 
@@ -31,5 +33,7 @@ test("public room page hides edit and delete buttons when items exist", async ({
 	await page.goto(`/${id}/room`);
 	await expect(page.getByTestId("item-card")).toBeVisible();
 	await expect(page.getByRole("button", { name: "Edit item" })).toHaveCount(0);
-	await expect(page.getByRole("button", { name: "Delete item" })).toHaveCount(0);
+	await expect(page.getByRole("button", { name: "Delete item" })).toHaveCount(
+		0,
+	);
 });

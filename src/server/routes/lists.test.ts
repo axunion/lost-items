@@ -419,7 +419,9 @@ describe("listsRoute", () => {
 			const condition = fromResult.where.mock.calls[0][0];
 			// and(..., isNull(...)) produces a compound object; a plain eq() is a leaf node
 			expect(condition).toHaveProperty("queryChunks");
-			expect((condition as { queryChunks: unknown[] }).queryChunks.length).toBeGreaterThan(1);
+			expect(
+				(condition as { queryChunks: unknown[] }).queryChunks.length,
+			).toBeGreaterThan(1);
 		});
 	});
 

@@ -21,6 +21,7 @@ pnpm test:e2e:headed  # Same, with browser visible (debugging)
 pnpm db:generate      # Generate Drizzle migration from schema changes
 pnpm db:migrate       # Apply migrations locally
 pnpm db:migrate:prod  # Apply migrations to production D1
+pnpm db:reset         # Delete migration history and regenerate from current schema (local only, data is lost)
 ```
 
 ## Architecture
@@ -66,7 +67,7 @@ After making changes, verify in this order:
   - `backend.md` — Hono API patterns, bindings, R2 (`src/server/**`)
   - `testing.md` — Unit/E2E test patterns (`src/**/*.test.*`, `tests/e2e/**`)
   - `database.md` — Drizzle schema, migrations, soft delete (`src/server/db/**`, `migrations/**`)
-- **`.claude/settings.json`** — Shared permission config: sandbox enabled, deny list for destructive git/rm/credential ops
+- **`.claude/settings.json`** — Shared permission config: deny list for destructive git/rm/credential ops, allow list for project commands
 - **`.mcp.json`** — MCP servers: `context7` (live docs lookup)
 - **`.claude/agents/`** — Custom agents: `@code-reviewer`, `@test-writer`, `@db-reviewer`
-- **`.claude/skills/`** — Slash commands: `/deploy`, `/db-migrate [local|prod]`, `/quality-check [--fix]`, `/new-component <Name> [ui|features]`
+- **`.claude/skills/`** — Slash commands: `/deploy`, `/db-migrate [local|prod]`, `/db-reset`, `/quality-check [--fix]`, `/new-component <Name> [ui|features]`

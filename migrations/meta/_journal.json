@@ -5,29 +5,8 @@
     {
       "idx": 0,
       "version": "6",
-      "when": 1763804986320,
-      "tag": "0000_workable_celestials",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "6",
-      "when": 1766671781411,
-      "tag": "0001_demonic_surge",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "6",
-      "when": 1767533704917,
-      "tag": "0002_modern_killer_shrike",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "6",
-      "when": 1768227219630,
-      "tag": "0003_loving_warstar",
+      "when": 1778864543493,
+      "tag": "0000_strange_titania",
       "breakpoints": true
     }
   ]

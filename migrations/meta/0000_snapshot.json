@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "b7855b71-ff0e-4648-b25b-0579e2b64641",
+  "id": "1ca83c5e-2280-461e-bfb5-28d6ad7a0b42",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "items": {
@@ -41,9 +41,24 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
         }
       },
-      "indexes": {},
+      "indexes": {
+        "items_list_id_idx": {
+          "name": "items_list_id_idx",
+          "columns": [
+            "list_id"
+          ],
+          "isUnique": false
+        }
+      },
       "foreignKeys": {
         "items_list_id_lists_id_fk": {
           "name": "items_list_id_lists_id_fk",
@@ -78,6 +93,13 @@
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
+          "autoincrement": false
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
           "autoincrement": false
         }
       },

@@ -5,7 +5,6 @@ argument-hint: "[local|prod]"
 allowed-tools:
   - Bash
   - Read
-  - Glob
 ---
 
 Generate and apply database migrations.
