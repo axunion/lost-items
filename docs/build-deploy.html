@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lost Items — ビルド・デプロイ</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#f8f7f5;--sur:#fff;--brd:#e3ded8;--txt:#1c1917;--mut:#6b6560;--pri:#374151;--acc:#4f7096;--cbg:#f1ede8;--rad:8px}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--txt);line-height:1.65;font-size:15px}
+nav{background:#374151;padding:.6rem 1.5rem;display:flex;gap:1.25rem;flex-wrap:wrap;align-items:center}
+nav .logo{color:#fff;font-weight:700;font-size:.875rem;margin-right:.25rem}
+nav a{color:#93a3b8;text-decoration:none;font-size:.825rem}
+nav a:hover{color:#fff}
+nav a.cur{color:#fff;font-weight:600}
+.wrap{max-width:920px;margin:0 auto;padding:2rem 1.5rem}
+h1{font-size:1.7rem;font-weight:700;color:var(--pri);margin-bottom:.3rem}
+.sub{color:var(--mut);font-size:.95rem;margin-bottom:1.5rem}
+h2{font-size:1.2rem;font-weight:600;color:var(--pri);margin:2rem 0 .65rem;padding-bottom:.3rem;border-bottom:2px solid var(--brd)}
+h3{font-size:1rem;font-weight:600;color:var(--pri);margin:1.25rem 0 .4rem}
+p{margin-bottom:.65rem}
+ul,ol{padding-left:1.4rem;margin-bottom:.65rem}
+li{margin-bottom:.2rem}
+table{border-collapse:collapse;width:100%;font-size:.875rem;background:var(--sur);border-radius:var(--rad);overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.06);margin:.75rem 0}
+th{background:var(--pri);color:#fff;padding:.5rem .85rem;text-align:left;font-size:.8rem;font-weight:600;white-space:nowrap}
+td{padding:.48rem .85rem;border-bottom:1px solid var(--brd);vertical-align:top}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#f5f2ee}
+code{font-family:"SF Mono","Fira Code",monospace;font-size:.83em;background:var(--cbg);padding:.1em .38em;border-radius:3px}
+pre{background:var(--cbg);border:1px solid var(--brd);border-radius:var(--rad);padding:.9rem 1rem;overflow-x:auto;font-size:.83rem;line-height:1.5;margin:.75rem 0}
+pre code{background:none;padding:0}
+details{border:1px solid var(--brd);border-radius:var(--rad);margin:.75rem 0;overflow:hidden;background:var(--sur)}
+summary{padding:.65rem 1rem;cursor:pointer;font-weight:600;font-size:.875rem;color:var(--pri);list-style:none;display:flex;align-items:center;gap:.5rem}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"▶";font-size:.65rem;transition:transform .15s;flex-shrink:0}
+details[open] summary::before{transform:rotate(90deg)}
+details>*:not(summary){padding:0 1rem .9rem}
+.diagram{background:var(--sur);border:1px solid var(--brd);border-radius:var(--rad);padding:1.25rem;margin:.75rem 0;text-align:center;overflow-x:auto}
+.note{background:#eef2fa;border-left:3px solid var(--acc);border-radius:0 var(--rad) var(--rad) 0;padding:.7rem 1rem;margin:.75rem 0;font-size:.875rem}
+.warn{background:#fffae0;border-left:3px solid #e6aa00;border-radius:0 var(--rad) var(--rad) 0;padding:.7rem 1rem;margin:.75rem 0;font-size:.875rem}
+footer{margin-top:3rem;padding-top:1.25rem;border-top:1px solid var(--brd);font-size:.825rem;color:var(--mut)}
+.toc{background:var(--sur);border:1px solid var(--brd);border-radius:var(--rad);padding:1rem 1.25rem;margin-bottom:1.5rem;font-size:.875rem}
+.toc li{margin-bottom:.15rem}
+.toc a{color:var(--acc);text-decoration:none}
+.toc a:hover{text-decoration:underline}
+</style>
+</head>
+<body>
+<nav>
+  <span class="logo">Lost Items Docs</span>
+  <a href="index.html">概要</a>
+  <a href="frontend.html">フロントエンド</a>
+  <a href="backend.html">バックエンド</a>
+  <a href="database.html">データベース</a>
+  <a href="testing.html">テスト</a>
+  <a href="build-deploy.html" class="cur">ビルド・デプロイ</a>
+</nav>
+
+<div class="wrap">
+  <h1>ビルド・デプロイ</h1>
+  <p class="sub">Astro / Wrangler / Vite / Biome 設定、mockDebugPlugin、デプロイフロー</p>
+
+  <div class="toc">
+    <ul>
+      <li><a href="#pipeline">ビルドパイプライン</a></li>
+      <li><a href="#astro">astro.config.mjs</a></li>
+      <li><a href="#wrangler">wrangler.jsonc</a></li>
+      <li><a href="#typescript">TypeScript / パスエイリアス</a></li>
+      <li><a href="#biome">Biome 設定</a></li>
+      <li><a href="#scripts">package.json スクリプト</a></li>
+      <li><a href="#ci">CI / 観測</a></li>
+    </ul>
+  </div>
+
+  <!-- Build pipeline -->
+  <h2 id="pipeline">ビルドパイプライン</h2>
+
+  <div class="diagram">
+    <svg viewBox="0 0 660 95" style="max-width:640px;width:100%;font-family:-apple-system,sans-serif">
+      <defs>
+        <marker id="bp" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto">
+          <polygon points="0,0 7,2.5 0,5" fill="#374151"/>
+        </marker>
+      </defs>
+      <!-- src/ -->
+      <rect x="5"   y="28" width="100" height="42" rx="5" fill="#ede9fe" stroke="#7c3aed" stroke-width="1"/>
+      <text x="55"  y="47" text-anchor="middle" font-size="11" font-weight="600" fill="#3b1070">ソースコード</text>
+      <text x="55"  y="62" text-anchor="middle" font-size="8.5" fill="#5a2090">src/ + pages/</text>
+      <!-- astro build -->
+      <rect x="125" y="18" width="135" height="62" rx="5" fill="#dcfce7" stroke="#16a34a" stroke-width="1"/>
+      <text x="192" y="38" text-anchor="middle" font-size="11" font-weight="600" fill="#145214">astro build</text>
+      <text x="192" y="53" text-anchor="middle" font-size="8.5" fill="#1d701d">@astrojs/cloudflare</text>
+      <text x="192" y="65" text-anchor="middle" font-size="8.5" fill="#1d701d">output: "server"</text>
+      <text x="192" y="77" text-anchor="middle" font-size="8.5" fill="#1d701d">+ mockDebugPlugin</text>
+      <!-- dist/ -->
+      <rect x="280" y="28" width="95" height="42" rx="5" fill="#fef3c7" stroke="#d97706" stroke-width="1"/>
+      <text x="327" y="47" text-anchor="middle" font-size="11" font-weight="600" fill="#78380a">dist/</text>
+      <text x="327" y="62" text-anchor="middle" font-size="8.5" fill="#8b4b0f">Workers アセット</text>
+      <!-- wrangler deploy -->
+      <rect x="395" y="28" width="125" height="42" rx="5" fill="#dbeafe" stroke="#3b82f6" stroke-width="1"/>
+      <text x="457" y="47" text-anchor="middle" font-size="11" font-weight="600" fill="#1e3a5f">wrangler deploy</text>
+      <text x="457" y="62" text-anchor="middle" font-size="8.5" fill="#2d5a9f">wrangler.jsonc 参照</text>
+      <!-- Cloudflare Workers -->
+      <rect x="540" y="28" width="115" height="42" rx="5" fill="#fee2e2" stroke="#dc2626" stroke-width="1"/>
+      <text x="597" y="47" text-anchor="middle" font-size="11" font-weight="600" fill="#7f1d1d">CF Workers</text>
+      <text x="597" y="62" text-anchor="middle" font-size="8.5" fill="#991b1b">本番環境</text>
+      <!-- Arrows -->
+      <line x1="105" y1="49" x2="125" y2="49" stroke="#374151" stroke-width="1.2" marker-end="url(#bp)"/>
+      <line x1="260" y1="49" x2="280" y2="49" stroke="#374151" stroke-width="1.2" marker-end="url(#bp)"/>
+      <line x1="375" y1="49" x2="395" y2="49" stroke="#374151" stroke-width="1.2" marker-end="url(#bp)"/>
+      <line x1="520" y1="49" x2="540" y2="49" stroke="#374151" stroke-width="1.2" marker-end="url(#bp)"/>
+    </svg>
+  </div>
+
+  <pre><code># ワンコマンドデプロイ
+pnpm deploy     # = astro build &amp;&amp; wrangler deploy</code></pre>
+
+  <!-- Astro config -->
+  <h2 id="astro">astro.config.mjs</h2>
+  <table>
+    <thead><tr><th>設定</th><th>値</th><th>説明</th></tr></thead>
+    <tbody>
+      <tr><td><code>output</code></td><td><code>"server"</code></td><td>全ページを SSR で動作させる（静的ビルドなし）</td></tr>
+      <tr><td><code>adapter</code></td><td><code>@astrojs/cloudflare({ imageService: "compile" })</code></td><td>Cloudflare Workers アダプタ。画像最適化は compile モード</td></tr>
+      <tr><td><code>integrations</code></td><td><code>[solidJs(), icon()]</code></td><td>SolidJS アイランド + astro-icon (Lucide アイコン)</td></tr>
+      <tr><td>Vite alias</td><td><code>"~" → "./src"</code></td><td><code>~/components/...</code> 形式の import パスを有効化</td></tr>
+      <tr><td>Vite plugin</td><td><code>mockDebugPlugin()</code></td><td>workerd で動かない <code>debug</code> パッケージをスタブ化（詳細↓）</td></tr>
+    </tbody>
+  </table>
+
+  <details>
+    <summary>mockDebugPlugin の解説</summary>
+    <p><code>debug</code> npm パッケージは CJS の <code>module.exports</code> を使う。Cloudflare Workers の <strong>workerd ランタイム</strong>には <code>module.exports</code> グローバルがないため、そのままでは実行時エラーになる。</p>
+    <p>これは Astro エコシステムの推移的依存 (transitive dependency) に起因する問題であり、プロジェクト本体のコードとは無関係。</p>
+    <p>解決策として <code>astro.config.mjs</code> 内に Vite プラグインを定義し、<code>resolveId</code> フックで <code>debug</code> のモジュール解決をインターセプトして no-op 実装に差し替える:</p>
+    <pre><code>function mockDebugPlugin() {
+  return {
+    name: "mock-debug",
+    enforce: "pre",
+    resolveId(id) {
+      if (id === "debug" || id.endsWith("/debug/src/index.js")) {
+        return "\0mock-debug"; // 仮想モジュール ID
+      }
+    },
+    load(id) {
+      if (id === "\0mock-debug") {
+        // no-op: enable/disable は何もしない
+        return `export default function debug() { return function() {}; };
+debug.enable = () => {};
+debug.disable = () => {};`;
+      }
+    },
+  };
+}</code></pre>
+  </details>
+
+  <!-- Wrangler -->
+  <h2 id="wrangler">wrangler.jsonc</h2>
+  <table>
+    <thead><tr><th>設定キー</th><th>値</th><th>説明</th></tr></thead>
+    <tbody>
+      <tr><td><code>name</code></td><td><code>"lost-items"</code></td><td>Worker 名</td></tr>
+      <tr><td><code>compatibility_date</code></td><td><code>"2026-03-01"</code></td><td>Workers ランタイムの機能フラグ基準日</td></tr>
+      <tr><td><code>compatibility_flags</code></td><td><code>["nodejs_compat", "global_fetch_strictly_public"]</code></td><td>Node.js 互換モード + fetch の public-only 制限</td></tr>
+      <tr><td><code>assets.binding</code></td><td><code>ASSETS → ./dist</code></td><td>Astro の静的アセットを Workers Assets として配信</td></tr>
+      <tr><td><code>d1_databases</code></td><td>binding: <code>DB</code>, db: <code>lost-items-db</code></td><td>D1 データベースバインディング</td></tr>
+      <tr><td><code>r2_buckets</code></td><td>binding: <code>BUCKET</code>, bucket: <code>lost-items-images</code></td><td>R2 バケットバインディング</td></tr>
+      <tr><td><code>observability.enabled</code></td><td><code>true</code></td><td>Cloudflare 側のテレメトリを有効化</td></tr>
+    </tbody>
+  </table>
+
+  <div class="note">ローカル開発では <code>pnpm dev</code> が miniflare を起動し、<code>.wrangler/state/v3/d1/</code> にローカル D1 SQLite が作られる。本番 D1 のデータには触れない。</div>
+
+  <!-- TypeScript -->
+  <h2 id="typescript">TypeScript / パスエイリアス</h2>
+  <p><code>tsconfig.json</code> は <code>astro/tsconfigs/strict</code> を継承。</p>
+  <table>
+    <thead><tr><th>設定</th><th>値</th><th>説明</th></tr></thead>
+    <tbody>
+      <tr><td>パスエイリアス</td><td><code>~/*</code> → <code>./src/*</code></td><td><code>import { cx } from "~/lib/utils"</code> など短縮 import</td></tr>
+      <tr><td>JSX</td><td><code>preserve</code> + <code>importSource: "solid-js"</code></td><td>SolidJS の JSX トランスフォームを使用</td></tr>
+      <tr><td>strictモード</td><td>継承(<code>strict</code>)</td><td><code>noImplicitAny</code>, <code>strictNullChecks</code> など全有効</td></tr>
+    </tbody>
+  </table>
+
+  <!-- Biome -->
+  <h2 id="biome">Biome 設定 (<code>biome.json</code>)</h2>
+  <table>
+    <thead><tr><th>設定</th><th>内容</th></tr></thead>
+    <tbody>
+      <tr><td>バージョン</td><td>Biome 2.3.6</td></tr>
+      <tr><td>CSS</td><td>CSS Modules パーサーを有効化</td></tr>
+      <tr><td><code>.astro</code> ファイル上書き</td><td>以下のルールを無効化: <code>useConst</code>, <code>useImportType</code>, <code>noUnusedVariables</code>, <code>noUnusedImports</code><br><small>（Astro のフロントマター構文との相性問題のため）</small></td></tr>
+    </tbody>
+  </table>
+  <p>実行コマンド:</p>
+  <pre><code>pnpm check       # lint + format チェック（biome check src &amp;&amp; astro check）
+pnpm fix         # Biome の自動修正（biome check --write src）</code></pre>
+
+  <!-- Scripts -->
+  <h2 id="scripts">package.json スクリプト早見表</h2>
+  <table>
+    <thead><tr><th>スクリプト</th><th>実行内容</th><th>備考</th></tr></thead>
+    <tbody>
+      <tr><td><code>pnpm dev</code></td><td>Astro 開発サーバー（workerd/miniflare）</td><td>localhost:4321</td></tr>
+      <tr><td><code>pnpm build</code></td><td><code>astro build</code></td><td><code>dist/</code> を生成</td></tr>
+      <tr><td><code>pnpm preview</code></td><td><code>astro preview</code></td><td>ローカル workerd でビルド済みを確認</td></tr>
+      <tr><td><code>pnpm deploy</code></td><td><code>astro build &amp;&amp; wrangler deploy</code></td><td>本番デプロイ</td></tr>
+      <tr><td><code>pnpm check</code></td><td><code>biome check src &amp;&amp; astro check</code></td><td>lint + TypeScript 型チェック</td></tr>
+      <tr><td><code>pnpm fix</code></td><td><code>biome check --write src</code></td><td>Biome 自動修正</td></tr>
+      <tr><td><code>pnpm test</code></td><td>Vitest（ウォッチモード）</td><td><code>--run</code> で単発実行</td></tr>
+      <tr><td><code>pnpm test:ui</code></td><td>Vitest UI</td><td>ブラウザで結果確認</td></tr>
+      <tr><td><code>pnpm test:coverage</code></td><td>Vitest v8 カバレッジ</td><td><code>coverage/</code> に HTML 出力</td></tr>
+      <tr><td><code>pnpm test:e2e</code></td><td>Playwright（全スペック）</td><td>webServer 自動起動</td></tr>
+      <tr><td><code>pnpm test:e2e:headed</code></td><td>Playwright（ブラウザ可視）</td><td>デバッグ用</td></tr>
+      <tr><td><code>pnpm db:generate</code></td><td>drizzle-kit generate</td><td>schema 変更後に実行</td></tr>
+      <tr><td><code>pnpm db:migrate</code></td><td>ローカル D1 にマイグレーション適用</td><td><code>--local</code> フラグ</td></tr>
+      <tr><td><code>pnpm db:migrate:prod</code></td><td>本番 D1 にマイグレーション適用</td><td><code>--remote</code>。⚠️ 要承認</td></tr>
+      <tr><td><code>pnpm db:reset</code></td><td>ローカル D1 + migrations 削除 → 再生成</td><td>⚠️ データ消滅。ローカルのみ</td></tr>
+      <tr><td><code>pnpm db:studio</code></td><td>Drizzle Studio（ローカル DB ブラウザ）</td><td></td></tr>
+      <tr><td><code>pnpm db:check</code></td><td>drizzle-kit check（スキーマ整合性）</td><td></td></tr>
+    </tbody>
+  </table>
+
+  <!-- CI / Observability -->
+  <h2 id="ci">CI / 観測</h2>
+  <div class="warn">
+    <strong>GitHub Actions は未設定。</strong> デプロイは手動で <code>pnpm deploy</code> を実行する。CI が必要になった場合は別途 <code>.github/workflows/</code> を追加する。
+  </div>
+  <ul>
+    <li><strong>観測</strong> — <code>wrangler.jsonc</code> の <code>observability.enabled: true</code> により、Cloudflare ダッシュボードでリクエスト数・エラー率・レイテンシを確認できる</li>
+    <li><strong>ローカルデータ</strong> — miniflare の D1 は <code>.wrangler/state/v3/d1/</code> に SQLite ファイルとして保存される。<code>.gitignore</code> で除外済み</li>
+    <li><strong>ビルド成果物</strong> — <code>dist/</code> も <code>.gitignore</code> で除外済み</li>
+  </ul>
+
+  <footer>Lost Items — 実装ドキュメント | 2026-05-16</footer>
+</div>
+</body>
+</html>

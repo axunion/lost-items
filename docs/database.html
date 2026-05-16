@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lost Items — データベース</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#f8f7f5;--sur:#fff;--brd:#e3ded8;--txt:#1c1917;--mut:#6b6560;--pri:#374151;--acc:#4f7096;--cbg:#f1ede8;--rad:8px}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--txt);line-height:1.65;font-size:15px}
+nav{background:#374151;padding:.6rem 1.5rem;display:flex;gap:1.25rem;flex-wrap:wrap;align-items:center}
+nav .logo{color:#fff;font-weight:700;font-size:.875rem;margin-right:.25rem}
+nav a{color:#93a3b8;text-decoration:none;font-size:.825rem}
+nav a:hover{color:#fff}
+nav a.cur{color:#fff;font-weight:600}
+.wrap{max-width:920px;margin:0 auto;padding:2rem 1.5rem}
+h1{font-size:1.7rem;font-weight:700;color:var(--pri);margin-bottom:.3rem}
+.sub{color:var(--mut);font-size:.95rem;margin-bottom:1.5rem}
+h2{font-size:1.2rem;font-weight:600;color:var(--pri);margin:2rem 0 .65rem;padding-bottom:.3rem;border-bottom:2px solid var(--brd)}
+h3{font-size:1rem;font-weight:600;color:var(--pri);margin:1.25rem 0 .4rem}
+p{margin-bottom:.65rem}
+ul,ol{padding-left:1.4rem;margin-bottom:.65rem}
+li{margin-bottom:.2rem}
+table{border-collapse:collapse;width:100%;font-size:.875rem;background:var(--sur);border-radius:var(--rad);overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.06);margin:.75rem 0}
+th{background:var(--pri);color:#fff;padding:.5rem .85rem;text-align:left;font-size:.8rem;font-weight:600;white-space:nowrap}
+td{padding:.48rem .85rem;border-bottom:1px solid var(--brd);vertical-align:top}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#f5f2ee}
+code{font-family:"SF Mono","Fira Code",monospace;font-size:.83em;background:var(--cbg);padding:.1em .38em;border-radius:3px}
+pre{background:var(--cbg);border:1px solid var(--brd);border-radius:var(--rad);padding:.9rem 1rem;overflow-x:auto;font-size:.83rem;line-height:1.5;margin:.75rem 0}
+pre code{background:none;padding:0}
+details{border:1px solid var(--brd);border-radius:var(--rad);margin:.75rem 0;overflow:hidden;background:var(--sur)}
+summary{padding:.65rem 1rem;cursor:pointer;font-weight:600;font-size:.875rem;color:var(--pri);list-style:none;display:flex;align-items:center;gap:.5rem}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"▶";font-size:.65rem;transition:transform .15s;flex-shrink:0}
+details[open] summary::before{transform:rotate(90deg)}
+details>*:not(summary){padding:0 1rem .9rem}
+.diagram{background:var(--sur);border:1px solid var(--brd);border-radius:var(--rad);padding:1.25rem;margin:.75rem 0;text-align:center;overflow-x:auto}
+.note{background:#eef2fa;border-left:3px solid var(--acc);border-radius:0 var(--rad) var(--rad) 0;padding:.7rem 1rem;margin:.75rem 0;font-size:.875rem}
+.warn{background:#fffae0;border-left:3px solid #e6aa00;border-radius:0 var(--rad) var(--rad) 0;padding:.7rem 1rem;margin:.75rem 0;font-size:.875rem}
+.danger{background:#fff1f0;border-left:3px solid #d44;border-radius:0 var(--rad) var(--rad) 0;padding:.7rem 1rem;margin:.75rem 0;font-size:.875rem}
+footer{margin-top:3rem;padding-top:1.25rem;border-top:1px solid var(--brd);font-size:.825rem;color:var(--mut)}
+.toc{background:var(--sur);border:1px solid var(--brd);border-radius:var(--rad);padding:1rem 1.25rem;margin-bottom:1.5rem;font-size:.875rem}
+.toc li{margin-bottom:.15rem}
+.toc a{color:var(--acc);text-decoration:none}
+.toc a:hover{text-decoration:underline}
+.pk{color:#d97706;font-weight:700}
+.fk{color:#16a34a;font-style:italic}
+.sd{color:#dc2626;font-weight:600}
+</style>
+</head>
+<body>
+<nav>
+  <span class="logo">Lost Items Docs</span>
+  <a href="index.html">概要</a>
+  <a href="frontend.html">フロントエンド</a>
+  <a href="backend.html">バックエンド</a>
+  <a href="database.html" class="cur">データベース</a>
+  <a href="testing.html">テスト</a>
+  <a href="build-deploy.html">ビルド・デプロイ</a>
+</nav>
+
+<div class="wrap">
+  <h1>データベース</h1>
+  <p class="sub">Drizzle ORM + Cloudflare D1 (SQLite)。スキーマ、マイグレーション、ソフトデリート規約</p>
+
+  <div class="toc">
+    <ul>
+      <li><a href="#er">ER 図</a></li>
+      <li><a href="#schema">テーブル定義</a></li>
+      <li><a href="#types">型マッピング</a></li>
+      <li><a href="#soft-delete">ソフトデリート規約</a></li>
+      <li><a href="#createdb">createDb の使い分け</a></li>
+      <li><a href="#migrations">マイグレーション</a></li>
+    </ul>
+  </div>
+
+  <!-- ER diagram -->
+  <h2 id="er">ER 図</h2>
+  <div class="diagram">
+    <svg viewBox="0 0 580 210" style="max-width:560px;width:100%;font-family:-apple-system,sans-serif">
+      <!-- lists table -->
+      <rect x="20" y="20" width="210" height="130" rx="6" fill="#fef3c7" stroke="#d97706" stroke-width="1.5"/>
+      <rect x="20" y="20" width="210" height="30" rx="6" fill="#d97706"/>
+      <rect x="20" y="38" width="210" height="12" fill="#d97706"/>
+      <text x="125" y="40" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">lists</text>
+      <text x="35" y="70" font-size="10.5" fill="#1c1917" font-family="monospace">id         TEXT  PK</text>
+      <text x="35" y="88" font-size="10.5" fill="#1c1917" font-family="monospace">name       TEXT  nullable</text>
+      <text x="35" y="106" font-size="10.5" fill="#1c1917" font-family="monospace">created_at INT   NOT NULL</text>
+      <text x="35" y="132" font-size="9" fill="#6b6560">※ INT = integer(mode:"timestamp")</text>
+      <text x="35" y="147" font-size="9" fill="#6b6560">　 Drizzle が Unix 秒 ↔ Date 変換</text>
+      <!-- items table -->
+      <rect x="320" y="10" width="240" height="190" rx="6" fill="#dcfce7" stroke="#16a34a" stroke-width="1.5"/>
+      <rect x="320" y="10" width="240" height="30" rx="6" fill="#16a34a"/>
+      <rect x="320" y="28" width="240" height="12" fill="#16a34a"/>
+      <text x="440" y="30" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">items</text>
+      <text x="335" y="60" font-size="10.5" fill="#1c1917" font-family="monospace">id         TEXT  PK</text>
+      <text x="335" y="78" font-size="10.5" fill="#1c1917" font-family="monospace">list_id    TEXT  FK  ←──┐</text>
+      <text x="335" y="96" font-size="10.5" fill="#1c1917" font-family="monospace">comment    TEXT  nullable</text>
+      <text x="335" y="114" font-size="10.5" fill="#1c1917" font-family="monospace">image_url  TEXT  nullable</text>
+      <text x="335" y="132" font-size="10.5" fill="#1c1917" font-family="monospace">created_at INT   NOT NULL</text>
+      <text x="335" y="150" font-size="10.5" fill="#dc2626" font-family="monospace" font-weight="600">deleted_at INT   nullable</text>
+      <text x="335" y="171" font-size="9" fill="#6b6560">★ ソフトデリートマーカー</text>
+      <text x="335" y="185" font-size="9" fill="#6b6560">索引: items_list_id_idx on list_id</text>
+      <!-- FK arrow -->
+      <defs>
+        <marker id="fka" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+          <polygon points="0,0 8,3 0,6" fill="#374151"/>
+        </marker>
+      </defs>
+      <path d="M230,85 C270,85 300,78 320,78" fill="none" stroke="#374151" stroke-width="1.5" stroke-dasharray="6,3" marker-end="url(#fka)"/>
+      <text x="270" y="73" text-anchor="middle" font-size="9" fill="#374151">1</text>
+      <text x="310" y="73" text-anchor="middle" font-size="9" fill="#374151">n</text>
+    </svg>
+  </div>
+
+  <!-- Schema -->
+  <h2 id="schema">テーブル定義</h2>
+
+  <h3>lists — ルームテーブル</h3>
+  <table>
+    <thead><tr><th>カラム</th><th>Drizzle 型</th><th>DB 型</th><th>制約</th><th>説明</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><span class="pk">id</span></td>
+        <td><code>text("id")</code></td>
+        <td><code>TEXT</code></td>
+        <td>PRIMARY KEY</td>
+        <td><code>crypto.randomUUID()</code> で生成</td>
+      </tr>
+      <tr>
+        <td>createdAt</td>
+        <td><code>integer("created_at", { mode: "timestamp" })</code></td>
+        <td><code>INTEGER</code></td>
+        <td>NOT NULL</td>
+        <td>Unix 秒で保存。Drizzle が <code>Date</code> に自動変換</td>
+      </tr>
+      <tr>
+        <td>name</td>
+        <td><code>text("name")</code></td>
+        <td><code>TEXT</code></td>
+        <td>nullable</td>
+        <td>ルーム名。未設定も許容</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>items — 落とし物テーブル</h3>
+  <table>
+    <thead><tr><th>カラム</th><th>Drizzle 型</th><th>DB 型</th><th>制約</th><th>説明</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><span class="pk">id</span></td>
+        <td><code>text("id")</code></td>
+        <td><code>TEXT</code></td>
+        <td>PRIMARY KEY</td>
+        <td><code>crypto.randomUUID()</code> で生成</td>
+      </tr>
+      <tr>
+        <td><span class="fk">listId</span></td>
+        <td><code>text("list_id").notNull().references(()=&gt;lists.id)</code></td>
+        <td><code>TEXT</code></td>
+        <td>NOT NULL, FK → lists.id<br>索引: <code>items_list_id_idx</code></td>
+        <td>所属ルームの外部キー</td>
+      </tr>
+      <tr>
+        <td>comment</td>
+        <td><code>text("comment")</code></td>
+        <td><code>TEXT</code></td>
+        <td>nullable</td>
+        <td>説明文（最大 1000 文字: API 側バリデーション）</td>
+      </tr>
+      <tr>
+        <td>imageUrl</td>
+        <td><code>text("image_url")</code></td>
+        <td><code>TEXT</code></td>
+        <td>nullable</td>
+        <td><code>/api/images/{listId}/{uuid}-{filename}</code> 形式</td>
+      </tr>
+      <tr>
+        <td>createdAt</td>
+        <td><code>integer("created_at", { mode: "timestamp" })</code></td>
+        <td><code>INTEGER</code></td>
+        <td>NOT NULL</td>
+        <td>登録日時</td>
+      </tr>
+      <tr>
+        <td><span class="sd">deletedAt</span></td>
+        <td><code>integer("deleted_at", { mode: "timestamp" })</code></td>
+        <td><code>INTEGER</code></td>
+        <td>nullable</td>
+        <td>★ ソフトデリートマーカー。<code>null</code> = 有効、<code>Date</code> = 削除済み</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <details>
+    <summary>Drizzle スキーマ全文 (<code>src/server/db/schema.ts</code>)</summary>
+    <pre><code>import { index, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+
+export const lists = sqliteTable("lists", {
+  id:        text("id").primaryKey(),
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+  name:      text("name"),
+});
+
+export const items = sqliteTable(
+  "items",
+  {
+    id:        text("id").primaryKey(),
+    listId:    text("list_id").notNull().references(() =&gt; lists.id),
+    comment:   text("comment"),
+    imageUrl:  text("image_url"),
+    createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+    deletedAt: integer("deleted_at", { mode: "timestamp" }),
+  },
+  (table) =&gt; [index("items_list_id_idx").on(table.listId)],
+);</code></pre>
+  </details>
+
+  <!-- Type mapping -->
+  <h2 id="types">型マッピング</h2>
+  <table>
+    <thead><tr><th>Drizzle 定義</th><th>SQLite DB 型</th><th>TypeScript 型</th><th>備考</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><code>integer({ mode: "timestamp" })</code></td>
+        <td><code>INTEGER</code></td>
+        <td><code>Date | null</code></td>
+        <td>Drizzle が Unix 秒 ↔ Date を自動変換</td>
+      </tr>
+      <tr>
+        <td><code>text()</code></td>
+        <td><code>TEXT</code></td>
+        <td><code>string | null</code></td>
+        <td>UUID, URL, ルーム名など</td>
+      </tr>
+      <tr>
+        <td><code>.notNull()</code></td>
+        <td><code>NOT NULL</code></td>
+        <td><code>string / Date</code>（non-nullable）</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="warn">
+    現在時刻の取得は <strong><code>new Date()</code></strong> を使う。<code>Math.floor(Date.now() / 1000)</code> は NG —— Drizzle がすでに秒変換するため二重変換になる。
+  </div>
+
+  <!-- Soft delete -->
+  <h2 id="soft-delete">ソフトデリート規約</h2>
+  <p><code>items</code> テーブルのみ適用。<code>lists</code> は物理削除（R2 画像の連鎖削除が必要なため）。</p>
+
+  <table>
+    <thead><tr><th>操作</th><th>Drizzle コード</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>削除</td>
+        <td><code>.set({ deletedAt: new Date() })</code></td>
+      </tr>
+      <tr>
+        <td>復元</td>
+        <td><code>.set({ deletedAt: null })</code></td>
+      </tr>
+      <tr>
+        <td>通常取得（削除済み除外）</td>
+        <td><code>.where(and(eq(items.listId, id), isNull(items.deletedAt)))</code></td>
+      </tr>
+      <tr>
+        <td>削除済み含む取得</td>
+        <td><code>?includeDeleted=true</code> クエリパラメータを <code>GET /api/lists/:id/items</code> に渡す</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <details>
+    <summary>ソフトデリートの実装コード例</summary>
+    <pre><code>// 削除 (DELETE /api/lists/:id/items/:itemId)
+await db
+  .update(items)
+  .set({ deletedAt: new Date() })
+  .where(eq(items.id, itemId));
+
+// 復元 (POST .../restore)
+await db
+  .update(items)
+  .set({ deletedAt: null })
+  .where(eq(items.id, itemId));
+
+// 公開ページ: 削除済み除外
+const activeItems = await db
+  .select().from(items)
+  .where(and(eq(items.listId, listId), isNull(items.deletedAt)));
+
+// 登録ページ: 削除済みも含む (?includeDeleted=true)
+const allItems = await db
+  .select().from(items)
+  .where(eq(items.listId, listId));</code></pre>
+  </details>
+
+  <!-- createDb -->
+  <h2 id="createdb"><code>createDb</code> の使い分け</h2>
+  <p><code>src/server/db/index.ts</code> の <code>createDb(d1: D1Database)</code> は <code>drizzle(d1, { schema })</code> を返す薄いラッパー。呼び出し元が 2 種類ある。</p>
+  <table>
+    <thead><tr><th>呼び出し元</th><th>D1 取得方法</th><th>コード例</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>Hono ルート</td>
+        <td><code>c.env.DB</code></td>
+        <td><code>const db = createDb(c.env.DB);</code></td>
+      </tr>
+      <tr>
+        <td>Astro SSR ページ</td>
+        <td><code>cloudflare:workers</code> の <code>env</code></td>
+        <td><code>import { env } from "cloudflare:workers";<br>const db = createDb((env as Bindings).DB);</code></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Migrations -->
+  <h2 id="migrations">マイグレーション</h2>
+
+  <h3>マイグレーションフロー</h3>
+  <div class="diagram">
+    <svg viewBox="0 0 660 80" style="max-width:640px;width:100%;font-family:-apple-system,sans-serif">
+      <defs>
+        <marker id="ma" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto">
+          <polygon points="0,0 7,2.5 0,5" fill="#374151"/>
+        </marker>
+      </defs>
+      <rect x="5"   y="22" width="120" height="40" rx="5" fill="#ede9fe" stroke="#7c3aed" stroke-width="1"/>
+      <text x="65"  y="39" text-anchor="middle" font-size="10" font-weight="600" fill="#3b1070">schema.ts 編集</text>
+      <text x="65"  y="54" text-anchor="middle" font-size="8.5" fill="#5a2090">src/server/db/</text>
+      <rect x="147" y="22" width="130" height="40" rx="5" fill="#dcfce7" stroke="#16a34a" stroke-width="1"/>
+      <text x="212" y="39" text-anchor="middle" font-size="10" font-weight="600" fill="#145214">db:generate</text>
+      <text x="212" y="54" text-anchor="middle" font-size="8.5" fill="#1d701d">drizzle-kit generate</text>
+      <rect x="299" y="22" width="120" height="40" rx="5" fill="#e0f2fe" stroke="#0284c7" stroke-width="1"/>
+      <text x="359" y="39" text-anchor="middle" font-size="10" font-weight="600" fill="#0c4a6e">SQL レビュー</text>
+      <text x="359" y="54" text-anchor="middle" font-size="8.5" fill="#0c4a6e">migrations/ 確認</text>
+      <rect x="441" y="2" width="115" height="40" rx="5" fill="#fef3c7" stroke="#d97706" stroke-width="1"/>
+      <text x="499" y="19" text-anchor="middle" font-size="10" font-weight="600" fill="#78380a">db:migrate</text>
+      <text x="499" y="34" text-anchor="middle" font-size="8.5" fill="#8b4b0f">local (--local)</text>
+      <rect x="441" y="50" width="115" height="28" rx="5" fill="#fee2e2" stroke="#dc2626" stroke-width="1"/>
+      <text x="499" y="61" text-anchor="middle" font-size="10" font-weight="600" fill="#7f1d1d">db:migrate:prod</text>
+      <text x="499" y="73" text-anchor="middle" font-size="8" fill="#991b1b">要承認 (--remote)</text>
+      <line x1="125" y1="42" x2="147" y2="42" stroke="#374151" stroke-width="1.2" marker-end="url(#ma)"/>
+      <line x1="277" y1="42" x2="299" y2="42" stroke="#374151" stroke-width="1.2" marker-end="url(#ma)"/>
+      <line x1="419" y1="35" x2="441" y2="22" stroke="#374151" stroke-width="1.2" marker-end="url(#ma)"/>
+      <line x1="419" y1="50" x2="441" y2="62" stroke="#374151" stroke-width="1.2" marker-end="url(#ma)"/>
+    </svg>
+  </div>
+
+  <h3>現在のマイグレーション履歴</h3>
+  <table>
+    <thead><tr><th>ファイル</th><th>内容</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><code>migrations/0000_strange_titania.sql</code></td>
+        <td>初回マイグレーション。<code>lists</code>・<code>items</code> テーブルと <code>items_list_id_idx</code> インデックスを作成</td>
+      </tr>
+      <tr>
+        <td><code>migrations/meta/_journal.json</code></td>
+        <td>drizzle-kit のジャーナル（dialect: sqlite、エントリ: <code>0000_strange_titania</code>）</td>
+      </tr>
+      <tr>
+        <td><code>migrations/meta/0000_snapshot.json</code></td>
+        <td>スキーマスナップショット。次回 <code>db:generate</code> 時の差分計算ベース</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <details>
+    <summary>db:reset の効能と危険性</summary>
+    <div class="danger">
+      <strong>データ消滅注意</strong> — <code>pnpm db:reset</code> はローカルの D1 データと全マイグレーション履歴を削除する。<strong>プロダクション DB には絶対に触らない。</strong>
+    </div>
+    <p><code>db:reset</code> が実行するコマンド:</p>
+    <pre><code>rm -rf migrations .wrangler/state/v3/d1
+pnpm db:generate   # schema から再生成
+pnpm db:migrate    # ローカル D1 に再適用</code></pre>
+    <p>主な用途: 開発中に溜まったマイグレーション履歴をリリース前に 1 本にまとめるとき（<code>/db-reset</code> スキルが自動実行）。</p>
+  </details>
+
+  <footer>Lost Items — 実装ドキュメント | 2026-05-16</footer>
+</div>
+</body>
+</html>

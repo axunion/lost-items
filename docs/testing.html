@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lost Items — テスト</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#f8f7f5;--sur:#fff;--brd:#e3ded8;--txt:#1c1917;--mut:#6b6560;--pri:#374151;--acc:#4f7096;--cbg:#f1ede8;--rad:8px}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--txt);line-height:1.65;font-size:15px}
+nav{background:#374151;padding:.6rem 1.5rem;display:flex;gap:1.25rem;flex-wrap:wrap;align-items:center}
+nav .logo{color:#fff;font-weight:700;font-size:.875rem;margin-right:.25rem}
+nav a{color:#93a3b8;text-decoration:none;font-size:.825rem}
+nav a:hover{color:#fff}
+nav a.cur{color:#fff;font-weight:600}
+.wrap{max-width:920px;margin:0 auto;padding:2rem 1.5rem}
+h1{font-size:1.7rem;font-weight:700;color:var(--pri);margin-bottom:.3rem}
+.sub{color:var(--mut);font-size:.95rem;margin-bottom:1.5rem}
+h2{font-size:1.2rem;font-weight:600;color:var(--pri);margin:2rem 0 .65rem;padding-bottom:.3rem;border-bottom:2px solid var(--brd)}
+h3{font-size:1rem;font-weight:600;color:var(--pri);margin:1.25rem 0 .4rem}
+p{margin-bottom:.65rem}
+ul,ol{padding-left:1.4rem;margin-bottom:.65rem}
+li{margin-bottom:.2rem}
+table{border-collapse:collapse;width:100%;font-size:.875rem;background:var(--sur);border-radius:var(--rad);overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.06);margin:.75rem 0}
+th{background:var(--pri);color:#fff;padding:.5rem .85rem;text-align:left;font-size:.8rem;font-weight:600;white-space:nowrap}
+td{padding:.48rem .85rem;border-bottom:1px solid var(--brd);vertical-align:top}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#f5f2ee}
+code{font-family:"SF Mono","Fira Code",monospace;font-size:.83em;background:var(--cbg);padding:.1em .38em;border-radius:3px}
+pre{background:var(--cbg);border:1px solid var(--brd);border-radius:var(--rad);padding:.9rem 1rem;overflow-x:auto;font-size:.83rem;line-height:1.5;margin:.75rem 0}
+pre code{background:none;padding:0}
+details{border:1px solid var(--brd);border-radius:var(--rad);margin:.75rem 0;overflow:hidden;background:var(--sur)}
+summary{padding:.65rem 1rem;cursor:pointer;font-weight:600;font-size:.875rem;color:var(--pri);list-style:none;display:flex;align-items:center;gap:.5rem}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"▶";font-size:.65rem;transition:transform .15s;flex-shrink:0}
+details[open] summary::before{transform:rotate(90deg)}
+details>*:not(summary){padding:0 1rem .9rem}
+.diagram{background:var(--sur);border:1px solid var(--brd);border-radius:var(--rad);padding:1.25rem;margin:.75rem 0;text-align:center;overflow-x:auto}
+.note{background:#eef2fa;border-left:3px solid var(--acc);border-radius:0 var(--rad) var(--rad) 0;padding:.7rem 1rem;margin:.75rem 0;font-size:.875rem}
+.danger{background:#fff1f0;border-left:3px solid #d44;border-radius:0 var(--rad) var(--rad) 0;padding:.7rem 1rem;margin:.75rem 0;font-size:.875rem}
+footer{margin-top:3rem;padding-top:1.25rem;border-top:1px solid var(--brd);font-size:.825rem;color:var(--mut)}
+.toc{background:var(--sur);border:1px solid var(--brd);border-radius:var(--rad);padding:1rem 1.25rem;margin-bottom:1.5rem;font-size:.875rem}
+.toc li{margin-bottom:.15rem}
+.toc a{color:var(--acc);text-decoration:none}
+.toc a:hover{text-decoration:underline}
+.step{display:flex;align-items:flex-start;gap:.75rem;margin:.5rem 0}
+.step-num{background:var(--pri);color:#fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:700;flex-shrink:0;margin-top:1px}
+</style>
+</head>
+<body>
+<nav>
+  <span class="logo">Lost Items Docs</span>
+  <a href="index.html">概要</a>
+  <a href="frontend.html">フロントエンド</a>
+  <a href="backend.html">バックエンド</a>
+  <a href="database.html">データベース</a>
+  <a href="testing.html" class="cur">テスト</a>
+  <a href="build-deploy.html">ビルド・デプロイ</a>
+</nav>
+
+<div class="wrap">
+  <h1>テスト</h1>
+  <p class="sub">Vitest 単体テスト、Playwright E2E テスト、テスト規約</p>
+
+  <div class="toc">
+    <ul>
+      <li><a href="#structure">テスト構成図</a></li>
+      <li><a href="#unit">単体テスト一覧</a></li>
+      <li><a href="#route-mock">ルートテストのモックパターン</a></li>
+      <li><a href="#component">コンポーネントテスト</a></li>
+      <li><a href="#e2e">E2E テスト</a></li>
+      <li><a href="#e2e-rules">E2E 規約</a></li>
+      <li><a href="#coverage">カバレッジ設定</a></li>
+      <li><a href="#quality">品質チェック順序</a></li>
+    </ul>
+  </div>
+
+  <!-- Structure -->
+  <h2 id="structure">テスト構成図</h2>
+  <div class="diagram">
+    <svg viewBox="0 0 620 140" style="max-width:600px;width:100%;font-family:-apple-system,sans-serif">
+      <!-- Vitest box -->
+      <rect x="20" y="20" width="270" height="105" rx="6" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.5"/>
+      <rect x="20" y="20" width="270" height="28" rx="6" fill="#7c3aed"/>
+      <rect x="20" y="36" width="270" height="12" fill="#7c3aed"/>
+      <text x="155" y="38" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">Vitest — 単体テスト</text>
+      <text x="35"  y="67" font-size="10" fill="#1c1917">● 環境: jsdom</text>
+      <text x="35"  y="82" font-size="10" fill="#1c1917">● src/**/*.{test,spec}.{ts,tsx}</text>
+      <text x="35"  y="97" font-size="10" fill="#1c1917">● Hono route.request() / @solidjs/testing-library</text>
+      <text x="35"  y="112" font-size="10" fill="#1c1917">● vi.hoisted + vi.mock で DB をモック</text>
+      <!-- Playwright box -->
+      <rect x="330" y="20" width="270" height="105" rx="6" fill="#dcfce7" stroke="#16a34a" stroke-width="1.5"/>
+      <rect x="330" y="20" width="270" height="28" rx="6" fill="#16a34a"/>
+      <rect x="330" y="36" width="270" height="12" fill="#16a34a"/>
+      <text x="465" y="38" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">Playwright — E2E テスト</text>
+      <text x="345" y="67" font-size="10" fill="#1c1917">● ブラウザ: Chromium のみ</text>
+      <text x="345" y="82" font-size="10" fill="#1c1917">● tests/e2e/*.spec.ts</text>
+      <text x="345" y="97" font-size="10" fill="#1c1917">● workers: 1（並列禁止）</text>
+      <text x="345" y="112" font-size="10" fill="#1c1917">● webServer: pnpm dev（自動起動）</text>
+    </svg>
+  </div>
+
+  <!-- Unit tests -->
+  <h2 id="unit">単体テスト一覧 (<code>src/**/*.test.*</code>)</h2>
+
+  <h3>サーバー</h3>
+  <table>
+    <thead><tr><th>ファイル</th><th>テスト内容</th></tr></thead>
+    <tbody>
+      <tr><td><code>src/server/index.test.ts</code></td><td>Hono アプリのルートマウント確認（<code>/api/lists</code>, <code>/api/images</code> が登録されていること）</td></tr>
+      <tr><td><code>src/server/routes/lists.test.ts</code></td><td>ルーム&アイテム CRUD 全エンドポイント。<code>mockDb</code> でチェーン可能な DB をモック</td></tr>
+      <tr><td><code>src/server/routes/images.test.ts</code></td><td>R2 画像配信。KEY_PATTERN 検証、404、Content-Type/Cache-Control ヘッダ</td></tr>
+    </tbody>
+  </table>
+
+  <h3>ライブラリ</h3>
+  <table>
+    <thead><tr><th>ファイル</th><th>テスト内容</th></tr></thead>
+    <tbody>
+      <tr><td><code>src/lib/api.test.ts</code></td><td>クライアント API ラッパー。fetch をモックし各関数の HTTP メソッド・URL・ペイロードを検証</td></tr>
+      <tr><td><code>src/lib/utils.test.ts</code></td><td><code>cx()</code> クラス結合、<code>formatDate()</code> フォーマット出力</td></tr>
+      <tr><td><code>src/lib/image-utils.test.ts</code></td><td><code>compressImage()</code> の縮小ロジックと JPEG 変換</td></tr>
+    </tbody>
+  </table>
+
+  <h3>UI プリミティブ</h3>
+  <table>
+    <thead><tr><th>ファイル</th><th>テスト内容</th></tr></thead>
+    <tbody>
+      <tr><td><code>src/components/ui/button.test.tsx</code></td><td>variant / size の CSS クラス適用、クリックイベント</td></tr>
+      <tr><td><code>src/components/ui/confirm-dialog.test.tsx</code></td><td>ダイアログ開閉、onConfirm / onOpenChange コールバック</td></tr>
+      <tr><td><code>src/components/ui/toast.test.tsx</code></td><td><code>showToast</code> → <code>ToastRegion</code> への表示・自動消滅</td></tr>
+    </tbody>
+  </table>
+
+  <h3>フィーチャーコンポーネント</h3>
+  <table>
+    <thead><tr><th>ファイル</th><th>テスト内容</th></tr></thead>
+    <tbody>
+      <tr><td><code>src/components/features/room-create-form.test.tsx</code></td><td>名前入力 → submit → <code>onCreated</code> コールバック、Loading 表示</td></tr>
+      <tr><td><code>src/components/features/register-page.test.tsx</code></td><td>RegisterForm + ItemList の統合、<code>items</code> シグナルの更新</td></tr>
+      <tr><td><code>src/components/features/register-form.test.tsx</code></td><td>画像圧縮 → FormData 投稿フロー</td></tr>
+      <tr><td><code>src/components/features/item-list.test.tsx</code></td><td>通常表示・削除済みバッジ表示・readonly prop で編集 UI 非表示</td></tr>
+      <tr><td><code>src/components/features/history-list.test.tsx</code></td><td>一覧表示、リネーム・削除の楽観的更新、<code>maxItems</code> 制限</td></tr>
+    </tbody>
+  </table>
+
+  <!-- Route mock pattern -->
+  <h2 id="route-mock">ルートテストのモックパターン</h2>
+  <p><code>vi.hoisted</code> でチェーン可能な <code>mockDb</code> を作り、<code>vi.mock</code> でモジュールを差し替える。テストは <code>route.request()</code> で HTTP 直叩き。</p>
+
+  <details>
+    <summary>モックパターン全体像 (src/server/routes/lists.test.ts より)</summary>
+    <pre><code>// 1. vi.hoisted で mockDb を作成（vi.mock 巻き上げより先に実行される）
+const { mockDb } = vi.hoisted(() =&gt; {
+  const mockDb = {
+    select:  vi.fn().mockReturnThis(),
+    from:    vi.fn().mockReturnThis(),
+    where:   vi.fn().mockReturnThis(),
+    orderBy: vi.fn().mockReturnThis(),
+    limit:   vi.fn().mockReturnThis(),
+    get:     vi.fn().mockResolvedValue(null),
+    insert:  vi.fn().mockReturnThis(),
+    values:  vi.fn().mockResolvedValue(undefined),
+    update:  vi.fn().mockReturnThis(),
+    set:     vi.fn().mockReturnThis(),
+    delete:  vi.fn().mockReturnThis(),
+    transaction: vi.fn(),
+  };
+  return { mockDb };
+});
+
+// 2. createDb をモックに差し替え
+vi.mock("../db", () => ({
+  createDb: vi.fn(() =&gt; mockDb),
+}));
+
+// 3. テスト本体
+beforeEach(() =&gt; { vi.clearAllMocks(); });
+
+test("GET /api/lists returns 200", async () =&gt; {
+  mockDb.from.mockReturnValueOnce({
+    orderBy: vi.fn().mockResolvedValue([{ id: "1", name: "test" }]),
+  });
+
+  const res = await listsRoute.request("/", { method: "GET" });
+  expect(res.status).toBe(200);
+  const body = await res.json();
+  expect(body).toHaveLength(1);
+});</code></pre>
+  </details>
+
+  <!-- Component tests -->
+  <h2 id="component">コンポーネントテスト</h2>
+  <p><code>@solidjs/testing-library</code> の <code>render</code> / <code>screen</code> を使用。<code>vitest.setup.ts</code> で <code>@testing-library/jest-dom</code> をインポートし、<code>toBeInTheDocument()</code> 等のマッチャーを有効化。</p>
+
+  <details>
+    <summary>コンポーネントテストの基本パターン</summary>
+    <pre><code>import { render, screen } from "@solidjs/testing-library";
+import { Button } from "./button";
+
+test("renders with correct variant class", () =&gt; {
+  render(() =&gt; &lt;Button variant="destructive"&gt;Delete&lt;/Button&gt;);
+  const btn = screen.getByRole("button", { name: "Delete" });
+  expect(btn).toBeInTheDocument();
+  expect(btn.className).toContain("destructive");
+});</code></pre>
+    <ul>
+      <li>イベントは <code>fireEvent.click(btn)</code> または <code>userEvent</code> でトリガー</li>
+      <li>非同期処理のあるコンポーネントは <code>waitFor</code> を使う</li>
+      <li>API 呼び出しは <code>vi.mock("~/lib/api")</code> で差し替える</li>
+    </ul>
+  </details>
+
+  <!-- E2E tests -->
+  <h2 id="e2e">E2E テスト (<code>tests/e2e/</code>)</h2>
+  <table>
+    <thead><tr><th>ファイル</th><th>テストシナリオ</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><code>tests/e2e/api-flow.spec.ts</code></td>
+        <td>
+          API ベースの疎通確認<br>
+          ① ルーム作成 → ② アイテム登録（画像なし）→ ③ ソフトデリート → ④ 復元 → ⑤ 公開ページの読み取り専用確認
+        </td>
+      </tr>
+      <tr>
+        <td><code>tests/e2e/ui-smoke.spec.ts</code></td>
+        <td>
+          SSR/ルーティング疎通確認<br>
+          ① ダッシュボードが主要 UI セクションをレンダリングする → ② 公開ページにアイテムがある場合、編集・削除ボタンが非表示であること
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p>実行コマンド:</p>
+  <pre><code>pnpm test:e2e                                  # 全スペック (webServer で pnpm dev を自動起動)
+pnpm test:e2e -- tests/e2e/api-flow.spec.ts   # 単一スペック
+pnpm test:e2e:headed                           # ブラウザ可視でデバッグ</code></pre>
+
+  <!-- E2E rules -->
+  <h2 id="e2e-rules">E2E 規約</h2>
+  <div class="danger">
+    <strong>MCP Playwright ツール (<code>mcp__playwright__*</code>) は使用禁止。</strong>
+    ステップごとの往復コストが大きく、タイミング/状態ドリフトで再現性が低い。E2E は必ず <code>pnpm test:e2e</code> を Bash 経由で実行する。
+  </div>
+
+  <details>
+    <summary>E2E テスト規約の詳細</summary>
+    <ul>
+      <li><strong>ユニーク命名</strong> — ルーム名等は <code>Date.now()-process.pid</code> で並列実行時の衝突を防ぐ</li>
+      <li><strong>変更系 API の origin ヘッダ</strong> — <code>POST</code>/<code>PATCH</code>/<code>DELETE</code> 等は <code>headers: { origin: "http://localhost:4321" }</code> を付与（将来的な CSRF 対策との整合性）</li>
+      <li><strong>webServer</strong> — <code>playwright.config.ts</code> の <code>webServer</code> 設定が <code>pnpm dev</code> を自動起動・終了するので手動管理不要</li>
+      <li><strong>workers: 1</strong> — miniflare が並列リクエストでハングする問題の回避。E2E は逐次実行</li>
+      <li><strong>CI 時は retry 2 回</strong> — ローカルは retry 1 回</li>
+      <li>E2E スペックは <code>tests/e2e/</code> のみ。<code>src/</code> には置かない</li>
+    </ul>
+    <pre><code>// E2E の基本パターン
+test("API flow", async ({ page, request }) =&gt; {
+  const roomName = `Test Room ${Date.now()}-${process.pid}`;
+
+  // 変更系 API は origin ヘッダが必要
+  const listRes = await request.post("/api/lists", {
+    data: { name: roomName },
+    headers: { origin: "http://localhost:4321" },
+  });
+  const { id } = await listRes.json();
+
+  // SSR ページの確認
+  await page.goto(`/${id}/register`);
+  await expect(page.getByTestId("item-card")).toBeVisible();
+});</code></pre>
+  </details>
+
+  <!-- Coverage -->
+  <h2 id="coverage">カバレッジ設定</h2>
+  <p>プロバイダ: <strong>v8</strong>。対象: <code>src/**/*.{ts,tsx}</code>。出力: テキスト + HTML (<code>coverage/</code>)。</p>
+  <p>カバレッジから<strong>除外するファイル</strong>:</p>
+  <ul>
+    <li><code>**/*.test.*</code> — テスト自体</li>
+    <li><code>**/*.module.css</code> — CSS Modules</li>
+    <li><code>src/env.d.ts</code> — 型定義のみ</li>
+    <li><code>src/server/bindings.ts</code> — 型定義のみ</li>
+    <li><code>src/server/db/schema.ts</code> — Drizzle スキーマ定義</li>
+    <li><code>src/pages/**/*.astro</code> — Astro ページ（Vitest スコープ外）</li>
+  </ul>
+  <p>カバレッジ計測: <code>pnpm test:coverage</code></p>
+
+  <!-- Quality check order -->
+  <h2 id="quality">品質チェック順序</h2>
+  <p>コミット前の標準的な確認フロー:</p>
+
+  <div class="step">
+    <div class="step-num">1</div>
+    <div>
+      <strong><code>pnpm check</code></strong> — Biome lint/format + astro check (TypeScript)<br>
+      <small>自動修正は <code>pnpm fix</code>（Biome のみ。型エラーは手動修正）</small>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-num">2</div>
+    <div>
+      <strong><code>pnpm test --run</code></strong> — Vitest 単体テスト（全件・非インタラクティブ）<br>
+      <small>単一ファイルは <code>pnpm test -- src/server/routes/lists.test.ts</code></small>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-num">3</div>
+    <div>
+      <strong><code>pnpm build</code></strong> — プロダクションビルド成功を確認
+    </div>
+  </div>
+  <div class="step" style="margin-top:.75rem">
+    <div class="step-num" style="background:var(--acc)">+</div>
+    <div>
+      <strong><code>pnpm test:e2e</code></strong> — ブラウザ疎通が必要な変更時のみ（自動的に dev サーバー起動）
+    </div>
+  </div>
+
+  <div class="note">上記の 1〜3 は <code>/quality-check</code> スキルでまとめて実行できる。<code>/quality-check --fix</code> で Biome の自動修正も同時に行う。</div>
+
+  <footer>Lost Items — 実装ドキュメント | 2026-05-16</footer>
+</div>
+</body>
+</html>

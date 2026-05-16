@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lost Items — バックエンド</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#f8f7f5;--sur:#fff;--brd:#e3ded8;--txt:#1c1917;--mut:#6b6560;--pri:#374151;--acc:#4f7096;--cbg:#f1ede8;--rad:8px}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--txt);line-height:1.65;font-size:15px}
+nav{background:#374151;padding:.6rem 1.5rem;display:flex;gap:1.25rem;flex-wrap:wrap;align-items:center}
+nav .logo{color:#fff;font-weight:700;font-size:.875rem;margin-right:.25rem}
+nav a{color:#93a3b8;text-decoration:none;font-size:.825rem}
+nav a:hover{color:#fff}
+nav a.cur{color:#fff;font-weight:600}
+.wrap{max-width:920px;margin:0 auto;padding:2rem 1.5rem}
+h1{font-size:1.7rem;font-weight:700;color:var(--pri);margin-bottom:.3rem}
+.sub{color:var(--mut);font-size:.95rem;margin-bottom:1.5rem}
+h2{font-size:1.2rem;font-weight:600;color:var(--pri);margin:2rem 0 .65rem;padding-bottom:.3rem;border-bottom:2px solid var(--brd)}
+h3{font-size:1rem;font-weight:600;color:var(--pri);margin:1.25rem 0 .4rem}
+p{margin-bottom:.65rem}
+ul,ol{padding-left:1.4rem;margin-bottom:.65rem}
+li{margin-bottom:.2rem}
+table{border-collapse:collapse;width:100%;font-size:.875rem;background:var(--sur);border-radius:var(--rad);overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.06);margin:.75rem 0}
+th{background:var(--pri);color:#fff;padding:.5rem .85rem;text-align:left;font-size:.8rem;font-weight:600;white-space:nowrap}
+td{padding:.48rem .85rem;border-bottom:1px solid var(--brd);vertical-align:top}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#f5f2ee}
+code{font-family:"SF Mono","Fira Code",monospace;font-size:.83em;background:var(--cbg);padding:.1em .38em;border-radius:3px}
+pre{background:var(--cbg);border:1px solid var(--brd);border-radius:var(--rad);padding:.9rem 1rem;overflow-x:auto;font-size:.83rem;line-height:1.5;margin:.75rem 0}
+pre code{background:none;padding:0}
+details{border:1px solid var(--brd);border-radius:var(--rad);margin:.75rem 0;overflow:hidden;background:var(--sur)}
+summary{padding:.65rem 1rem;cursor:pointer;font-weight:600;font-size:.875rem;color:var(--pri);list-style:none;display:flex;align-items:center;gap:.5rem}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"▶";font-size:.65rem;transition:transform .15s;flex-shrink:0}
+details[open] summary::before{transform:rotate(90deg)}
+details>*:not(summary){padding:0 1rem .9rem}
+.diagram{background:var(--sur);border:1px solid var(--brd);border-radius:var(--rad);padding:1.25rem;margin:.75rem 0;text-align:center;overflow-x:auto}
+.note{background:#eef2fa;border-left:3px solid var(--acc);border-radius:0 var(--rad) var(--rad) 0;padding:.7rem 1rem;margin:.75rem 0;font-size:.875rem}
+.warn{background:#fffae0;border-left:3px solid #e6aa00;border-radius:0 var(--rad) var(--rad) 0;padding:.7rem 1rem;margin:.75rem 0;font-size:.875rem}
+.absent{background:#fff1f0;border:1px solid #f5b8b8;border-radius:var(--rad);padding:1rem 1.25rem;margin:.75rem 0}
+.absent h3{color:#c0392b;margin-top:0}
+.absent ul{margin-bottom:0}
+footer{margin-top:3rem;padding-top:1.25rem;border-top:1px solid var(--brd);font-size:.825rem;color:var(--mut)}
+.toc{background:var(--sur);border:1px solid var(--brd);border-radius:var(--rad);padding:1rem 1.25rem;margin-bottom:1.5rem;font-size:.875rem}
+.toc li{margin-bottom:.15rem}
+.toc a{color:var(--acc);text-decoration:none}
+.toc a:hover{text-decoration:underline}
+.method{display:inline-block;font-weight:700;font-size:.75rem;padding:.1em .45em;border-radius:3px;font-family:monospace}
+.get{background:#dcfce7;color:#166534}
+.post{background:#dbeafe;color:#1e40af}
+.patch{background:#fef3c7;color:#92400e}
+.delete{background:#fee2e2;color:#991b1b}
+</style>
+</head>
+<body>
+<nav>
+  <span class="logo">Lost Items Docs</span>
+  <a href="index.html">概要</a>
+  <a href="frontend.html">フロントエンド</a>
+  <a href="backend.html" class="cur">バックエンド</a>
+  <a href="database.html">データベース</a>
+  <a href="testing.html">テスト</a>
+  <a href="build-deploy.html">ビルド・デプロイ</a>
+</nav>
+
+<div class="wrap">
+  <h1>バックエンド</h1>
+  <p class="sub">Hono API、エンドポイント一覧、R2 画像処理、バインディング</p>
+
+  <div class="toc">
+    <ul>
+      <li><a href="#entry">API エントリポイント</a></li>
+      <li><a href="#endpoints">エンドポイント一覧</a></li>
+      <li><a href="#image-upload">画像アップロードフロー</a></li>
+      <li><a href="#r2">R2 規約</a></li>
+      <li><a href="#bindings">バインディング</a></li>
+      <li><a href="#validation">バリデーション規約</a></li>
+      <li><a href="#errors">エラー応答規約</a></li>
+      <li><a href="#absent">意図的に存在しないもの</a></li>
+    </ul>
+  </div>
+
+  <!-- Entry point -->
+  <h2 id="entry">API エントリポイント</h2>
+
+  <div class="diagram">
+    <svg viewBox="0 0 660 130" style="max-width:640px;width:100%;font-family:-apple-system,sans-serif">
+      <defs>
+        <marker id="a3" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto">
+          <polygon points="0,0 7,2.5 0,5" fill="#374151"/>
+        </marker>
+      </defs>
+      <!-- Astro catch-all -->
+      <rect x="10" y="45" width="180" height="50" rx="5" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.5"/>
+      <text x="100" y="65" text-anchor="middle" font-size="10.5" font-weight="600" fill="#3b1070">Astro catch-all</text>
+      <text x="100" y="81" text-anchor="middle" font-size="9" fill="#5a2090">src/pages/api/[...route].ts</text>
+      <text x="100" y="94" text-anchor="middle" font-size="8.5" fill="#5a2090">env を Hono に転送</text>
+      <!-- Hono app -->
+      <rect x="240" y="35" width="150" height="70" rx="5" fill="#dcfce7" stroke="#16a34a" stroke-width="1.5"/>
+      <text x="315" y="58" text-anchor="middle" font-size="10.5" font-weight="600" fill="#145214">Hono app</text>
+      <text x="315" y="73" text-anchor="middle" font-size="9" fill="#1d701d">src/server/index.ts</text>
+      <text x="315" y="88" text-anchor="middle" font-size="9" fill="#1d701d">onError → 500 ハンドラ</text>
+      <text x="315" y="101" text-anchor="middle" font-size="8.5" fill="#1d701d">AppType エクスポート</text>
+      <!-- Lists route -->
+      <rect x="445" y="10" width="150" height="42" rx="5" fill="#e0f2fe" stroke="#0284c7" stroke-width="1"/>
+      <text x="520" y="28" text-anchor="middle" font-size="10" font-weight="600" fill="#0c4a6e">listsRoute</text>
+      <text x="520" y="43" text-anchor="middle" font-size="8.5" fill="#0c4a6e">routes/lists.ts</text>
+      <!-- Images route -->
+      <rect x="445" y="75" width="150" height="42" rx="5" fill="#e0f2fe" stroke="#0284c7" stroke-width="1"/>
+      <text x="520" y="93" text-anchor="middle" font-size="10" font-weight="600" fill="#0c4a6e">imagesRoute</text>
+      <text x="520" y="108" text-anchor="middle" font-size="8.5" fill="#0c4a6e">routes/images.ts</text>
+      <!-- Arrows -->
+      <line x1="190" y1="70" x2="240" y2="70" stroke="#374151" stroke-width="1.5" marker-end="url(#a3)"/>
+      <line x1="390" y1="55" x2="445" y2="31" stroke="#374151" stroke-width="1.5" marker-end="url(#a3)"/>
+      <line x1="390" y1="85" x2="445" y2="96" stroke="#374151" stroke-width="1.5" marker-end="url(#a3)"/>
+      <!-- Labels -->
+      <text x="213" y="63" font-size="8" fill="#6b6560">app.fetch(req, env)</text>
+      <text x="400" y="42" font-size="8" fill="#6b6560">/api/lists/*</text>
+      <text x="400" y="92" font-size="8" fill="#6b6560">/api/images/*</text>
+    </svg>
+  </div>
+
+  <pre><code>// src/server/index.ts
+const app = new Hono&lt;{ Bindings: Bindings }&gt;()
+  .route("/api/lists",  listsRoute)
+  .route("/api/images", imagesRoute);
+
+app.onError((err, c) => c.json({ error: "Internal Server Error" }, 500));
+
+export type AppType = typeof app; // Hono RPC 用（現状未使用）</code></pre>
+
+  <!-- Endpoints -->
+  <h2 id="endpoints">エンドポイント一覧</h2>
+
+  <h3>ルーム (<code>src/server/routes/lists.ts</code>)</h3>
+  <table>
+    <thead>
+      <tr><th>メソッド</th><th>パス</th><th>リクエスト</th><th>レスポンス</th><th>エラー</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="method get">GET</span></td>
+        <td><code>/api/lists</code></td>
+        <td>なし</td>
+        <td><code>List[]</code>（<code>createdAt</code> 降順）</td>
+        <td>—</td>
+      </tr>
+      <tr>
+        <td><span class="method post">POST</span></td>
+        <td><code>/api/lists</code></td>
+        <td>JSON <code>{ name?: string }</code></td>
+        <td><code>{ id: string }</code></td>
+        <td>—</td>
+      </tr>
+      <tr>
+        <td><span class="method get">GET</span></td>
+        <td><code>/api/lists/:id</code></td>
+        <td>なし</td>
+        <td><code>List</code></td>
+        <td>404 <code>{ error: "List not found" }</code></td>
+      </tr>
+      <tr>
+        <td><span class="method patch">PATCH</span></td>
+        <td><code>/api/lists/:id</code></td>
+        <td>JSON <code>{ name: string (min 1) }</code></td>
+        <td><code>{ id, name }</code></td>
+        <td>404</td>
+      </tr>
+      <tr>
+        <td><span class="method delete">DELETE</span></td>
+        <td><code>/api/lists/:id</code></td>
+        <td>なし</td>
+        <td><code>{ success: true }</code></td>
+        <td>404。R2 画像を先に削除してから DB をトランザクション削除</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>アイテム (<code>src/server/routes/lists.ts</code> 続き)</h3>
+  <table>
+    <thead>
+      <tr><th>メソッド</th><th>パス</th><th>リクエスト</th><th>レスポンス</th><th>エラー</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="method get">GET</span></td>
+        <td><code>/api/lists/:id/items</code></td>
+        <td>QS: <code>?includeDeleted=true</code></td>
+        <td><code>Item[]</code>（<code>createdAt</code> 降順）</td>
+        <td>—</td>
+      </tr>
+      <tr>
+        <td><span class="method post">POST</span></td>
+        <td><code>/api/lists/:id/items</code></td>
+        <td><code>multipart/form-data</code><br><code>comment?: string (max 1000)</code><br><code>image?: File</code></td>
+        <td><code>Item</code></td>
+        <td>404（リスト不在）、400（MIME/サイズ違反）</td>
+      </tr>
+      <tr>
+        <td><span class="method patch">PATCH</span></td>
+        <td><code>/api/lists/:id/items/:itemId</code></td>
+        <td>JSON <code>{ comment: string (max 1000) }</code></td>
+        <td>更新後の <code>Item</code></td>
+        <td>404</td>
+      </tr>
+      <tr>
+        <td><span class="method delete">DELETE</span></td>
+        <td><code>/api/lists/:id/items/:itemId</code></td>
+        <td>なし</td>
+        <td><code>{ success: true }</code></td>
+        <td>404。<strong>ソフトデリート</strong>（<code>deletedAt = new Date()</code>）</td>
+      </tr>
+      <tr>
+        <td><span class="method post">POST</span></td>
+        <td><code>/api/lists/:id/items/:itemId/restore</code></td>
+        <td>なし</td>
+        <td><code>{ success: true }</code></td>
+        <td>404、400（<code>deletedAt</code> が null = 未削除）</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>画像 (<code>src/server/routes/images.ts</code>)</h3>
+  <table>
+    <thead>
+      <tr><th>メソッド</th><th>パス</th><th>レスポンス</th><th>エラー</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="method get">GET</span></td>
+        <td><code>/api/images/:key{.+}</code></td>
+        <td>R2 オブジェクトのバイナリ + <code>Content-Type</code>（httpMetadata 参照）<br><code>Cache-Control: public, max-age=31536000</code></td>
+        <td>400（KEY_PATTERN 不一致）、404（R2 にオブジェクト不在）</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Image upload flow -->
+  <h2 id="image-upload">画像アップロードフロー</h2>
+
+  <div class="diagram">
+    <svg viewBox="0 0 680 80" style="max-width:660px;width:100%;font-family:-apple-system,sans-serif">
+      <defs>
+        <marker id="a4" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto">
+          <polygon points="0,0 7,2.5 0,5" fill="#374151"/>
+        </marker>
+      </defs>
+      <rect x="5"   y="20" width="110" height="42" rx="5" fill="#ede9fe" stroke="#7c3aed" stroke-width="1"/>
+      <text x="60"  y="39" text-anchor="middle" font-size="10" font-weight="600" fill="#3b1070">クライアント</text>
+      <text x="60"  y="53" text-anchor="middle" font-size="8.5" fill="#5a2090">compressImage()</text>
+      <rect x="130" y="20" width="110" height="42" rx="5" fill="#dcfce7" stroke="#16a34a" stroke-width="1"/>
+      <text x="185" y="39" text-anchor="middle" font-size="10" font-weight="600" fill="#145214">Hono POST</text>
+      <text x="185" y="53" text-anchor="middle" font-size="8.5" fill="#1d701d">MIME / size 検証</text>
+      <rect x="255" y="20" width="120" height="42" rx="5" fill="#dcfce7" stroke="#16a34a" stroke-width="1"/>
+      <text x="315" y="39" text-anchor="middle" font-size="10" font-weight="600" fill="#145214">key 生成</text>
+      <text x="315" y="53" text-anchor="middle" font-size="8.5" fill="#1d701d">{listId}/{uuid}-{name}</text>
+      <rect x="390" y="20" width="105" height="42" rx="5" fill="#fee2e2" stroke="#dc2626" stroke-width="1"/>
+      <text x="442" y="39" text-anchor="middle" font-size="10" font-weight="600" fill="#7f1d1d">R2.put(key)</text>
+      <text x="442" y="53" text-anchor="middle" font-size="8.5" fill="#991b1b">BUCKET.put()</text>
+      <rect x="510" y="20" width="160" height="42" rx="5" fill="#fef3c7" stroke="#d97706" stroke-width="1"/>
+      <text x="590" y="39" text-anchor="middle" font-size="10" font-weight="600" fill="#78380a">D1 items 挿入</text>
+      <text x="590" y="53" text-anchor="middle" font-size="8.5" fill="#8b4b0f">imageUrl=/api/images/{key}</text>
+      <line x1="115" y1="41" x2="130" y2="41" stroke="#374151" stroke-width="1.2" marker-end="url(#a4)"/>
+      <line x1="240" y1="41" x2="255" y2="41" stroke="#374151" stroke-width="1.2" marker-end="url(#a4)"/>
+      <line x1="375" y1="41" x2="390" y2="41" stroke="#374151" stroke-width="1.2" marker-end="url(#a4)"/>
+      <line x1="495" y1="41" x2="510" y2="41" stroke="#374151" stroke-width="1.2" marker-end="url(#a4)"/>
+    </svg>
+  </div>
+
+  <!-- R2 conventions -->
+  <h2 id="r2">R2 規約</h2>
+  <table>
+    <thead><tr><th>項目</th><th>内容</th></tr></thead>
+    <tbody>
+      <tr><td>キー形式</td><td><code>{listId}/{uuid}-{sanitized-filename}</code><br>ファイル名は <code>/[^a-zA-Z0-9._-]/g → "_"</code> でサニタイズ</td></tr>
+      <tr><td>KEY_PATTERN</td><td><code>/^[a-f0-9-]{36}\/[a-f0-9-]{36}-[\w.-]+$/i</code>（GET 時に検証）</td></tr>
+      <tr><td>最大サイズ</td><td>5 MB (<code>5 * 1024 * 1024</code>)</td></tr>
+      <tr><td>許可 MIME</td><td><code>image/*</code>（<code>.startsWith("image/")</code> チェック）</td></tr>
+      <tr><td>DB 保存 URL</td><td><code>/api/images/{key}</code>（R2 直 URL は非公開）</td></tr>
+      <tr><td>キャッシュ</td><td><code>Cache-Control: public, max-age=31536000</code></td></tr>
+      <tr><td>ソフトデリート時</td><td>R2 オブジェクトは削除しない（<code>deletedAt</code> を DB に記録するだけ）</td></tr>
+    </tbody>
+  </table>
+
+  <details>
+    <summary>ルーム削除時の R2 カスケード処理</summary>
+    <p><code>DELETE /api/lists/:id</code> は次の順序で処理する:</p>
+    <ol>
+      <li>DB から <code>items</code> を全件取得（ソフトデリート済みも含む）</li>
+      <li>各アイテムの <code>imageUrl</code> から <code>/api/images/</code> プレフィックスを取り除いてキーを取得し、<code>BUCKET.delete(key)</code> を呼ぶ</li>
+      <li>DB トランザクション内で <code>items</code> → <code>lists</code> の順に物理削除</li>
+    </ol>
+    <div class="warn">R2 削除はトランザクション外で行うため、R2 削除成功後に DB 削除が失敗した場合、孤立したレコードが残る可能性がある。現状はシンプルさを優先してこの順序を採用。</div>
+    <pre><code>// src/server/routes/lists.ts (DELETE /:id の実装要旨)
+for (const item of itemsToDelete) {
+  if (item.imageUrl) {
+    const key = item.imageUrl.replace("/api/images/", "");
+    await c.env.BUCKET.delete(key);
+  }
+}
+await db.transaction(async (tx) => {
+  await tx.delete(items).where(eq(items.listId, id));
+  await tx.delete(lists).where(eq(lists.id, id));
+});</code></pre>
+  </details>
+
+  <!-- Bindings -->
+  <h2 id="bindings">バインディング (<code>src/server/bindings.ts</code>)</h2>
+  <table>
+    <thead><tr><th>バインディング名</th><th>型</th><th>wrangler.jsonc での名前</th><th>用途</th></tr></thead>
+    <tbody>
+      <tr><td><code>DB</code></td><td><code>D1Database</code></td><td><code>lost-items-db</code></td><td>全 SQL 操作</td></tr>
+      <tr><td><code>BUCKET</code></td><td><code>R2Bucket</code></td><td><code>lost-items-images</code></td><td>画像の put / get / delete</td></tr>
+    </tbody>
+  </table>
+  <div class="note">Hono ルートは <code>c.env.DB</code> / <code>c.env.BUCKET</code> でアクセス。Astro SSR ページは <code>import { env } from "cloudflare:workers"</code> 経由で取得し <code>createDb((env as Bindings).DB)</code> と渡す。</div>
+
+  <!-- Validation -->
+  <h2 id="validation">バリデーション規約</h2>
+  <p>すべてのリクエスト検証に <code>@hono/zod-validator</code> の <code>zValidator</code> を使用。zod スキーマはルートファイルにインライン定義（共有スキーマファイルなし）。</p>
+  <table>
+    <thead><tr><th>zValidator ターゲット</th><th>使用エンドポイント</th></tr></thead>
+    <tbody>
+      <tr><td><code>"json"</code></td><td>POST /api/lists, PATCH /api/lists/:id, PATCH …/items/:itemId</td></tr>
+      <tr><td><code>"form"</code></td><td>POST …/items（multipart/form-data + File）</td></tr>
+    </tbody>
+  </table>
+
+  <!-- Errors -->
+  <h2 id="errors">エラー応答規約</h2>
+  <p>すべてのエラーレスポンスは <code>{ error: "メッセージ文字列" }</code> 形式の JSON。</p>
+  <table>
+    <thead><tr><th>ステータス</th><th>用途</th><th>例</th></tr></thead>
+    <tbody>
+      <tr><td>400</td><td>MIME/サイズ違反、復元対象が未削除など</td><td><code>{ error: "File too large (max 5MB)" }</code></td></tr>
+      <tr><td>404</td><td>指定 ID のリスト/アイテムが不在</td><td><code>{ error: "List not found" }</code></td></tr>
+      <tr><td>500</td><td>未捕捉例外（<code>app.onError</code> でキャッチ）</td><td><code>{ error: "Internal Server Error" }</code></td></tr>
+    </tbody>
+  </table>
+
+  <!-- Absent -->
+  <h2 id="absent">意図的に存在しないもの</h2>
+  <div class="absent">
+    <h3>設計上の意図的な省略</h3>
+    <ul>
+      <li><strong>認証ミドルウェアなし</strong> — ルーム UUID が共有鍵として機能。URL を知っている人がアクセス・編集できる設計。</li>
+      <li><strong>CSRF/Origin チェックなし</strong> — Astro と Hono が同一オリジンで動作するため不要と判断。</li>
+      <li><strong>CORS 設定なし</strong> — 同一オリジン前提。</li>
+      <li><strong>共有 zod スキーマファイルなし</strong> — フロント・バック間の型共有は <code>src/lib/api.ts</code> の型定義のみ。zod はルート内インライン。</li>
+      <li><strong><code>AppType</code> は現在未利用</strong> — <code>src/server/index.ts</code> が Hono RPC 対応の <code>AppType</code> をエクスポートしているが、クライアントからは使っていない（将来の RPC 移行への準備）。</li>
+    </ul>
+  </div>
+
+  <footer>Lost Items — 実装ドキュメント | 2026-05-16</footer>
+</div>
+</body>
+</html>

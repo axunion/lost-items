@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lost Items — フロントエンド</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#f8f7f5;--sur:#fff;--brd:#e3ded8;--txt:#1c1917;--mut:#6b6560;--pri:#374151;--acc:#4f7096;--cbg:#f1ede8;--rad:8px}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--txt);line-height:1.65;font-size:15px}
+nav{background:#374151;padding:.6rem 1.5rem;display:flex;gap:1.25rem;flex-wrap:wrap;align-items:center}
+nav .logo{color:#fff;font-weight:700;font-size:.875rem;margin-right:.25rem}
+nav a{color:#93a3b8;text-decoration:none;font-size:.825rem}
+nav a:hover{color:#fff}
+nav a.cur{color:#fff;font-weight:600}
+.wrap{max-width:920px;margin:0 auto;padding:2rem 1.5rem}
+h1{font-size:1.7rem;font-weight:700;color:var(--pri);margin-bottom:.3rem}
+.sub{color:var(--mut);font-size:.95rem;margin-bottom:1.5rem}
+h2{font-size:1.2rem;font-weight:600;color:var(--pri);margin:2rem 0 .65rem;padding-bottom:.3rem;border-bottom:2px solid var(--brd)}
+h3{font-size:1rem;font-weight:600;color:var(--pri);margin:1.25rem 0 .4rem}
+p{margin-bottom:.65rem}
+ul,ol{padding-left:1.4rem;margin-bottom:.65rem}
+li{margin-bottom:.2rem}
+table{border-collapse:collapse;width:100%;font-size:.875rem;background:var(--sur);border-radius:var(--rad);overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.06);margin:.75rem 0}
+th{background:var(--pri);color:#fff;padding:.5rem .85rem;text-align:left;font-size:.8rem;font-weight:600;white-space:nowrap}
+td{padding:.48rem .85rem;border-bottom:1px solid var(--brd);vertical-align:top}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#f5f2ee}
+code{font-family:"SF Mono","Fira Code",monospace;font-size:.83em;background:var(--cbg);padding:.1em .38em;border-radius:3px}
+pre{background:var(--cbg);border:1px solid var(--brd);border-radius:var(--rad);padding:.9rem 1rem;overflow-x:auto;font-size:.83rem;line-height:1.5;margin:.75rem 0}
+pre code{background:none;padding:0}
+details{border:1px solid var(--brd);border-radius:var(--rad);margin:.75rem 0;overflow:hidden;background:var(--sur)}
+summary{padding:.65rem 1rem;cursor:pointer;font-weight:600;font-size:.875rem;color:var(--pri);list-style:none;display:flex;align-items:center;gap:.5rem}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"▶";font-size:.65rem;transition:transform .15s;flex-shrink:0}
+details[open] summary::before{transform:rotate(90deg)}
+details>*:not(summary){padding:0 1rem .9rem}
+.diagram{background:var(--sur);border:1px solid var(--brd);border-radius:var(--rad);padding:1.25rem;margin:.75rem 0;text-align:center;overflow-x:auto}
+.note{background:#eef2fa;border-left:3px solid var(--acc);border-radius:0 var(--rad) var(--rad) 0;padding:.7rem 1rem;margin:.75rem 0;font-size:.875rem}
+footer{margin-top:3rem;padding-top:1.25rem;border-top:1px solid var(--brd);font-size:.825rem;color:var(--mut)}
+.toc{background:var(--sur);border:1px solid var(--brd);border-radius:var(--rad);padding:1rem 1.25rem;margin-bottom:1.5rem;font-size:.875rem}
+.toc li{margin-bottom:.15rem}
+.toc a{color:var(--acc);text-decoration:none}
+.toc a:hover{text-decoration:underline}
+</style>
+</head>
+<body>
+<nav>
+  <span class="logo">Lost Items Docs</span>
+  <a href="index.html">概要</a>
+  <a href="frontend.html" class="cur">フロントエンド</a>
+  <a href="backend.html">バックエンド</a>
+  <a href="database.html">データベース</a>
+  <a href="testing.html">テスト</a>
+  <a href="build-deploy.html">ビルド・デプロイ</a>
+</nav>
+
+<div class="wrap">
+  <h1>フロントエンド</h1>
+  <p class="sub">Astro ページ、SolidJS アイランド、UI コンポーネント、デザインシステム</p>
+
+  <div class="toc">
+    <ul>
+      <li><a href="#pages">ページ一覧</a></li>
+      <li><a href="#layout">レイアウト</a></li>
+      <li><a href="#islands">アイランドモデル</a></li>
+      <li><a href="#hierarchy">コンポーネント階層</a></li>
+      <li><a href="#ui">UI プリミティブ</a></li>
+      <li><a href="#features">フィーチャーコンポーネント</a></li>
+      <li><a href="#api-client">API クライアント</a></li>
+      <li><a href="#design">デザインシステム</a></li>
+      <li><a href="#utils">ユーティリティ</a></li>
+    </ul>
+  </div>
+
+  <!-- Pages -->
+  <h2 id="pages">ページ一覧</h2>
+  <table>
+    <thead>
+      <tr><th>URL</th><th>ファイル</th><th>役割</th><th>ハイドレーション</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>/</code></td>
+        <td><code>src/pages/index.astro</code></td>
+        <td>ダッシュボード。最新 3 ルームを SSR で取得して渡す</td>
+        <td><code>&lt;Dashboard client:load&gt;</code></td>
+      </tr>
+      <tr>
+        <td><code>/history</code></td>
+        <td><code>src/pages/history.astro</code></td>
+        <td>全ルーム一覧。全件降順取得して渡す</td>
+        <td><code>&lt;HistoryList client:load&gt;</code></td>
+      </tr>
+      <tr>
+        <td><code>/create</code></td>
+        <td><code>src/pages/create.astro</code></td>
+        <td>新ルームを D1 に INSERT、<code>/:id/register</code> へリダイレクト<br><small><code>export const prerender = false</code></small></td>
+        <td>なし（レスポンスは 302）</td>
+      </tr>
+      <tr>
+        <td><code>/[id]/register</code></td>
+        <td><code>src/pages/[id]/register.astro</code></td>
+        <td>スタッフ向け登録ページ。ID 不在なら <code>/</code> へリダイレクト</td>
+        <td><code>&lt;RegisterPage client:load&gt;</code></td>
+      </tr>
+      <tr>
+        <td><code>/[id]/room</code></td>
+        <td><code>src/pages/[id]/room.astro</code></td>
+        <td>来場者向け公開ページ。<code>deletedAt IS NULL</code> の items のみ表示</td>
+        <td>なし（SSR-only 静的 HTML）</td>
+      </tr>
+      <tr>
+        <td><code>/404</code></td>
+        <td><code>src/pages/404.astro</code></td>
+        <td>404 ページ（ホームへのリンク付き）</td>
+        <td>なし</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Layout -->
+  <h2 id="layout">レイアウト</h2>
+  <p><code>src/layouts/Layout.astro</code> — 全ページが使う唯一のレイアウト。</p>
+  <ul>
+    <li><code>src/styles/global.css</code> をインポート（デザイントークン定義）</li>
+    <li><code>&lt;html lang="ja"&gt;</code> + viewport + favicon</li>
+    <li><code>.app-shell</code> で最大幅 <strong>32rem</strong>、中央配置</li>
+    <li><code>&lt;ToastRegion client:load /&gt;</code> を常時マウント → 全ページでトーストが使える</li>
+    <li><code>&lt;slot /&gt;</code> でページコンテンツを挿入</li>
+  </ul>
+
+  <!-- Islands -->
+  <h2 id="islands">アイランドモデル</h2>
+  <p>Astro の <code>client:load</code> ディレクティブで SolidJS コンポーネントをハイドレーション。インタラクティブな機能はすべて SolidJS アイランドに委譲し、Astro ページは SSR データ取得とレンダリングのみ担う。</p>
+  <table>
+    <thead>
+      <tr><th>アイランド</th><th>マウント場所</th><th>初期データの受け渡し</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>&lt;Dashboard client:load&gt;</code></td><td><code>index.astro</code></td><td><code>lists</code>（最新 3 件）と <code>origin</code> を props で渡す</td></tr>
+      <tr><td><code>&lt;HistoryList client:load&gt;</code></td><td><code>history.astro</code></td><td><code>lists</code>（全件）を props で渡す</td></tr>
+      <tr><td><code>&lt;RegisterPage client:load&gt;</code></td><td><code>[id]/register.astro</code></td><td><code>list</code> と <code>items</code> を props で渡す</td></tr>
+      <tr><td><code>&lt;ToastRegion client:load&gt;</code></td><td><code>Layout.astro</code></td><td>props なし。モジュールレベルのシグナルを購読</td></tr>
+    </tbody>
+  </table>
+  <div class="note"><code>/[id]/room</code> の <code>&lt;ItemList readonly&gt;</code> は <code>client:*</code> ディレクティブを持たないため SSR-only。公開ページはサーバー側で完全に HTML 化されて返される。</div>
+
+  <!-- Component hierarchy -->
+  <h2 id="hierarchy">コンポーネント階層</h2>
+  <div class="diagram">
+    <svg viewBox="0 0 680 270" style="max-width:680px;width:100%;font-family:-apple-system,sans-serif">
+      <!-- index.astro -->
+      <rect x="10" y="10" width="140" height="36" rx="5" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.5"/>
+      <text x="80" y="33" text-anchor="middle" font-size="10.5" font-weight="600" fill="#3b1070">index.astro</text>
+      <!-- Dashboard -->
+      <rect x="190" y="10" width="145" height="36" rx="5" fill="#dbeafe" stroke="#3b82f6" stroke-width="1.5"/>
+      <text x="262" y="33" text-anchor="middle" font-size="10.5" font-weight="600" fill="#1e3a5f">Dashboard</text>
+      <!-- RoomCreateForm -->
+      <rect x="380" y="0" width="155" height="36" rx="5" fill="#e0f2fe" stroke="#0284c7" stroke-width="1"/>
+      <text x="457" y="23" text-anchor="middle" font-size="10" fill="#0c4a6e">RoomCreateForm</text>
+      <!-- HistoryList -->
+      <rect x="380" y="50" width="155" height="36" rx="5" fill="#e0f2fe" stroke="#0284c7" stroke-width="1"/>
+      <text x="457" y="73" text-anchor="middle" font-size="10" fill="#0c4a6e">HistoryList</text>
+      <!-- history.astro -->
+      <rect x="10" y="100" width="140" height="36" rx="5" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.5"/>
+      <text x="80" y="123" text-anchor="middle" font-size="10.5" font-weight="600" fill="#3b1070">history.astro</text>
+      <!-- HistoryList (shared) -->
+      <rect x="190" y="100" width="145" height="36" rx="5" fill="#dbeafe" stroke="#3b82f6" stroke-width="1.5"/>
+      <text x="262" y="123" text-anchor="middle" font-size="10.5" font-weight="600" fill="#1e3a5f">HistoryList</text>
+      <!-- register.astro -->
+      <rect x="10" y="180" width="140" height="36" rx="5" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.5"/>
+      <text x="80" y="203" text-anchor="middle" font-size="10.5" font-weight="600" fill="#3b1070">[id]/register.astro</text>
+      <!-- RegisterPage -->
+      <rect x="190" y="180" width="145" height="36" rx="5" fill="#dbeafe" stroke="#3b82f6" stroke-width="1.5"/>
+      <text x="262" y="203" text-anchor="middle" font-size="10.5" font-weight="600" fill="#1e3a5f">RegisterPage</text>
+      <!-- RegisterForm -->
+      <rect x="380" y="170" width="155" height="36" rx="5" fill="#e0f2fe" stroke="#0284c7" stroke-width="1"/>
+      <text x="457" y="193" text-anchor="middle" font-size="10" fill="#0c4a6e">RegisterForm</text>
+      <!-- ItemList -->
+      <rect x="380" y="215" width="155" height="36" rx="5" fill="#e0f2fe" stroke="#0284c7" stroke-width="1"/>
+      <text x="457" y="238" text-anchor="middle" font-size="10" fill="#0c4a6e">ItemList</text>
+      <!-- Arrows -->
+      <defs><marker id="a2" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto"><polygon points="0,0 7,2.5 0,5" fill="#374151"/></marker></defs>
+      <line x1="150" y1="28" x2="190" y2="28" stroke="#374151" stroke-width="1.2" marker-end="url(#a2)"/>
+      <line x1="335" y1="22" x2="380" y2="18" stroke="#374151" stroke-width="1.2" marker-end="url(#a2)"/>
+      <line x1="335" y1="35" x2="380" y2="68" stroke="#374151" stroke-width="1.2" marker-end="url(#a2)"/>
+      <line x1="150" y1="118" x2="190" y2="118" stroke="#374151" stroke-width="1.2" marker-end="url(#a2)"/>
+      <line x1="150" y1="198" x2="190" y2="198" stroke="#374151" stroke-width="1.2" marker-end="url(#a2)"/>
+      <line x1="335" y1="192" x2="380" y2="188" stroke="#374151" stroke-width="1.2" marker-end="url(#a2)"/>
+      <line x1="335" y1="210" x2="380" y2="228" stroke="#374151" stroke-width="1.2" marker-end="url(#a2)"/>
+      <!-- Legend -->
+      <rect x="545" y="85" width="130" height="70" rx="5" fill="#f9f8f5" stroke="#e3ded8"/>
+      <text x="552" y="100" font-size="9" fill="#6b6560">凡例</text>
+      <rect x="555" y="108" width="14" height="12" rx="2" fill="#ede9fe" stroke="#7c3aed" stroke-width="1"/>
+      <text x="575" y="119" font-size="9" fill="#374151">Astro ページ</text>
+      <rect x="555" y="126" width="14" height="12" rx="2" fill="#dbeafe" stroke="#3b82f6" stroke-width="1"/>
+      <text x="575" y="137" font-size="9" fill="#374151">SolidJS アイランド</text>
+      <rect x="555" y="144" width="14" height="12" rx="2" fill="#e0f2fe" stroke="#0284c7" stroke-width="1"/>
+      <text x="575" y="155" font-size="9" fill="#374151">子コンポーネント</text>
+    </svg>
+  </div>
+
+  <!-- UI Primitives -->
+  <h2 id="ui">UI プリミティブ (<code>src/components/ui/</code>)</h2>
+  <p>すべて SolidJS コンポーネント + CSS Modules (<code>*.module.css</code>)。<a href="https://kobalte.dev" target="_blank" rel="noopener">@kobalte/core</a> ヘッドレスプリミティブをベースに、プロジェクトのデザイントークンでスタイリング。</p>
+  <table>
+    <thead>
+      <tr><th>コンポーネント</th><th>ファイル</th><th>役割</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>Button</code></td><td><code>button.tsx</code></td><td>@kobalte/core/button ラッパー。variant: default/destructive/outline/secondary/ghost/link/destructiveGhost。size: default/sm/lg/xl(56px)/icon</td></tr>
+      <tr><td><code>Card</code></td><td><code>card.tsx</code></td><td>カードコンテナ。<code>Card</code>, <code>CardHeader</code>, <code>CardTitle</code>, <code>CardContent</code> の複合コンポーネント</td></tr>
+      <tr><td><code>Dialog</code></td><td><code>dialog.tsx</code></td><td>@kobalte/core/dialog ラッパー。ポータル、オーバーレイ、X 閉じるボタン内蔵</td></tr>
+      <tr><td><code>ConfirmDialog</code></td><td><code>confirm-dialog.tsx</code></td><td>Dialog + Button の高レベルラッパー。<code>onConfirm</code>, <code>variant: default | destructive</code></td></tr>
+      <tr><td><code>DropdownMenu</code></td><td><code>dropdown-menu.tsx</code></td><td>@kobalte/core/dropdown-menu ラッパー。Group, GroupLabel, Separator 対応</td></tr>
+      <tr><td><code>TextField</code></td><td><code>text-field.tsx</code></td><td>@kobalte/core/text-field ラッパー。<code>TextFieldInput</code>, <code>TextFieldTextArea</code>, <code>TextFieldLabel</code></td></tr>
+      <tr><td><code>Loading</code></td><td><code>loading.tsx</code></td><td>ローディングスピナー。variant: default/fullscreen/inline。size: sm/md/lg。<code>text</code> prop でラベル表示</td></tr>
+      <tr><td><code>Toast / ToastRegion</code></td><td><code>toast.tsx</code></td><td>トースト通知システム。詳細は<a href="#toast">ページ下部</a>参照</td></tr>
+    </tbody>
+  </table>
+
+  <!-- Feature components -->
+  <h2 id="features">フィーチャーコンポーネント (<code>src/components/features/</code>)</h2>
+  <table>
+    <thead>
+      <tr><th>コンポーネント</th><th>ファイル</th><th>責務</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>Dashboard</code></td>
+        <td><code>dashboard.tsx</code></td>
+        <td><code>RoomCreateForm</code> + <code>HistoryList</code> を統合。新規作成時に <code>newList</code> シグナルで HistoryList に即時挿入</td>
+      </tr>
+      <tr>
+        <td><code>RoomCreateForm</code></td>
+        <td><code>room-create-form.tsx</code></td>
+        <td>ルーム名フォーム → <code>createList(name)</code> API 呼び出し → <code>onCreated</code> コールバック。送信中フルスクリーン Loading 表示</td>
+      </tr>
+      <tr>
+        <td><code>HistoryList</code></td>
+        <td><code>history-list.tsx</code></td>
+        <td>ルーム一覧 + DropdownMenu（URL コピー、リネーム、削除）。楽観的更新でリネーム・削除を即時反映。<code>maxItems</code> で件数上限</td>
+      </tr>
+      <tr>
+        <td><code>RegisterPage</code></td>
+        <td><code>register-page.tsx</code></td>
+        <td><code>RegisterForm</code> + <code>ItemList</code> を統合。<code>items</code> シグナルを管理し、作成時に楽観的先頭挿入</td>
+      </tr>
+      <tr>
+        <td><code>RegisterForm</code></td>
+        <td><code>register-form.tsx</code></td>
+        <td>カメラ/ギャラリー入力 + コメント。画像を <code>compressImage</code> で圧縮後 FormData で投稿。送信中 Loading 表示</td>
+      </tr>
+      <tr>
+        <td><code>ItemList</code></td>
+        <td><code>item-list.tsx</code></td>
+        <td>アイテムカード一覧。<code>readonly</code> prop で公開ページでも利用。編集モードでは編集・削除・復元が可能</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <details>
+    <summary>各フィーチャーコンポーネントの詳細 props</summary>
+    <h3>Dashboard</h3>
+    <pre><code>props: { lists: List[]; origin: string }</code></pre>
+    <h3>RoomCreateForm</h3>
+    <pre><code>props: { onCreated: (list: List) => void }</code></pre>
+    <h3>HistoryList</h3>
+    <pre><code>props: {
+  lists: List[];
+  maxItems?: number;      // 上限件数（index ページでは 3）
+  newList?: List | null;  // 先頭に即時挿入するリスト
+}</code></pre>
+    <h3>RegisterPage</h3>
+    <pre><code>props: { list: List; items: Item[] }</code></pre>
+    <h3>RegisterForm</h3>
+    <pre><code>props: {
+  listId: string;
+  onItemAdded: (item: Item) => void;
+}</code></pre>
+    <h3>ItemList</h3>
+    <pre><code>props: {
+  listId: string;
+  items: Item[];
+  readonly?: boolean;      // true = 公開ページ（編集 UI 非表示）
+  onItemUpdated?: () => void;
+}</code></pre>
+  </details>
+
+  <!-- API Client -->
+  <h2 id="api-client">API クライアント (<code>src/lib/api.ts</code>)</h2>
+  <p>SolidJS コンポーネントから呼ぶ型付き fetch ラッパー。型定義 <code>Item</code> / <code>List</code> もここで export。</p>
+  <table>
+    <thead>
+      <tr><th>関数</th><th>HTTP</th><th>ペイロード</th><th>戻り値</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>createList(name)</code></td><td><code>POST /api/lists</code></td><td>JSON <code>{ name }</code></td><td><code>{ id }</code></td></tr>
+      <tr><td><code>updateList(id, { name })</code></td><td><code>PATCH /api/lists/:id</code></td><td>JSON <code>{ name }</code></td><td><code>void</code></td></tr>
+      <tr><td><code>deleteList(id)</code></td><td><code>DELETE /api/lists/:id</code></td><td>なし</td><td><code>void</code></td></tr>
+      <tr><td><code>getItems(listId, opts?)</code></td><td><code>GET /api/lists/:id/items</code></td><td>QS: <code>?includeDeleted=true</code></td><td><code>Item[]</code></td></tr>
+      <tr><td><code>addItem(listId, { comment, image? })</code></td><td><code>POST /api/lists/:id/items</code></td><td><code>multipart/form-data</code></td><td><code>Item</code></td></tr>
+      <tr><td><code>updateItemComment(listId, itemId, comment)</code></td><td><code>PATCH /api/lists/:id/items/:itemId</code></td><td>JSON <code>{ comment }</code></td><td><code>Item</code></td></tr>
+      <tr><td><code>deleteItem(listId, itemId)</code></td><td><code>DELETE /api/lists/:id/items/:itemId</code></td><td>なし</td><td><code>void</code></td></tr>
+      <tr><td><code>restoreItem(listId, itemId)</code></td><td><code>POST /api/lists/:id/items/:itemId/restore</code></td><td>なし</td><td><code>void</code></td></tr>
+    </tbody>
+  </table>
+
+  <!-- Design system -->
+  <h2 id="design">デザインシステム</h2>
+  <p>CSS カスタムプロパティを <code>src/styles/global.css</code> の <code>:root</code> で定義。コンポーネントは <code>var(--color-*)</code> のみ参照する。</p>
+
+  <table>
+    <thead>
+      <tr><th>トークン</th><th>値</th><th>用途</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>--color-background</code></td><td><code>hsl(40 20% 99%)</code></td><td>ページ背景（ウォームホワイト）</td></tr>
+      <tr><td><code>--color-foreground</code></td><td><code>hsl(20 10% 12%)</code></td><td>デフォルトテキスト</td></tr>
+      <tr><td><code>--color-primary</code></td><td><code>hsl(220 12% 28%)</code></td><td>ボタン・見出しのメインカラー</td></tr>
+      <tr><td><code>--color-destructive</code></td><td><code>hsl(4 60% 55%)</code></td><td>削除・エラー系</td></tr>
+      <tr><td><code>--color-border</code></td><td><code>hsl(30 10% 88%)</code></td><td>境界線</td></tr>
+    </tbody>
+  </table>
+
+  <details>
+    <summary>全デザイントークン一覧</summary>
+    <table>
+      <thead>
+        <tr><th>トークン</th><th>値</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>--font-sans</code></td><td><code>"Inter Variable", "Noto Sans JP Variable", system-ui, sans-serif</code></td></tr>
+        <tr><td><code>--color-border</code></td><td><code>hsl(30 10% 88%)</code></td></tr>
+        <tr><td><code>--color-input</code></td><td><code>hsl(30 10% 88%)</code></td></tr>
+        <tr><td><code>--color-ring</code></td><td><code>hsl(220 12% 28%)</code></td></tr>
+        <tr><td><code>--color-background</code></td><td><code>hsl(40 20% 99%)</code></td></tr>
+        <tr><td><code>--color-foreground</code></td><td><code>hsl(20 10% 12%)</code></td></tr>
+        <tr><td><code>--color-primary</code></td><td><code>hsl(220 12% 28%)</code></td></tr>
+        <tr><td><code>--color-primary-foreground</code></td><td><code>hsl(40 20% 98%)</code></td></tr>
+        <tr><td><code>--color-secondary</code></td><td><code>hsl(30 12% 93%)</code></td></tr>
+        <tr><td><code>--color-secondary-foreground</code></td><td><code>hsl(220 12% 18%)</code></td></tr>
+        <tr><td><code>--color-destructive</code></td><td><code>hsl(4 60% 55%)</code></td></tr>
+        <tr><td><code>--color-destructive-foreground</code></td><td><code>hsl(40 20% 98%)</code></td></tr>
+        <tr><td><code>--color-muted</code></td><td><code>hsl(30 12% 93%)</code></td></tr>
+        <tr><td><code>--color-muted-foreground</code></td><td><code>hsl(20 6% 46%)</code></td></tr>
+        <tr><td><code>--color-accent</code></td><td><code>hsl(150 8% 90%)</code></td></tr>
+        <tr><td><code>--color-accent-foreground</code></td><td><code>hsl(220 12% 18%)</code></td></tr>
+        <tr><td><code>--color-card</code></td><td><code>hsl(40 15% 98%)</code></td></tr>
+        <tr><td><code>--color-card-foreground</code></td><td><code>hsl(20 10% 12%)</code></td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:.75rem">フォント: <strong>Inter Variable</strong>（Latin）と <strong>Noto Sans JP Variable</strong>（日本語）を <code>@fontsource-variable</code> で読み込み。<code>font-feature-settings: "cv11","ss01"</code> で数字・記号の字形を調整。</p>
+  </details>
+
+  <!-- Utilities -->
+  <h2 id="utils">ユーティリティ</h2>
+  <h3>画像圧縮 (<code>src/lib/image-utils.ts</code>)</h3>
+  <p><code>compressImage(file, options?)</code> — <code>File</code> を受け取り、Canvas で縮小・JPEG 再エンコードして新しい <code>File</code> を返す。</p>
+  <table>
+    <thead><tr><th>オプション</th><th>デフォルト</th><th>説明</th></tr></thead>
+    <tbody>
+      <tr><td><code>maxWidth</code></td><td>1920</td><td>最大幅（px）</td></tr>
+      <tr><td><code>maxHeight</code></td><td>1920</td><td>最大高さ（px）</td></tr>
+      <tr><td><code>quality</code></td><td>0.8</td><td>JPEG 品質（0–1）</td></tr>
+    </tbody>
+  </table>
+  <p>アスペクト比を保ちながら縮小。拡張子は <code>.jpg</code> に統一。<code>RegisterForm</code> が upload 前に自動呼び出し。</p>
+
+  <h3 id="toast">トーストシステム (<code>src/lib/api.ts</code> / <code>src/components/ui/toast.tsx</code>)</h3>
+  <details>
+    <summary>showToast の仕組み</summary>
+    <p><code>showToast(title, type, description?)</code> はモジュールレベルのシグナルキューに積む。<code>Layout.astro</code> が常時マウントしている <code>&lt;ToastRegion client:load /&gt;</code> がそのシグナルを購読し、<code>&lt;Portal&gt;</code> 経由でページ最上位に表示する。</p>
+    <ul>
+      <li><code>type</code>: <code>"success" | "error" | "info"</code></li>
+      <li>約 4 秒後に自動消滅</li>
+      <li>各フィーチャーコンポーネントは <code>import { showToast } from "~/components/ui/toast"</code> でインポートして呼ぶだけ</li>
+    </ul>
+  </details>
+
+  <h3>その他ユーティリティ (<code>src/lib/utils.ts</code>)</h3>
+  <ul>
+    <li><code>cx(...classes)</code> — クラス名結合ヘルパー（CSS Modules でクラス上書き可能にするため全コンポーネントで使用）</li>
+    <li><code>formatDate(date, opts?)</code> — <code>Intl.DateTimeFormat</code> で日付文字列化。デフォルトは <code>numeric/2-digit/2-digit</code></li>
+  </ul>
+
+  <footer>Lost Items — 実装ドキュメント | 2026-05-16</footer>
+</div>
+</body>
+</html>
