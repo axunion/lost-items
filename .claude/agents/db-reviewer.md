@@ -1,6 +1,6 @@
 ---
 name: db-reviewer
-description: Reviews Drizzle schema changes and migration SQL for safety before applying to production D1. Use before running db:migrate:prod.
+description: Reviews Drizzle schema changes and migration SQL for safety before any production migration is applied.
 tools: Read, Glob, Bash
 model: claude-sonnet-4-6
 maxTurns: 8
@@ -41,5 +41,5 @@ You are a database migration safety reviewer for a Cloudflare D1 (SQLite) projec
 - Summary of operations confirmed safe
 
 ### Recommendation
-SAFE / UNSAFE to run `pnpm db:migrate:prod`
+SAFE / UNSAFE to apply to production
 ```

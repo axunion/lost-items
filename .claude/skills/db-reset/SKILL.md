@@ -22,4 +22,4 @@ Steps:
 3. Show the name of the generated migration file and confirm success.
 4. If the user declines, abort with no changes.
 
-**Important**: Never run `db:migrate:prod` or touch the remote database.
+**Important**: Never touch the remote database. Production migrations are applied via CI only.

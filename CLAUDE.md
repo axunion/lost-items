@@ -6,9 +6,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ```bash
 pnpm dev              # Start dev server (workerd runtime via @astrojs/cloudflare)
-pnpm build            # Build for production
+pnpm build            # Build for production (verification only — deploy via CI)
 pnpm preview          # Preview production build on local workerd
-pnpm deploy           # Build + deploy to Cloudflare Workers
 
 pnpm check            # Biome lint/format + astro check (TS type errors)
 pnpm fix              # Biome auto-fix (format/lint only)
@@ -20,7 +19,6 @@ pnpm test:e2e:headed  # Same, with browser visible (debugging)
 
 pnpm db:generate      # Generate Drizzle migration from schema changes
 pnpm db:migrate       # Apply migrations locally
-pnpm db:migrate:prod  # Apply migrations to production D1
 pnpm db:reset         # Delete migration history and regenerate from current schema (local only, data is lost)
 ```
 
@@ -70,4 +68,4 @@ After making changes, verify in this order:
 - **`.claude/settings.json`** — Shared permission config: deny list for destructive git/rm/credential ops, allow list for project commands
 - **`.mcp.json`** — MCP servers: `context7` (live docs lookup)
 - **`.claude/agents/`** — Custom agents: `@code-reviewer`, `@test-writer`, `@db-reviewer`
-- **`.claude/skills/`** — Slash commands: `/deploy`, `/db-migrate [local|prod]`, `/db-reset`, `/quality-check [--fix]`, `/new-component <Name> [ui|features]`
+- **`.claude/skills/`** — Slash commands: `/db-migrate`, `/db-reset`, `/quality-check [--fix]`, `/new-component <Name> [ui|features]`

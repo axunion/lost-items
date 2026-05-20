@@ -102,18 +102,12 @@ pnpm dev
 
 The application will be available at `http://localhost:4321`.
 
-## Build & Deploy
+## Build
 
 Build the project for production:
 
 ```bash
 pnpm build
-```
-
-Deploy to Cloudflare Workers:
-
-```bash
-pnpm deploy
 ```
 
 ## Project Structure
@@ -142,11 +136,10 @@ pnpm test:e2e      # Run E2E tests (Playwright, requires dev server running)
 | `pnpm dev` | Start development server |
 | `pnpm build` | Build for production |
 | `pnpm preview` | Preview production build on local workerd |
-| `pnpm deploy` | Build and deploy to Cloudflare |
 | `pnpm check` | Run Biome lint/format check |
 | `pnpm fix` | Auto-fix lint/format issues |
 | `pnpm test` | Run unit tests (Vitest) |
 | `pnpm test:e2e` | Run E2E tests (Playwright) |
 | `pnpm db:generate` | Generate Drizzle migration from schema changes |
 | `pnpm db:migrate` | Apply migrations locally |
-| `pnpm db:migrate:prod` | Apply migrations to production D1 |
+| `pnpm db:reset` | Delete migration history and regenerate from current schema (local only) |

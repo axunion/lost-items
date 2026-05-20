@@ -77,12 +77,9 @@ pnpm db:generate
 
 # 3. Apply locally
 pnpm db:migrate
-
-# 4. Applying to production requires explicit approval
-pnpm db:migrate:prod
 ```
 
-**Note**: Always review and confirm backups before running production migrations (`db:migrate:prod`).
+Production migrations are applied via CI (GitHub Actions). Never run `wrangler d1 migrations apply --remote` directly from local.
 
 ## `createDb` Usage
 
