@@ -14,7 +14,7 @@ export const items = sqliteTable(
 			.notNull()
 			.references(() => lists.id),
 		comment: text("comment"),
-		imageUrl: text("image_url"),
+		imageKey: text("image_key"),
 		createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
 		deletedAt: integer("deleted_at", { mode: "timestamp" }),
 	},

@@ -304,7 +304,7 @@ describe("listsRoute", () => {
 			expect(res.status).toBe(404);
 		});
 
-		it("deletes R2 images for items that have imageUrl", async () => {
+		it("deletes R2 images for items that have imageKey", async () => {
 			const { db, enqueueOne, enqueueMany, transactionFn } = setupDbMock();
 			createDbMock.mockReturnValue(db);
 			const env = createEnv();
@@ -313,9 +313,9 @@ describe("listsRoute", () => {
 			enqueueOne({ id: "list-1" });
 			// Second: items for R2 cleanup (direct await on .where())
 			enqueueMany([
-				{ id: "i1", imageUrl: "/api/images/list-1/uuid-a.jpg" },
-				{ id: "i2", imageUrl: null },
-				{ id: "i3", imageUrl: "/api/images/list-1/uuid-b.png" },
+				{ id: "i1", imageKey: "list-1/uuid-a.jpg" },
+				{ id: "i2", imageKey: null },
+				{ id: "i3", imageKey: "list-1/uuid-b.png" },
 			]);
 
 			const res = await listsRoute.request(
@@ -343,8 +343,8 @@ describe("listsRoute", () => {
 
 			enqueueOne({ id: "list-1" });
 			enqueueMany([
-				{ id: "i1", imageUrl: "/api/images/list-1/a.jpg" },
-				{ id: "i2", imageUrl: "/api/images/list-1/b.jpg" },
+				{ id: "i1", imageKey: "list-1/a.jpg" },
+				{ id: "i2", imageKey: "list-1/b.jpg" },
 			]);
 
 			const res = await listsRoute.request(
@@ -381,11 +381,17 @@ describe("listsRoute", () => {
 	// ─── GET /:id/items ──────────────────────────────────────────────────────
 
 	describe("GET /:id/items", () => {
-		it("returns items for the list", async () => {
+		it("returns items for the list with computed imageUrl", async () => {
 			const { db, enqueueMany } = setupDbMock();
 			createDbMock.mockReturnValue(db);
-			const items = [{ id: "item-1", listId: "list-1", comment: "hello" }];
-			enqueueMany(items);
+			enqueueMany([
+				{
+					id: "item-1",
+					listId: "list-1",
+					comment: "hello",
+					imageKey: "list-1/uuid.jpg",
+				},
+			]);
 
 			const res = await listsRoute.request(
 				"/list-1/items",
@@ -394,7 +400,14 @@ describe("listsRoute", () => {
 			);
 
 			expect(res.status).toBe(200);
-			await expect(res.json()).resolves.toEqual(items);
+			await expect(res.json()).resolves.toEqual([
+				{
+					id: "item-1",
+					listId: "list-1",
+					comment: "hello",
+					imageUrl: "/api/images/list-1/uuid.jpg",
+				},
+			]);
 		});
 
 		it("returns empty array when no items exist", async () => {
@@ -415,16 +428,23 @@ describe("listsRoute", () => {
 		it("returns all items including deleted when includeDeleted=true", async () => {
 			const { db, enqueueMany } = setupDbMock();
 			createDbMock.mockReturnValue(db);
-			const allItems = [
-				{ id: "item-1", listId: "list-1", comment: "kept", deletedAt: null },
+			const deletedAt = new Date().toISOString();
+			enqueueMany([
+				{
+					id: "item-1",
+					listId: "list-1",
+					comment: "kept",
+					imageKey: null,
+					deletedAt: null,
+				},
 				{
 					id: "item-2",
 					listId: "list-1",
 					comment: "deleted",
-					deletedAt: new Date().toISOString(),
+					imageKey: null,
+					deletedAt,
 				},
-			];
-			enqueueMany(allItems);
+			]);
 
 			const res = await listsRoute.request(
 				"/list-1/items?includeDeleted=true",
@@ -433,7 +453,22 @@ describe("listsRoute", () => {
 			);
 
 			expect(res.status).toBe(200);
-			await expect(res.json()).resolves.toEqual(allItems);
+			await expect(res.json()).resolves.toEqual([
+				{
+					id: "item-1",
+					listId: "list-1",
+					comment: "kept",
+					imageUrl: null,
+					deletedAt: null,
+				},
+				{
+					id: "item-2",
+					listId: "list-1",
+					comment: "deleted",
+					imageUrl: null,
+					deletedAt,
+				},
+			]);
 		});
 
 		it("passes a compound condition to where() by default (excludes deleted)", async () => {
@@ -581,7 +616,7 @@ describe("listsRoute", () => {
 
 			expect(res.status).toBe(200);
 			const body = (await res.json()) as { imageUrl: unknown; comment: string };
-			expect(body.imageUrl).toBeUndefined();
+			expect(body.imageUrl).toBeNull();
 			expect(body.comment).toBe("no picture");
 			expect(env.BUCKET.put).not.toHaveBeenCalled();
 			expect(insertValues).toHaveBeenCalledTimes(1);

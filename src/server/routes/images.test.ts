@@ -75,15 +75,10 @@ describe("imagesRoute", () => {
 		expect(response.headers.get("Content-Type")).toBe("image/jpeg");
 	});
 
-	it("accepts uppercase UUID keys (regex is case-insensitive)", async () => {
+	it("rejects uppercase UUID keys (crypto.randomUUID always returns lowercase)", async () => {
 		const env = createEnv();
-		// Uppercase hex digits – the regex uses /i flag
 		const key =
 			"AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAA/BBBBBBBB-BBBB-BBBB-BBBB-BBBBBBBBBBBB-item.jpg";
-		env.BUCKET.get.mockResolvedValueOnce({
-			body: "img",
-			httpMetadata: { contentType: "image/jpeg" },
-		});
 
 		const response = await imagesRoute.request(
 			`/${key}`,
@@ -91,7 +86,7 @@ describe("imagesRoute", () => {
 			env,
 		);
 
-		expect(response.status).toBe(200);
+		expect(response.status).toBe(400);
 	});
 
 	it("rejects path-traversal style keys with 400", async () => {
