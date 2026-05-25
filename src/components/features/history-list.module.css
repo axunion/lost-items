@@ -81,6 +81,8 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
+	min-width: 2.75rem;
+	min-height: 2.75rem;
 }
 
 .menuTrigger:hover {

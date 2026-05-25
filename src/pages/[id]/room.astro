@@ -29,7 +29,7 @@ const title = list.name || "Room Items";
   <AppHeader title={title} />
 
   <main class="room-main">
-    <ItemList items={itemList} listId={id} readonly />
+    <ItemList items={itemList} listId={id} readonly client:visible />
   </main>
 </Layout>
 

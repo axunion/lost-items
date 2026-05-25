@@ -74,6 +74,16 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
+	min-width: 2.75rem;
+	min-height: 2.75rem;
+}
+
+.photoButton {
+	height: 6rem;
+	flex-direction: column;
+	gap: 0.5rem;
+	border-radius: 0.75rem;
+	border-style: dashed;
 }
 
 .clearButton:hover {

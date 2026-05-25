@@ -23,14 +23,6 @@ type RegisterFormProps = {
 	onCreated?: (item: Item) => void;
 };
 
-const photoButtonStyle = {
-	height: "6rem",
-	"flex-direction": "column" as const,
-	gap: "0.5rem",
-	"border-radius": "0.75rem",
-	"border-style": "dashed" as const,
-};
-
 const RegisterForm: Component<RegisterFormProps> = (props) => {
 	const [comment, setComment] = createSignal("");
 	const [imagePreview, setImagePreview] = createSignal<string | null>(null);
@@ -100,7 +92,7 @@ const RegisterForm: Component<RegisterFormProps> = (props) => {
 							<Button
 								type="button"
 								variant="outline"
-								style={photoButtonStyle}
+								class={styles.photoButton}
 								onClick={() => cameraInputRef?.click()}
 							>
 								<Camera class={styles.sectionIcon} />
@@ -109,7 +101,7 @@ const RegisterForm: Component<RegisterFormProps> = (props) => {
 							<Button
 								type="button"
 								variant="outline"
-								style={photoButtonStyle}
+								class={styles.photoButton}
 								onClick={() => fileInputRef?.click()}
 							>
 								<ImageIcon class={styles.sectionIcon} />
