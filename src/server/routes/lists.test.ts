@@ -331,6 +331,33 @@ describe("listsRoute", () => {
 			expect(transactionFn).toHaveBeenCalledTimes(1);
 		});
 
+		it("continues DB deletion even when some R2 deletes fail", async () => {
+			const { db, enqueueOne, enqueueMany, transactionFn } = setupDbMock();
+			createDbMock.mockReturnValue(db);
+
+			const deleteMock = vi
+				.fn()
+				.mockRejectedValueOnce(new Error("R2 error"))
+				.mockResolvedValue(undefined);
+			const env = createEnv({ delete: deleteMock });
+
+			enqueueOne({ id: "list-1" });
+			enqueueMany([
+				{ id: "i1", imageUrl: "/api/images/list-1/a.jpg" },
+				{ id: "i2", imageUrl: "/api/images/list-1/b.jpg" },
+			]);
+
+			const res = await listsRoute.request(
+				"/list-1",
+				{ method: "DELETE" },
+				env,
+			);
+
+			expect(res.status).toBe(200);
+			expect(deleteMock).toHaveBeenCalledTimes(2);
+			expect(transactionFn).toHaveBeenCalledTimes(1);
+		});
+
 		it("succeeds with no R2 calls when list has no items with images", async () => {
 			const { db, enqueueOne, enqueueMany, transactionFn } = setupDbMock();
 			createDbMock.mockReturnValue(db);

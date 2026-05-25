@@ -20,3 +20,18 @@ describe("app onError handler", () => {
 		});
 	});
 });
+
+describe("CSRF guard", () => {
+	// csrf() applies only to form-content types (multipart, urlencoded, text/plain)
+	// JSON POSTs are already CORS-protected and excluded by the middleware by design
+	it("returns 403 when multipart form request has no Origin header", async () => {
+		const formData = new FormData();
+		formData.append("comment", "x");
+
+		const res = await app.request("/api/lists/dummy-id/items", {
+			method: "POST",
+			body: formData,
+		});
+		expect(res.status).toBe(403);
+	});
+});

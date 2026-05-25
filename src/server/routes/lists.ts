@@ -100,11 +100,19 @@ listsRoute.delete("/:id", async (c) => {
 		.from(items)
 		.where(eq(items.listId, id));
 
-	// Delete images from R2
-	for (const item of itemsToDelete) {
-		if (item.imageUrl) {
-			const key = item.imageUrl.replace("/api/images/", "");
-			await c.env.BUCKET.delete(key);
+	// Delete images from R2 — failures are logged and non-fatal so the DB transaction still runs
+	const deleteSettled = await Promise.allSettled(
+		itemsToDelete
+			.filter((item) => item.imageUrl)
+			.map((item) =>
+				c.env.BUCKET.delete(
+					(item.imageUrl as string).replace("/api/images/", ""),
+				),
+			),
+	);
+	for (const result of deleteSettled) {
+		if (result.status === "rejected") {
+			console.warn("R2 delete failed:", result.reason);
 		}
 	}
 
