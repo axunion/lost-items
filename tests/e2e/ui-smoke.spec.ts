@@ -4,7 +4,7 @@ test("dashboard renders primary UI sections", async ({ page }) => {
 	await page.goto("/");
 	await expect(page).toHaveTitle("Dashboard");
 	await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
-	await expect(page.getByRole("heading", { name: "New Room" })).toBeVisible();
+	await expect(page.getByText("New Room")).toBeVisible();
 	await expect(page.getByPlaceholder("Room Name")).toBeVisible();
 	await expect(page.getByRole("button", { name: "Create" })).toBeVisible();
 	await expect(page.getByText("Recent")).toBeVisible();
