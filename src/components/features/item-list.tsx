@@ -1,5 +1,12 @@
 import { RotateCcw, Search, SquarePen, Trash2 } from "lucide-solid";
 import { type Component, createSignal, For, Show } from "solid-js";
+import {
+	deleteItem,
+	type Item,
+	restoreItem,
+	updateItemComment,
+} from "~/client/api";
+import { cx, formatDate } from "~/client/utils";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent } from "~/components/ui/card";
 import { ConfirmDialog } from "~/components/ui/confirm-dialog";
@@ -17,13 +24,6 @@ import {
 	TextFieldTextArea,
 } from "~/components/ui/text-field";
 import { showToast } from "~/components/ui/toast";
-import {
-	deleteItem,
-	type Item,
-	restoreItem,
-	updateItemComment,
-} from "~/lib/api";
-import { cx, formatDate } from "~/lib/utils";
 import styles from "./item-list.module.css";
 
 type ItemListProps = {

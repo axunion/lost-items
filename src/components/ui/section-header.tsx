@@ -1,5 +1,5 @@
 import type { Component, JSX } from "solid-js";
-import { cx } from "~/lib/utils";
+import { cx } from "~/client/utils";
 import styles from "./section-header.module.css";
 
 type SectionHeaderProps = {

@@ -1,9 +1,9 @@
 import { fireEvent, render, screen, waitFor } from "@solidjs/testing-library";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import * as api from "~/lib/api";
+import * as api from "~/client/api";
 import RegisterPage from "./register-page";
 
-vi.mock("~/lib/api", () => ({
+vi.mock("~/client/api", () => ({
 	getItems: vi.fn(),
 	addItem: vi.fn(),
 	updateItemComment: vi.fn(),
@@ -15,7 +15,7 @@ vi.mock("~/components/ui/toast", () => ({
 	showToast: vi.fn(),
 }));
 
-vi.mock("~/lib/image-utils", () => ({
+vi.mock("~/client/image-utils", () => ({
 	compressImage: vi.fn(),
 }));
 

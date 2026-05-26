@@ -1,9 +1,9 @@
 import { fireEvent, render, screen, waitFor } from "@solidjs/testing-library";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import * as api from "~/lib/api";
+import * as api from "~/client/api";
 import ItemList from "./item-list";
 
-vi.mock("~/lib/api", () => ({
+vi.mock("~/client/api", () => ({
 	updateItemComment: vi.fn(),
 	deleteItem: vi.fn(),
 	restoreItem: vi.fn(),

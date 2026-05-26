@@ -3,7 +3,7 @@ import type { PolymorphicProps } from "@kobalte/core/polymorphic";
 import type { JSX, ValidComponent } from "solid-js";
 import { splitProps } from "solid-js";
 
-import { cx } from "~/lib/utils";
+import { cx } from "~/client/utils";
 import styles from "./button.module.css";
 
 const variantClass = {

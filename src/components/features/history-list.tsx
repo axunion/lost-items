@@ -5,6 +5,7 @@ import {
 	For,
 	Show,
 } from "solid-js";
+import { deleteList, type List, updateList } from "~/client/api";
 import { Button } from "~/components/ui/button";
 import { ConfirmDialog } from "~/components/ui/confirm-dialog";
 import {
@@ -16,7 +17,6 @@ import {
 } from "~/components/ui/dialog";
 import { EmptyState } from "~/components/ui/empty-state";
 import { TextField, TextFieldInput } from "~/components/ui/text-field";
-import { deleteList, type List, updateList } from "~/lib/api";
 import styles from "./history-list.module.css";
 import { HistoryListItem } from "./history-list-item";
 

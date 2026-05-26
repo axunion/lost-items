@@ -3,7 +3,7 @@ import * as TextFieldPrimitive from "@kobalte/core/text-field";
 import type { ValidComponent } from "solid-js";
 import { mergeProps, splitProps } from "solid-js";
 
-import { cx } from "~/lib/utils";
+import { cx } from "~/client/utils";
 import styles from "./text-field.module.css";
 
 type TextFieldRootProps<T extends ValidComponent = "div"> =

@@ -1,5 +1,5 @@
 import { type Component, type JSX, Show } from "solid-js";
-import { cx } from "~/lib/utils";
+import { cx } from "~/client/utils";
 import styles from "./empty-state.module.css";
 
 type EmptyStateProps = {

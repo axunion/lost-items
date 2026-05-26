@@ -1,8 +1,8 @@
 import { type Component, createSignal } from "solid-js";
+import { getItems, type Item } from "~/client/api";
 import ItemList from "~/components/features/item-list";
 import RegisterForm from "~/components/features/register-form";
 import { showToast } from "~/components/ui/toast";
-import { getItems, type Item } from "~/lib/api";
 import styles from "./register-page.module.css";
 
 type RegisterPageProps = {

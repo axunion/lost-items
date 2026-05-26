@@ -1,10 +1,10 @@
 import { fireEvent, render, screen, waitFor } from "@solidjs/testing-library";
 import { createSignal } from "solid-js";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import * as api from "~/lib/api";
+import * as api from "~/client/api";
 import HistoryList from "./history-list";
 
-vi.mock("~/lib/api", () => ({
+vi.mock("~/client/api", () => ({
 	updateList: vi.fn(),
 	deleteList: vi.fn(),
 }));

@@ -7,6 +7,8 @@ import {
 	Trash2,
 } from "lucide-solid";
 import { type Component, For, Show } from "solid-js";
+import type { List } from "~/client/api";
+import { formatDate } from "~/client/utils";
 import { Card, CardHeader, CardTitle } from "~/components/ui/card";
 import {
 	DropdownMenu,
@@ -17,8 +19,6 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
-import type { List } from "~/lib/api";
-import { formatDate } from "~/lib/utils";
 import styles from "./history-list.module.css";
 
 type UrlGroup = {

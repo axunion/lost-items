@@ -1,10 +1,10 @@
 import { fireEvent, render, screen, waitFor } from "@solidjs/testing-library";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import * as api from "~/client/api";
 import { showToast } from "~/components/ui/toast";
-import * as api from "~/lib/api";
 import RoomCreateForm from "./room-create-form";
 
-vi.mock("~/lib/api", () => ({
+vi.mock("~/client/api", () => ({
 	createList: vi.fn(),
 }));
 vi.mock("~/components/ui/toast", () => ({

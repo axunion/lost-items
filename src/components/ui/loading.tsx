@@ -1,7 +1,7 @@
 import { LoaderCircle } from "lucide-solid";
 import type { Component } from "solid-js";
 
-import { cx } from "~/lib/utils";
+import { cx } from "~/client/utils";
 import styles from "./loading.module.css";
 
 type LoadingProps = {

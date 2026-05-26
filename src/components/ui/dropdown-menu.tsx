@@ -3,7 +3,7 @@ import type { PolymorphicProps } from "@kobalte/core/polymorphic";
 import type { Component, ComponentProps, JSX, ValidComponent } from "solid-js";
 import { splitProps } from "solid-js";
 
-import { cx } from "~/lib/utils";
+import { cx } from "~/client/utils";
 import styles from "./dropdown-menu.module.css";
 
 const DropdownMenu = DropdownMenuPrimitive.Root;

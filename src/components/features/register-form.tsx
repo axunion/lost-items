@@ -6,6 +6,8 @@ import {
 	X,
 } from "lucide-solid";
 import { type Component, createSignal, Show } from "solid-js";
+import { addItem, type Item } from "~/client/api";
+import { compressImage } from "~/client/image-utils";
 import { Button } from "~/components/ui/button";
 import { Loading } from "~/components/ui/loading";
 import { SectionHeader } from "~/components/ui/section-header";
@@ -15,8 +17,6 @@ import {
 	TextFieldTextArea,
 } from "~/components/ui/text-field";
 import { showToast } from "~/components/ui/toast";
-import { addItem, type Item } from "~/lib/api";
-import { compressImage } from "~/lib/image-utils";
 import styles from "./register-form.module.css";
 
 type RegisterFormProps = {

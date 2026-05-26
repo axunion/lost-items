@@ -1,9 +1,9 @@
 import { ChevronRight, Clock, DoorOpen } from "lucide-solid";
 import { type Component, createSignal } from "solid-js";
+import type { List } from "~/client/api";
 import HistoryList from "~/components/features/history-list";
 import RoomCreateForm from "~/components/features/room-create-form";
 import { SectionHeader } from "~/components/ui/section-header";
-import type { List } from "~/lib/api";
 import styles from "./dashboard.module.css";
 
 type DashboardProps = {

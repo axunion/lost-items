@@ -4,7 +4,7 @@ import { X } from "lucide-solid";
 import type { Component, ComponentProps, JSX, ValidComponent } from "solid-js";
 import { splitProps } from "solid-js";
 
-import { cx } from "~/lib/utils";
+import { cx } from "~/client/utils";
 import styles from "./dialog.module.css";
 
 const Dialog = DialogPrimitive.Root;
