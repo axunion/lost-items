@@ -16,7 +16,7 @@ const allLists = await db.select().from(lists).orderBy(desc(lists.createdAt));
   <AppHeader title="History" showBack backUrl="/" />
 
   <main class="history-main">
-    <HistoryList lists={allLists} origin={Astro.url.origin} client:load />
+    <HistoryList lists={allLists} origin={Astro.url.origin} client:idle />
   </main>
 </Layout>
 

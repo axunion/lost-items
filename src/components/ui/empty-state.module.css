@@ -1,0 +1,31 @@
+.root {
+	text-align: center;
+	padding: 3rem 1rem;
+	background-color: var(--color-secondary-alpha-30);
+	border-radius: 0.75rem;
+	border: 1px dashed var(--color-border-alpha-40);
+}
+
+.iconWrapper {
+	background-color: var(--color-secondary-alpha-50);
+	width: 4rem;
+	height: 4rem;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin: 0 auto 1rem;
+}
+
+.iconWrapper :global(svg) {
+	width: 2rem;
+	height: 2rem;
+	color: var(--color-muted-foreground-alpha-40);
+}
+
+.message {
+	font-size: 1rem;
+	font-weight: 700;
+	color: var(--color-muted-foreground-alpha-40);
+	margin: 0;
+}

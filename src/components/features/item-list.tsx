@@ -10,6 +10,7 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "~/components/ui/dialog";
+import { EmptyState } from "~/components/ui/empty-state";
 import {
 	TextField,
 	TextFieldLabel,
@@ -90,14 +91,7 @@ const ItemList: Component<ItemListProps> = (props) => {
 		<div class={styles.container}>
 			<Show
 				when={props.items.length > 0}
-				fallback={
-					<div class={styles.emptyState}>
-						<div class={styles.emptyIconWrapper}>
-							<Search class={styles.emptyIcon} />
-						</div>
-						<p class={styles.emptyText}>No items found</p>
-					</div>
-				}
+				fallback={<EmptyState icon={<Search />} message="No items found" />}
 			>
 				<div class={styles.grid}>
 					<For each={props.items}>

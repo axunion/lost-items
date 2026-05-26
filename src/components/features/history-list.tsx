@@ -1,12 +1,4 @@
 import {
-	Check,
-	ClipboardList,
-	ExternalLink,
-	MoreVertical,
-	Pencil,
-	Trash2,
-} from "lucide-solid";
-import {
 	type Component,
 	createEffect,
 	createSignal,
@@ -14,7 +6,6 @@ import {
 	Show,
 } from "solid-js";
 import { Button } from "~/components/ui/button";
-import { Card, CardHeader, CardTitle } from "~/components/ui/card";
 import { ConfirmDialog } from "~/components/ui/confirm-dialog";
 import {
 	Dialog,
@@ -23,30 +14,17 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "~/components/ui/dialog";
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuGroup,
-	DropdownMenuGroupLabel,
-	DropdownMenuItem,
-	DropdownMenuSeparator,
-	DropdownMenuTrigger,
-} from "~/components/ui/dropdown-menu";
+import { EmptyState } from "~/components/ui/empty-state";
 import { TextField, TextFieldInput } from "~/components/ui/text-field";
 import { deleteList, type List, updateList } from "~/lib/api";
-import { formatDate } from "~/lib/utils";
 import styles from "./history-list.module.css";
+import { HistoryListItem } from "./history-list-item";
 
 type HistoryListProps = {
 	lists: List[];
 	origin: string;
 	newList?: List | null;
 	maxItems?: number;
-};
-
-type UrlGroup = {
-	label: string;
-	path: string;
 };
 
 const HistoryList: Component<HistoryListProps> = (props) => {
@@ -74,22 +52,15 @@ const HistoryList: Component<HistoryListProps> = (props) => {
 		});
 	});
 
-	const getName = (item: List) => {
-		return listNames()[item.id] ?? item.name ?? "Untitled Room";
-	};
+	const getName = (item: List) =>
+		listNames()[item.id] ?? item.name ?? "Untitled Room";
 
 	const handleEditClick = (item: List) => {
 		setTempName(getName(item));
 		setEditingId(item.id);
 	};
 
-	const handleDeleteClick = (id: string) => {
-		setDeletingId(id);
-	};
-
-	const closeEditDialog = () => {
-		setEditingId(null);
-	};
+	const closeEditDialog = () => setEditingId(null);
 
 	const handleSave = async () => {
 		const id = editingId();
@@ -134,112 +105,27 @@ const HistoryList: Component<HistoryListProps> = (props) => {
 		window.open(path, "_blank", "noopener,noreferrer");
 	};
 
-	const getUrlGroups = (itemId: string): UrlGroup[] => [
-		{ label: "Registration", path: `/${itemId}/register` },
-		{ label: "Public Room", path: `/${itemId}/room` },
-	];
-
 	return (
 		<>
 			<div class={styles.wrapper}>
 				<Show
 					when={localLists().length > 0}
-					fallback={
-						<div class={styles.emptyState}>
-							<p class={styles.emptyText}>No rooms found.</p>
-						</div>
-					}
+					fallback={<EmptyState message="No rooms found." />}
 				>
 					<div class={styles.list}>
 						<For each={localLists()}>
-							{(item) => {
-								const urlGroups = getUrlGroups(item.id);
-								return (
-									<div class={styles.listItem} data-testid="room-item">
-										<Card>
-											<CardHeader class={styles.cardHeader}>
-												<CardTitle class={styles.cardTitle}>
-													<div class={styles.cardMeta}>
-														<span class={styles.date}>
-															{formatDate(item.createdAt)}
-														</span>
-														<span class={styles.name} data-testid="room-name">
-															{getName(item)}
-														</span>
-														<span class={styles.id}>{item.id}</span>
-													</div>
-												</CardTitle>
-											</CardHeader>
-										</Card>
-
-										<DropdownMenu modal={false}>
-											<DropdownMenuTrigger class={styles.menuTrigger}>
-												<MoreVertical class={styles.menuTriggerIcon} />
-											</DropdownMenuTrigger>
-											<DropdownMenuContent>
-												<For each={urlGroups}>
-													{(group, index) => (
-														<>
-															<DropdownMenuGroup>
-																<DropdownMenuGroupLabel>
-																	{group.label}
-																</DropdownMenuGroupLabel>
-																<DropdownMenuItem
-																	onSelect={() =>
-																		handleCopy(`${props.origin}${group.path}`)
-																	}
-																>
-																	<Show
-																		when={
-																			copiedUrl() ===
-																			`${props.origin}${group.path}`
-																		}
-																		fallback={<ClipboardList />}
-																	>
-																		<Check
-																			style={{
-																				color: "var(--color-primary)",
-																			}}
-																		/>
-																	</Show>
-																	<span>Copy URL</span>
-																</DropdownMenuItem>
-																<DropdownMenuItem
-																	onSelect={() => handleOpenPage(group.path)}
-																>
-																	<ExternalLink />
-																	<span>Open Page</span>
-																</DropdownMenuItem>
-															</DropdownMenuGroup>
-															<Show when={index() < urlGroups.length - 1}>
-																<DropdownMenuSeparator />
-															</Show>
-														</>
-													)}
-												</For>
-
-												<DropdownMenuSeparator />
-
-												<DropdownMenuItem
-													closeOnSelect={false}
-													onSelect={() => handleEditClick(item)}
-												>
-													<Pencil />
-													<span>Rename</span>
-												</DropdownMenuItem>
-												<DropdownMenuItem
-													class={styles.destructiveItem}
-													closeOnSelect={false}
-													onSelect={() => handleDeleteClick(item.id)}
-												>
-													<Trash2 />
-													<span>Delete</span>
-												</DropdownMenuItem>
-											</DropdownMenuContent>
-										</DropdownMenu>
-									</div>
-								);
-							}}
+							{(item) => (
+								<HistoryListItem
+									item={item}
+									origin={props.origin}
+									name={getName(item)}
+									copiedUrl={copiedUrl()}
+									onEdit={() => handleEditClick(item)}
+									onDelete={() => setDeletingId(item.id)}
+									onCopy={handleCopy}
+									onOpenPage={handleOpenPage}
+								/>
+							)}
 						</For>
 					</div>
 				</Show>

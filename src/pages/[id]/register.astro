@@ -16,11 +16,16 @@ if (!list) {
 	return Astro.redirect("/");
 }
 
-const itemList = await db
+const rawItems = await db
 	.select()
 	.from(items)
 	.where(eq(items.listId, id))
 	.orderBy(desc(items.createdAt));
+
+const itemList = rawItems.map(({ imageKey, ...rest }) => ({
+	...rest,
+	imageUrl: imageKey ? `/api/images/${imageKey}` : null,
+}));
 
 const title = list.name || "Register Item";
 ---

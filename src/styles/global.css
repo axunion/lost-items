@@ -3,6 +3,9 @@
 
 :root {
 	--font-sans: "Inter Variable", "Noto Sans JP Variable", system-ui, sans-serif;
+
+	/* Base tokens */
+	--color-app-bg: hsl(35 12% 95%);
 	--color-border: hsl(30 10% 88%);
 	--color-input: hsl(30 10% 88%);
 	--color-ring: hsl(220 12% 28%);
@@ -20,6 +23,20 @@
 	--color-accent-foreground: hsl(220 12% 18%);
 	--color-card: hsl(40 15% 98%);
 	--color-card-foreground: hsl(20 10% 12%);
+
+	/* Alpha-variant tokens — avoids raw HSL literals in component CSS */
+	--color-background-alpha-85: hsl(40 20% 99% / 0.85);
+	--color-background-alpha-90: hsl(40 20% 99% / 0.9);
+	--color-border-alpha-30: hsl(30 10% 88% / 0.3);
+	--color-border-alpha-40: hsl(30 10% 88% / 0.4);
+	--color-border-alpha-50: hsl(30 10% 88% / 0.5);
+	--color-secondary-alpha-30: hsl(30 12% 93% / 0.3);
+	--color-secondary-alpha-50: hsl(30 12% 93% / 0.5);
+	--color-muted-foreground-alpha-40: hsl(20 6% 46% / 0.4);
+	--color-muted-foreground-alpha-60: hsl(20 6% 46% / 0.6);
+	--color-foreground-alpha-80: hsl(20 10% 12% / 0.8);
+	--color-primary-alpha-90: hsl(220 12% 28% / 0.9);
+	--color-destructive-alpha-90: hsl(4 60% 55% / 0.9);
 }
 
 *,
@@ -35,7 +52,7 @@ html {
 body {
 	margin: 0;
 	font-family: var(--font-sans);
-	background-color: hsl(35 12% 95%);
+	background-color: var(--color-app-bg);
 	color: var(--color-foreground);
 	font-feature-settings: "cv11", "ss01";
 	-webkit-font-smoothing: antialiased;

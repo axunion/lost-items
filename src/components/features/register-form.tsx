@@ -8,6 +8,7 @@ import {
 import { type Component, createSignal, Show } from "solid-js";
 import { Button } from "~/components/ui/button";
 import { Loading } from "~/components/ui/loading";
+import { SectionHeader } from "~/components/ui/section-header";
 import {
 	TextField,
 	TextFieldLabel,
@@ -82,10 +83,7 @@ const RegisterForm: Component<RegisterFormProps> = (props) => {
 				</Show>
 
 				<div class={styles.section}>
-					<div class={styles.sectionTitle}>
-						<Camera class={styles.sectionIcon} />
-						<span class={styles.sectionLabel}>Photo</span>
-					</div>
+					<SectionHeader icon={<Camera />}>Photo</SectionHeader>
 
 					<Show when={!imagePreview()}>
 						<div class={styles.photoGrid}>
@@ -154,10 +152,9 @@ const RegisterForm: Component<RegisterFormProps> = (props) => {
 					onChange={setComment}
 					class={styles.commentField}
 				>
-					<div class={styles.sectionTitle}>
-						<MessageSquare class={styles.sectionIcon} />
-						<TextFieldLabel class={styles.sectionLabel}>Comment</TextFieldLabel>
-					</div>
+					<SectionHeader icon={<MessageSquare />}>
+						<TextFieldLabel>Comment</TextFieldLabel>
+					</SectionHeader>
 					<TextFieldTextArea
 						placeholder="Optional info..."
 						class={styles.commentTextarea}
