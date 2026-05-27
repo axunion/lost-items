@@ -1,6 +1,7 @@
 ---
+name: db-reset
 description: Squash all migrations into a single clean file before release — deletes migration history and local data, then regenerates from the current schema. Use before a release to consolidate accumulated dev migrations. NEVER touches production.
-argument-hint: ""
+disable-model-invocation: true
 allowed-tools:
   - Bash
 ---

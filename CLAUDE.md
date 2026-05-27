@@ -65,7 +65,7 @@ After making changes, verify in this order:
   - `backend.md` — Hono API patterns, bindings, R2 (`src/server/**`)
   - `testing.md` — Unit/E2E test patterns (`src/**/*.test.*`, `tests/e2e/**`)
   - `database.md` — Drizzle schema, migrations, soft delete (`src/server/db/**`, `migrations/**`)
-- **`.claude/settings.json`** — Shared permission config: deny list for destructive git/rm/credential ops, allow list for project commands
+- **`.claude/settings.json`** — Shared config: sandbox (enabled + autoAllowBashIfSandboxed), deny list for destructive git/rm/credential ops, PostToolUse hook (Biome auto-fix on `src/**` edits)
 - **`.mcp.json`** — MCP servers: `context7` (live docs lookup)
 - **`.claude/agents/`** — Custom agents: `@code-reviewer`, `@test-writer`, `@db-reviewer`
 - **`.claude/skills/`** — Slash commands: `/db-migrate`, `/db-reset`, `/quality-check [--fix]`, `/new-component <Name> [ui|features]`

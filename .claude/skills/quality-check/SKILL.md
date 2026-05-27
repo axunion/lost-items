@@ -1,6 +1,6 @@
 ---
+name: quality-check
 description: Run the full quality check pipeline (Biome lint, Vitest unit tests, production build). Use before committing, when verifying changes are clean, or when the user asks to check, test, or validate the codebase. Pass --fix to auto-fix lint/format issues. Note: E2E tests (pnpm test:e2e) are NOT included — run them separately when testing browser flows.
-disable-model-invocation: false
 argument-hint: "[--fix]"
 allowed-tools:
   - Bash

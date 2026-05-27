@@ -1,72 +1,11 @@
 {
 	"$schema": "https://json.schemastore.org/claude-code-settings.json",
+	"sandbox": {
+		"enabled": true,
+		"autoAllowBashIfSandboxed": true
+	},
 	"enabledMcpjsonServers": ["context7"],
 	"permissions": {
-		"allow": [
-			"Bash(lsof *)",
-			"Bash(kill *)",
-			"Bash(pnpm install *)",
-			"Bash(pnpm dev)",
-			"Bash(pnpm preview)",
-			"Bash(pnpm build)",
-			"Bash(pnpm check)",
-			"Bash(pnpm fix)",
-			"Bash(pnpm test *)",
-			"Bash(pnpm test:e2e)",
-			"Bash(pnpm test:e2e *)",
-			"Bash(pnpm test:e2e:*)",
-			"Bash(pnpm astro *)",
-			"Bash(pnpm db:check)",
-			"Bash(pnpm db:generate)",
-			"Bash(pnpm db:migrate)",
-			"Bash(pnpm db:reset)",
-			"Bash(pnpm db:studio)",
-			"Bash(wrangler d1 migrations list *)",
-			"Bash(pnpm list *)",
-			"Bash(pnpm ls *)",
-			"Bash(pnpm why *)",
-			"Bash(pnpm outdated *)",
-			"Bash(ls *)",
-			"Bash(pwd)",
-			"Bash(which *)",
-			"Bash(wc *)",
-			"Bash(file *)",
-			"Bash(tree *)",
-			"Bash(jq *)",
-			"Bash(rg *)",
-			"Bash(fd *)",
-			"Bash(awk *)",
-			"Bash(sed -n *)",
-			"Bash(git status *)",
-			"Bash(git diff *)",
-			"Bash(git log *)",
-			"Bash(git branch)",
-			"Bash(git branch -a)",
-			"Bash(git branch -v *)",
-			"Bash(git show *)",
-			"Bash(git fetch *)",
-			"Bash(git stash list)",
-			"Bash(git stash show *)",
-			"Bash(git rev-parse *)",
-			"Bash(git remote *)",
-			"Bash(git blame *)",
-			"Bash(git ls-files *)",
-			"Bash(git grep *)",
-			"Bash(git shortlog *)",
-			"Bash(git describe *)",
-			"Bash(git tag)",
-			"Bash(git tag -l*)",
-			"Bash(git tag --list*)",
-			"Bash(git reflog *)",
-			"Bash(git worktree list)",
-			"Bash(git cherry *)",
-			"Bash(git whatchanged *)",
-			"Bash(gh *)",
-			"WebSearch",
-			"WebFetch(domain:github.com)",
-			"WebFetch(domain:api.github.com)",
-			"WebFetch(domain:raw.githubusercontent.com)"
-		],
 		"deny": [
 			"Bash(git push --force *)",
 			"Bash(git push -f *)",
@@ -198,11 +137,22 @@
 	"hooks": {
 		"PostToolUse": [
 			{
-				"matcher": "Edit|Write",
+				"matcher": "Edit",
 				"hooks": [
 					{
 						"type": "command",
-						"command": "f=\"$CLAUDE_TOOL_INPUT_FILE_PATH\"; [[ \"$f\" == */src/* ]] && pnpm exec biome check --write \"$f\" 2>/dev/null || true"
+						"if": "Edit(**/src/**)",
+						"command": "f=$(jq -r '.tool_input.file_path // empty'); pnpm exec biome check --write \"${f#$PWD/}\" 2>/dev/null || true"
+					}
+				]
+			},
+			{
+				"matcher": "Write",
+				"hooks": [
+					{
+						"type": "command",
+						"if": "Write(**/src/**)",
+						"command": "f=$(jq -r '.tool_input.file_path // empty'); pnpm exec biome check --write \"${f#$PWD/}\" 2>/dev/null || true"
 					}
 				]
 			}

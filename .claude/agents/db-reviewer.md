@@ -2,7 +2,7 @@
 name: db-reviewer
 description: Reviews Drizzle schema changes and migration SQL for safety before any production migration is applied.
 tools: Read, Glob, Bash
-model: claude-sonnet-4-6
+model: sonnet
 maxTurns: 8
 ---
 

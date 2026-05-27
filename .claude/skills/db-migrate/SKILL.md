@@ -1,7 +1,7 @@
 ---
+name: db-migrate
 description: Generate and apply Drizzle database migrations to the local database after schema changes. Use when the Drizzle schema has been updated and the local database needs to be synced, or when applying existing unapplied migrations (e.g., after a git pull).
 disable-model-invocation: true
-argument-hint: ""
 allowed-tools:
   - Bash
   - Read

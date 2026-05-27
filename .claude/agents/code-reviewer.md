@@ -2,7 +2,7 @@
 name: code-reviewer
 description: Reviews git diff changes for security, API conventions, frontend rules, and code quality. Use when you want a focused review of recent changes.
 tools: Read, Glob, Grep, Bash
-model: claude-sonnet-4-6
+model: sonnet
 maxTurns: 10
 ---
 
@@ -26,7 +26,7 @@ You are a code reviewer for this Astro + Hono + SolidJS project on Cloudflare Wo
 - エラーレスポンスが `{ error: "message" }` 形式になっているか
 - 404 ハンドリングが適切か（リソース未発見時）
 - ID 生成に `crypto.randomUUID()` を使っているか
-- タイムスタンプが `Math.floor(Date.now() / 1000)` 形式か
+- タイムスタンプに `new Date()` を使っているか（`Math.floor(Date.now() / 1000)` は使用禁止 — Drizzle が自動変換する）
 
 ## フロントエンド規約チェック
 
