@@ -584,6 +584,7 @@ describe("listsRoute", () => {
 				listId: string;
 				comment: string;
 				imageUrl: string;
+				deletedAt: unknown;
 			};
 			expect(body.id).toMatch(UUID_PATTERN);
 			expect(body.listId).toBe("list-1");
@@ -591,6 +592,7 @@ describe("listsRoute", () => {
 			expect(body.imageUrl).toMatch(
 				/^\/api\/images\/list-1\/[0-9a-f-]+-photo\.png$/,
 			);
+			expect(body.deletedAt).toBeNull();
 
 			expect(env.BUCKET.put).toHaveBeenCalledTimes(1);
 			const [putKey, , putOpts] = env.BUCKET.put.mock.calls[0];
@@ -615,9 +617,14 @@ describe("listsRoute", () => {
 			);
 
 			expect(res.status).toBe(200);
-			const body = (await res.json()) as { imageUrl: unknown; comment: string };
+			const body = (await res.json()) as {
+				imageUrl: unknown;
+				comment: string;
+				deletedAt: unknown;
+			};
 			expect(body.imageUrl).toBeNull();
 			expect(body.comment).toBe("no picture");
+			expect(body.deletedAt).toBeNull();
 			expect(env.BUCKET.put).not.toHaveBeenCalled();
 			expect(insertValues).toHaveBeenCalledTimes(1);
 		});

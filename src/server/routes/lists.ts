@@ -87,15 +87,18 @@ listsRoute.delete("/:id", async (c) => {
 		.from(items)
 		.where(eq(items.listId, id));
 
-	// Delete images from R2 — failures are logged and non-fatal so the DB transaction still runs
+	// Delete images from R2 — failures are logged and non-fatal so the DB transaction still runs.
+	// Log the specific key on failure so orphaned objects can be identified and cleaned up manually.
+	const itemsWithImages = itemsToDelete.filter((item) => item.imageKey);
 	const deleteSettled = await Promise.allSettled(
-		itemsToDelete
-			.filter((item) => item.imageKey)
-			.map((item) => c.env.BUCKET.delete(item.imageKey as string)),
+		itemsWithImages.map((item) => c.env.BUCKET.delete(item.imageKey as string)),
 	);
-	for (const result of deleteSettled) {
+	for (const [i, result] of deleteSettled.entries()) {
 		if (result.status === "rejected") {
-			console.warn("R2 delete failed:", result.reason);
+			console.warn(
+				`R2 delete failed for key "${itemsWithImages[i].imageKey}":`,
+				result.reason,
+			);
 		}
 	}
 
@@ -179,6 +182,7 @@ listsRoute.post("/:id/items", zValidator("form", addItemSchema), async (c) => {
 		comment: newItem.comment,
 		imageUrl: imageUrl(itemImageKey),
 		createdAt: newItem.createdAt,
+		deletedAt: null,
 	});
 });
 
