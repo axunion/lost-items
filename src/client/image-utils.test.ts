@@ -251,6 +251,26 @@ describe("image-utils", () => {
 			await expect(compressImage(file)).rejects.toThrow("Failed to load image");
 		});
 
+		it("should apply default options (1280px, quality 0.7) when none provided", async () => {
+			// Default Image mock is 2000x2000
+			const { canvas } = makeCanvas();
+			vi.spyOn(document, "createElement").mockReturnValue(
+				canvas as unknown as HTMLElement,
+			);
+
+			const file = new File(["mock"], "photo.heic", { type: "image/heic" });
+			await compressImage(file);
+
+			// 2000x2000 → 1280x1280 (default 1280px constraint)
+			expect(canvas.width).toBe(1280);
+			expect(canvas.height).toBe(1280);
+			expect(canvas.toBlob).toHaveBeenCalledWith(
+				expect.any(Function),
+				"image/jpeg",
+				0.7,
+			);
+		});
+
 		it("should reject when file reading fails", async () => {
 			global.FileReader = class {
 				onload: ((e: { target: { result: string } }) => void) | null = null;

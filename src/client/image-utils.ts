@@ -5,9 +5,9 @@ type CompressOptions = {
 };
 
 const DEFAULT_OPTIONS: Required<CompressOptions> = {
-	maxWidth: 1920,
-	maxHeight: 1920,
-	quality: 0.8,
+	maxWidth: 1280,
+	maxHeight: 1280,
+	quality: 0.7,
 };
 
 export async function compressImage(
