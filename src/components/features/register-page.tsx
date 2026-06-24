@@ -6,40 +6,40 @@ import { showToast } from "~/components/ui/toast";
 import styles from "./register-page.module.css";
 
 type RegisterPageProps = {
-	listId: string;
-	items: Item[];
+  listId: string;
+  items: Item[];
 };
 
 const RegisterPage: Component<RegisterPageProps> = (props) => {
-	const [items, setItems] = createSignal<Item[]>(props.items);
+  const [items, setItems] = createSignal<Item[]>(props.items);
 
-	const refreshItems = async () => {
-		try {
-			const latest = await getItems(props.listId, { includeDeleted: true });
-			setItems(latest);
-		} catch (error) {
-			console.error("Failed to refresh items:", error);
-			showToast("Failed to refresh items", "error");
-		}
-	};
+  const refreshItems = async () => {
+    try {
+      const latest = await getItems(props.listId, { includeDeleted: true });
+      setItems(latest);
+    } catch (error) {
+      console.error("Failed to refresh items:", error);
+      showToast("Failed to refresh items", "error");
+    }
+  };
 
-	const handleCreated = (item: Item) => {
-		setItems((prev) => [item, ...prev]);
-	};
+  const handleCreated = (item: Item) => {
+    setItems((prev) => [item, ...prev]);
+  };
 
-	return (
-		<main class={styles.main}>
-			<RegisterForm listId={props.listId} onCreated={handleCreated} />
+  return (
+    <main class={styles.main}>
+      <RegisterForm listId={props.listId} onCreated={handleCreated} />
 
-			<div class={styles.itemsSection}>
-				<ItemList
-					items={items()}
-					listId={props.listId}
-					onItemUpdated={refreshItems}
-				/>
-			</div>
-		</main>
-	);
+      <div class={styles.itemsSection}>
+        <ItemList
+          items={items()}
+          listId={props.listId}
+          onItemUpdated={refreshItems}
+        />
+      </div>
+    </main>
+  );
 };
 
 export default RegisterPage;

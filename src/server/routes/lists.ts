@@ -5,265 +5,265 @@ import type { Bindings } from "../bindings";
 import { createDb } from "../db";
 import { items, lists } from "../db/schema";
 import {
-	addItemSchema,
-	createListSchema,
-	renameListSchema,
-	updateCommentSchema,
+  addItemSchema,
+  createListSchema,
+  renameListSchema,
+  updateCommentSchema,
 } from "../schemas/lists";
 
 export const listsRoute = new Hono<{ Bindings: Bindings }>();
 
 function imageUrl(key: string | null | undefined): string | null {
-	return key ? `/api/images/${key}` : null;
+  return key ? `/api/images/${key}` : null;
 }
 
 // Get all lists
 listsRoute.get("/", async (c) => {
-	const db = createDb(c.env.DB);
-	const result = await db.select().from(lists).orderBy(desc(lists.createdAt));
-	return c.json(result);
+  const db = createDb(c.env.DB);
+  const result = await db.select().from(lists).orderBy(desc(lists.createdAt));
+  return c.json(result);
 });
 
 // Create a new list
 listsRoute.post("/", zValidator("json", createListSchema), async (c) => {
-	const { name } = c.req.valid("json");
-	const id = crypto.randomUUID();
-	const db = createDb(c.env.DB);
+  const { name } = c.req.valid("json");
+  const id = crypto.randomUUID();
+  const db = createDb(c.env.DB);
 
-	await db.insert(lists).values({
-		id,
-		name: name || null,
-		createdAt: new Date(),
-	});
+  await db.insert(lists).values({
+    id,
+    name: name || null,
+    createdAt: new Date(),
+  });
 
-	return c.json({ id });
+  return c.json({ id });
 });
 
 // Get a list by ID
 listsRoute.get("/:id", async (c) => {
-	const id = c.req.param("id");
-	const db = createDb(c.env.DB);
+  const id = c.req.param("id");
+  const db = createDb(c.env.DB);
 
-	const result = await db.select().from(lists).where(eq(lists.id, id)).get();
+  const result = await db.select().from(lists).where(eq(lists.id, id)).get();
 
-	if (!result) {
-		return c.json({ error: "List not found" }, 404);
-	}
+  if (!result) {
+    return c.json({ error: "List not found" }, 404);
+  }
 
-	return c.json(result);
+  return c.json(result);
 });
 
 // Update a list name
 listsRoute.patch("/:id", zValidator("json", renameListSchema), async (c) => {
-	const id = c.req.param("id");
-	const { name } = c.req.valid("json");
-	const db = createDb(c.env.DB);
+  const id = c.req.param("id");
+  const { name } = c.req.valid("json");
+  const db = createDb(c.env.DB);
 
-	const existing = await db.select().from(lists).where(eq(lists.id, id)).get();
+  const existing = await db.select().from(lists).where(eq(lists.id, id)).get();
 
-	if (!existing) {
-		return c.json({ error: "List not found" }, 404);
-	}
+  if (!existing) {
+    return c.json({ error: "List not found" }, 404);
+  }
 
-	await db.update(lists).set({ name }).where(eq(lists.id, id));
+  await db.update(lists).set({ name }).where(eq(lists.id, id));
 
-	return c.json({ id, name });
+  return c.json({ id, name });
 });
 
 // Delete a list and its items
 listsRoute.delete("/:id", async (c) => {
-	const id = c.req.param("id");
-	const db = createDb(c.env.DB);
+  const id = c.req.param("id");
+  const db = createDb(c.env.DB);
 
-	const existing = await db.select().from(lists).where(eq(lists.id, id)).get();
+  const existing = await db.select().from(lists).where(eq(lists.id, id)).get();
 
-	if (!existing) {
-		return c.json({ error: "List not found" }, 404);
-	}
+  if (!existing) {
+    return c.json({ error: "List not found" }, 404);
+  }
 
-	// Get items to clean up R2 images
-	const itemsToDelete = await db
-		.select()
-		.from(items)
-		.where(eq(items.listId, id));
+  // Get items to clean up R2 images
+  const itemsToDelete = await db
+    .select()
+    .from(items)
+    .where(eq(items.listId, id));
 
-	// Delete images from R2 — failures are logged and non-fatal so the DB transaction still runs.
-	// Log the specific key on failure so orphaned objects can be identified and cleaned up manually.
-	const itemsWithImages = itemsToDelete.filter((item) => item.imageKey);
-	const deleteSettled = await Promise.allSettled(
-		itemsWithImages.map((item) => c.env.BUCKET.delete(item.imageKey as string)),
-	);
-	for (const [i, result] of deleteSettled.entries()) {
-		if (result.status === "rejected") {
-			console.warn(
-				`R2 delete failed for key "${itemsWithImages[i].imageKey}":`,
-				result.reason,
-			);
-		}
-	}
+  // Delete images from R2 — failures are logged and non-fatal so the DB transaction still runs.
+  // Log the specific key on failure so orphaned objects can be identified and cleaned up manually.
+  const itemsWithImages = itemsToDelete.filter((item) => item.imageKey);
+  const deleteSettled = await Promise.allSettled(
+    itemsWithImages.map((item) => c.env.BUCKET.delete(item.imageKey as string)),
+  );
+  for (const [i, result] of deleteSettled.entries()) {
+    if (result.status === "rejected") {
+      console.warn(
+        `R2 delete failed for key "${itemsWithImages[i].imageKey}":`,
+        result.reason,
+      );
+    }
+  }
 
-	// Delete from database using transaction
-	await db.transaction(async (tx) => {
-		await tx.delete(items).where(eq(items.listId, id));
-		await tx.delete(lists).where(eq(lists.id, id));
-	});
+  // Delete from database using transaction
+  await db.transaction(async (tx) => {
+    await tx.delete(items).where(eq(items.listId, id));
+    await tx.delete(lists).where(eq(lists.id, id));
+  });
 
-	return c.json({ success: true });
+  return c.json({ success: true });
 });
 
 // Get items for a list
 listsRoute.get("/:id/items", async (c) => {
-	const listId = c.req.param("id");
-	const includeDeleted = c.req.query("includeDeleted") === "true";
-	const db = createDb(c.env.DB);
+  const listId = c.req.param("id");
+  const includeDeleted = c.req.query("includeDeleted") === "true";
+  const db = createDb(c.env.DB);
 
-	const condition = includeDeleted
-		? eq(items.listId, listId)
-		: and(eq(items.listId, listId), isNull(items.deletedAt));
+  const condition = includeDeleted
+    ? eq(items.listId, listId)
+    : and(eq(items.listId, listId), isNull(items.deletedAt));
 
-	const result = await db
-		.select()
-		.from(items)
-		.where(condition)
-		.orderBy(desc(items.createdAt));
+  const result = await db
+    .select()
+    .from(items)
+    .where(condition)
+    .orderBy(desc(items.createdAt));
 
-	return c.json(
-		result.map(({ imageKey, ...rest }) => ({
-			...rest,
-			imageUrl: imageUrl(imageKey),
-		})),
-	);
+  return c.json(
+    result.map(({ imageKey, ...rest }) => ({
+      ...rest,
+      imageUrl: imageUrl(imageKey),
+    })),
+  );
 });
 
 // Add item to a list
 listsRoute.post("/:id/items", zValidator("form", addItemSchema), async (c) => {
-	const listId = c.req.param("id");
-	const db = createDb(c.env.DB);
-	const { comment, image } = c.req.valid("form");
+  const listId = c.req.param("id");
+  const db = createDb(c.env.DB);
+  const { comment, image } = c.req.valid("form");
 
-	const list = await db.select().from(lists).where(eq(lists.id, listId)).get();
+  const list = await db.select().from(lists).where(eq(lists.id, listId)).get();
 
-	if (!list) {
-		return c.json({ error: "List not found" }, 404);
-	}
+  if (!list) {
+    return c.json({ error: "List not found" }, 404);
+  }
 
-	let itemImageKey: string | undefined;
+  let itemImageKey: string | undefined;
 
-	if (image && image.size > 0) {
-		if (!image.type.startsWith("image/")) {
-			return c.json({ error: "Invalid file type" }, 400);
-		}
-		if (image.size > 5 * 1024 * 1024) {
-			return c.json({ error: "File too large (max 5MB)" }, 400);
-		}
+  if (image && image.size > 0) {
+    if (!image.type.startsWith("image/")) {
+      return c.json({ error: "Invalid file type" }, 400);
+    }
+    if (image.size > 5 * 1024 * 1024) {
+      return c.json({ error: "File too large (max 5MB)" }, 400);
+    }
 
-		const safeName = image.name.replace(/[^a-zA-Z0-9._-]/g, "_");
-		const key = `${listId}/${crypto.randomUUID()}-${safeName}`;
-		await c.env.BUCKET.put(key, image, {
-			httpMetadata: { contentType: image.type },
-		});
-		itemImageKey = key;
-	}
+    const safeName = image.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+    const key = `${listId}/${crypto.randomUUID()}-${safeName}`;
+    await c.env.BUCKET.put(key, image, {
+      httpMetadata: { contentType: image.type },
+    });
+    itemImageKey = key;
+  }
 
-	const id = crypto.randomUUID();
-	const newItem = {
-		id,
-		listId,
-		comment: comment || "",
-		imageKey: itemImageKey ?? null,
-		createdAt: new Date(),
-	};
+  const id = crypto.randomUUID();
+  const newItem = {
+    id,
+    listId,
+    comment: comment || "",
+    imageKey: itemImageKey ?? null,
+    createdAt: new Date(),
+  };
 
-	await db.insert(items).values(newItem);
+  await db.insert(items).values(newItem);
 
-	return c.json({
-		id: newItem.id,
-		listId: newItem.listId,
-		comment: newItem.comment,
-		imageUrl: imageUrl(itemImageKey),
-		createdAt: newItem.createdAt,
-		deletedAt: null,
-	});
+  return c.json({
+    id: newItem.id,
+    listId: newItem.listId,
+    comment: newItem.comment,
+    imageUrl: imageUrl(itemImageKey),
+    createdAt: newItem.createdAt,
+    deletedAt: null,
+  });
 });
 
 // Update item comment
 listsRoute.patch(
-	"/:id/items/:itemId",
-	zValidator("json", updateCommentSchema),
-	async (c) => {
-		const listId = c.req.param("id");
-		const itemId = c.req.param("itemId");
-		const { comment } = c.req.valid("json");
-		const db = createDb(c.env.DB);
+  "/:id/items/:itemId",
+  zValidator("json", updateCommentSchema),
+  async (c) => {
+    const listId = c.req.param("id");
+    const itemId = c.req.param("itemId");
+    const { comment } = c.req.valid("json");
+    const db = createDb(c.env.DB);
 
-		const existing = await db
-			.select()
-			.from(items)
-			.where(and(eq(items.id, itemId), eq(items.listId, listId)))
-			.get();
+    const existing = await db
+      .select()
+      .from(items)
+      .where(and(eq(items.id, itemId), eq(items.listId, listId)))
+      .get();
 
-		if (!existing) {
-			return c.json({ error: "Item not found" }, 404);
-		}
+    if (!existing) {
+      return c.json({ error: "Item not found" }, 404);
+    }
 
-		await db.update(items).set({ comment }).where(eq(items.id, itemId));
+    await db.update(items).set({ comment }).where(eq(items.id, itemId));
 
-		return c.json({
-			id: existing.id,
-			listId: existing.listId,
-			comment,
-			imageUrl: imageUrl(existing.imageKey),
-			createdAt: existing.createdAt,
-			deletedAt: existing.deletedAt,
-		});
-	},
+    return c.json({
+      id: existing.id,
+      listId: existing.listId,
+      comment,
+      imageUrl: imageUrl(existing.imageKey),
+      createdAt: existing.createdAt,
+      deletedAt: existing.deletedAt,
+    });
+  },
 );
 
 // Soft delete an item
 listsRoute.delete("/:id/items/:itemId", async (c) => {
-	const listId = c.req.param("id");
-	const itemId = c.req.param("itemId");
-	const db = createDb(c.env.DB);
+  const listId = c.req.param("id");
+  const itemId = c.req.param("itemId");
+  const db = createDb(c.env.DB);
 
-	const existing = await db
-		.select()
-		.from(items)
-		.where(and(eq(items.id, itemId), eq(items.listId, listId)))
-		.get();
+  const existing = await db
+    .select()
+    .from(items)
+    .where(and(eq(items.id, itemId), eq(items.listId, listId)))
+    .get();
 
-	if (!existing) {
-		return c.json({ error: "Item not found" }, 404);
-	}
+  if (!existing) {
+    return c.json({ error: "Item not found" }, 404);
+  }
 
-	await db
-		.update(items)
-		.set({ deletedAt: new Date() })
-		.where(eq(items.id, itemId));
+  await db
+    .update(items)
+    .set({ deletedAt: new Date() })
+    .where(eq(items.id, itemId));
 
-	return c.json({ success: true });
+  return c.json({ success: true });
 });
 
 // Restore a deleted item
 listsRoute.post("/:id/items/:itemId/restore", async (c) => {
-	const listId = c.req.param("id");
-	const itemId = c.req.param("itemId");
-	const db = createDb(c.env.DB);
+  const listId = c.req.param("id");
+  const itemId = c.req.param("itemId");
+  const db = createDb(c.env.DB);
 
-	const existing = await db
-		.select()
-		.from(items)
-		.where(and(eq(items.id, itemId), eq(items.listId, listId)))
-		.get();
+  const existing = await db
+    .select()
+    .from(items)
+    .where(and(eq(items.id, itemId), eq(items.listId, listId)))
+    .get();
 
-	if (!existing) {
-		return c.json({ error: "Item not found" }, 404);
-	}
+  if (!existing) {
+    return c.json({ error: "Item not found" }, 404);
+  }
 
-	if (!existing.deletedAt) {
-		return c.json({ error: "Item is not deleted" }, 400);
-	}
+  if (!existing.deletedAt) {
+    return c.json({ error: "Item is not deleted" }, 400);
+  }
 
-	await db.update(items).set({ deletedAt: null }).where(eq(items.id, itemId));
+  await db.update(items).set({ deletedAt: null }).where(eq(items.id, itemId));
 
-	return c.json({ success: true });
+  return c.json({ success: true });
 });

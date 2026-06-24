@@ -13,18 +13,18 @@ const db = createDb((env as Bindings).DB);
 
 const list = await db.select().from(lists).where(eq(lists.id, id)).get();
 if (!list) {
-	return Astro.redirect("/");
+  return Astro.redirect("/");
 }
 
 const rawItems = await db
-	.select()
-	.from(items)
-	.where(and(eq(items.listId, id), isNull(items.deletedAt)))
-	.orderBy(desc(items.createdAt));
+  .select()
+  .from(items)
+  .where(and(eq(items.listId, id), isNull(items.deletedAt)))
+  .orderBy(desc(items.createdAt));
 
 const itemList = rawItems.map(({ imageKey, ...rest }) => ({
-	...rest,
-	imageUrl: imageKey ? `/api/images/${imageKey}` : null,
+  ...rest,
+  imageUrl: imageKey ? `/api/images/${imageKey}` : null,
 }));
 
 const title = list.name || "Room Items";

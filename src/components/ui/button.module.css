@@ -1,136 +1,136 @@
 .base {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	gap: 0.5rem;
-	white-space: nowrap;
-	border-radius: 0.75rem;
-	font-size: 0.875rem;
-	font-weight: 500;
-	letter-spacing: 0.025em;
-	border: none;
-	cursor: pointer;
-	transition:
-		background-color 150ms,
-		color 150ms,
-		border-color 150ms,
-		opacity 150ms;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+  border-radius: 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  letter-spacing: 0.025em;
+  border: none;
+  cursor: pointer;
+  transition:
+    background-color 150ms,
+    color 150ms,
+    border-color 150ms,
+    opacity 150ms;
 }
 
 .base:focus-visible {
-	outline: none;
-	box-shadow: 0 0 0 1px hsl(220 12% 28% / 0.4);
+  outline: none;
+  box-shadow: 0 0 0 1px hsl(220 12% 28% / 0.4);
 }
 
 .base:disabled {
-	pointer-events: none;
-	opacity: 0.5;
+  pointer-events: none;
+  opacity: 0.5;
 }
 
 .base :global(svg) {
-	pointer-events: none;
-	width: 1rem;
-	height: 1rem;
-	flex-shrink: 0;
+  pointer-events: none;
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
 }
 
 /* Variants */
 .variantDefault {
-	background-color: var(--color-primary);
-	color: var(--color-primary-foreground);
-	box-shadow: 0 1px 2px hsl(0 0% 0% / 0.05);
+  background-color: var(--color-primary);
+  color: var(--color-primary-foreground);
+  box-shadow: 0 1px 2px hsl(0 0% 0% / 0.05);
 }
 .variantDefault:hover:not(:disabled) {
-	background-color: hsl(220 12% 28% / 0.85);
+  background-color: hsl(220 12% 28% / 0.85);
 }
 
 .variantDestructive {
-	background-color: var(--color-destructive);
-	color: var(--color-destructive-foreground);
+  background-color: var(--color-destructive);
+  color: var(--color-destructive-foreground);
 }
 .variantDestructive:hover:not(:disabled) {
-	background-color: hsl(4 60% 55% / 0.85);
+  background-color: hsl(4 60% 55% / 0.85);
 }
 
 .variantOutline {
-	background-color: transparent;
-	border: 1px solid hsl(30 10% 88% / 0.6);
-	color: var(--color-foreground);
+  background-color: transparent;
+  border: 1px solid hsl(30 10% 88% / 0.6);
+  color: var(--color-foreground);
 }
 .variantOutline:hover:not(:disabled) {
-	background-color: var(--color-accent);
-	color: var(--color-accent-foreground);
+  background-color: var(--color-accent);
+  color: var(--color-accent-foreground);
 }
 
 .variantSecondary {
-	background-color: var(--color-secondary);
-	color: var(--color-secondary-foreground);
+  background-color: var(--color-secondary);
+  color: var(--color-secondary-foreground);
 }
 .variantSecondary:hover:not(:disabled) {
-	background-color: hsl(30 12% 93% / 0.8);
+  background-color: hsl(30 12% 93% / 0.8);
 }
 
 .variantGhost {
-	background-color: transparent;
-	border: none;
-	color: var(--color-foreground);
+  background-color: transparent;
+  border: none;
+  color: var(--color-foreground);
 }
 .variantGhost:hover:not(:disabled) {
-	background-color: var(--color-accent);
-	color: var(--color-accent-foreground);
+  background-color: var(--color-accent);
+  color: var(--color-accent-foreground);
 }
 
 .variantDestructiveGhost {
-	background-color: transparent;
-	border: none;
-	color: var(--color-destructive);
+  background-color: transparent;
+  border: none;
+  color: var(--color-destructive);
 }
 .variantDestructiveGhost:hover:not(:disabled) {
-	background-color: hsl(4 60% 55% / 0.1);
-	color: var(--color-destructive);
+  background-color: hsl(4 60% 55% / 0.1);
+  color: var(--color-destructive);
 }
 
 .variantLink {
-	background-color: transparent;
-	border: none;
-	color: var(--color-primary);
-	text-underline-offset: 4px;
+  background-color: transparent;
+  border: none;
+  color: var(--color-primary);
+  text-underline-offset: 4px;
 }
 .variantLink:hover:not(:disabled) {
-	text-decoration: underline;
+  text-decoration: underline;
 }
 
 /* Sizes */
 .sizeDefault {
-	height: 2.5rem;
-	padding: 0.5rem 1rem;
+  height: 2.5rem;
+  padding: 0.5rem 1rem;
 }
 
 .sizeSm {
-	height: 2.25rem;
-	padding: 0 0.75rem;
-	font-size: 0.75rem;
+  height: 2.25rem;
+  padding: 0 0.75rem;
+  font-size: 0.75rem;
 }
 
 .sizeLg {
-	height: 2.75rem;
-	padding: 0 2rem;
+  height: 2.75rem;
+  padding: 0 2rem;
 }
 
 .sizeXl {
-	height: 3.5rem;
-	padding: 0 2rem;
-	font-size: 1.125rem;
-	border-radius: 0.75rem;
+  height: 3.5rem;
+  padding: 0 2rem;
+  font-size: 1.125rem;
+  border-radius: 0.75rem;
 }
 
 .sizeIcon {
-	width: 2.75rem;
-	height: 2.75rem;
-	padding: 0;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
 }
 
 .sizeIcon :global(svg) {
-	width: 1.25rem;
-	height: 1.25rem;
+  width: 1.25rem;
+  height: 1.25rem;
 }

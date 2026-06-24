@@ -1,63 +1,63 @@
 .wrapper {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	gap: 0.75rem;
-	color: var(--color-muted-foreground);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  color: var(--color-muted-foreground);
 }
 
 .variantDefault {
-	width: 100%;
-	padding: 3rem 0;
+  width: 100%;
+  padding: 3rem 0;
 }
 
 .variantFullscreen {
-	position: fixed;
-	inset: 0;
-	z-index: 50;
-	background-color: hsl(40 20% 99% / 0.8);
-	backdrop-filter: blur(4px);
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background-color: hsl(40 20% 99% / 0.8);
+  backdrop-filter: blur(4px);
 }
 
 .variantInline {
-	display: inline-flex;
-	width: auto;
+  display: inline-flex;
+  width: auto;
 }
 
 .spinner {
-	color: var(--color-primary);
-	animation: spin 1s linear infinite;
+  color: var(--color-primary);
+  animation: spin 1s linear infinite;
 }
 
 .sizeSm {
-	width: 1rem;
-	height: 1rem;
+  width: 1rem;
+  height: 1rem;
 }
 
 .sizeMd {
-	width: 2rem;
-	height: 2rem;
+  width: 2rem;
+  height: 2rem;
 }
 
 .sizeLg {
-	width: 3rem;
-	height: 3rem;
+  width: 3rem;
+  height: 3rem;
 }
 
 .textSm {
-	font-size: 0.75rem;
-	font-weight: 500;
+  font-size: 0.75rem;
+  font-weight: 500;
 }
 
 .textDefault {
-	font-weight: 500;
+  font-weight: 500;
 }
 
 @keyframes spin {
-	from {
-		transform: rotate(0deg);
-	}
-	to {
-		transform: rotate(360deg);
-	}
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }

@@ -10,10 +10,10 @@ import { lists } from "~/server/db/schema";
 
 const db = createDb((env as Bindings).DB);
 const recentLists = await db
-	.select()
-	.from(lists)
-	.orderBy(desc(lists.createdAt))
-	.limit(3);
+  .select()
+  .from(lists)
+  .orderBy(desc(lists.createdAt))
+  .limit(3);
 ---
 
 <Layout title="Dashboard">

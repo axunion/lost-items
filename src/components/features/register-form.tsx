@@ -1,180 +1,181 @@
 import {
-	Camera,
-	Image as ImageIcon,
-	MessageSquare,
-	Send,
-	X,
+  Camera,
+  Image as ImageIcon,
+  MessageSquare,
+  Send,
+  X,
 } from "lucide-solid";
 import { type Component, createSignal, Show } from "solid-js";
 import { addItem, type Item } from "~/client/api";
 import { compressImage } from "~/client/image-utils";
-import { Button } from "~/components/ui/button";
+import { Button } from "~/components/ui/Button";
 import { Loading } from "~/components/ui/loading";
 import { SectionHeader } from "~/components/ui/section-header";
 import {
-	TextField,
-	TextFieldLabel,
-	TextFieldTextArea,
+  TextField,
+  TextFieldLabel,
+  TextFieldTextArea,
 } from "~/components/ui/text-field";
 import { showToast } from "~/components/ui/toast";
 import styles from "./register-form.module.css";
 
 type RegisterFormProps = {
-	listId: string;
-	onCreated?: (item: Item) => void;
+  listId: string;
+  onCreated?: (item: Item) => void;
 };
 
 const RegisterForm: Component<RegisterFormProps> = (props) => {
-	const [comment, setComment] = createSignal("");
-	const [imagePreview, setImagePreview] = createSignal<string | null>(null);
-	const [imageFile, setImageFile] = createSignal<File | undefined>(undefined);
-	const [isSubmitting, setIsSubmitting] = createSignal(false);
+  const [comment, setComment] = createSignal("");
+  const [imagePreview, setImagePreview] = createSignal<string | null>(null);
+  const [imageFile, setImageFile] = createSignal<File | undefined>(undefined);
+  const [isSubmitting, setIsSubmitting] = createSignal(false);
 
-	let cameraInputRef: HTMLInputElement | undefined;
-	let fileInputRef: HTMLInputElement | undefined;
+  let cameraInputRef: HTMLInputElement | undefined;
+  let fileInputRef: HTMLInputElement | undefined;
 
-	const handleImageUpload = async (e: Event) => {
-		const file = (e.target as HTMLInputElement).files?.[0];
-		if (file) {
-			try {
-				const compressedFile = await compressImage(file);
-				setImageFile(compressedFile);
+  const handleImageUpload = async (e: Event) => {
+    const file = (e.target as HTMLInputElement).files?.[0];
+    if (file) {
+      try {
+        const compressedFile = await compressImage(file);
+        setImageFile(compressedFile);
 
-				const reader = new FileReader();
-				reader.onloadend = () => {
-					setImagePreview(reader.result as string);
-				};
-				reader.readAsDataURL(compressedFile);
-			} catch (error) {
-				console.error("Failed to compress image:", error);
-				showToast("Failed to process image", "error");
-			}
-		}
-		(e.target as HTMLInputElement).value = "";
-	};
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setImagePreview(reader.result as string);
+        };
+        reader.readAsDataURL(compressedFile);
+      } catch (error) {
+        console.error("Failed to compress image:", error);
+        showToast("Failed to process image", "error");
+      }
+    }
+    (e.target as HTMLInputElement).value = "";
+  };
 
-	const handleSubmit = async (e: Event) => {
-		e.preventDefault();
-		setIsSubmitting(true);
+  const handleSubmit = async (e: Event) => {
+    e.preventDefault();
+    setIsSubmitting(true);
 
-		try {
-			const newItem = await addItem(props.listId, {
-				comment: comment(),
-				image: imageFile(),
-			});
-			props.onCreated?.(newItem);
-			setComment("");
-			setImagePreview(null);
-			setImageFile(undefined);
-			showToast("Item registered", "success");
-		} catch (error) {
-			console.error("Failed to register item:", error);
-			showToast("Failed to register", "error");
-		} finally {
-			setIsSubmitting(false);
-		}
-	};
+    try {
+      const newItem = await addItem(props.listId, {
+        comment: comment(),
+        image: imageFile(),
+      });
+      props.onCreated?.(newItem);
+      setComment("");
+      setImagePreview(null);
+      setImageFile(undefined);
+      showToast("Item registered", "success");
+    } catch (error) {
+      console.error("Failed to register item:", error);
+      showToast("Failed to register", "error");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
-	return (
-		<div class={styles.wrapper}>
-			<form onSubmit={handleSubmit} class={styles.form}>
-				<Show when={isSubmitting()}>
-					<Loading variant="fullscreen" text="Registering..." />
-				</Show>
+  return (
+    <div class={styles.wrapper}>
+      <form onSubmit={handleSubmit} class={styles.form}>
+        <Show when={isSubmitting()}>
+          <Loading variant="fullscreen" text="Registering..." />
+        </Show>
 
-				<div class={styles.section}>
-					<SectionHeader icon={<Camera />}>Photo</SectionHeader>
+        <div class={styles.section}>
+          <SectionHeader icon={<Camera />}>Photo</SectionHeader>
 
-					<Show when={!imagePreview()}>
-						<div class={styles.photoGrid}>
-							<Button
-								type="button"
-								variant="outline"
-								class={styles.photoButton}
-								onClick={() => cameraInputRef?.click()}
-							>
-								<Camera class={styles.sectionIcon} />
-								<span class={styles.sectionLabel}>Take Photo</span>
-							</Button>
-							<Button
-								type="button"
-								variant="outline"
-								class={styles.photoButton}
-								onClick={() => fileInputRef?.click()}
-							>
-								<ImageIcon class={styles.sectionIcon} />
-								<span class={styles.sectionLabel}>Choose Photo</span>
-							</Button>
-						</div>
-					</Show>
+          <Show when={!imagePreview()}>
+            <div class={styles.photoGrid}>
+              <Button
+                type="button"
+                variant="outline"
+                class={styles.photoButton}
+                onClick={() => cameraInputRef?.click()}
+              >
+                <Camera class={styles.sectionIcon} />
+                <span class={styles.sectionLabel}>Take Photo</span>
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                class={styles.photoButton}
+                onClick={() => fileInputRef?.click()}
+              >
+                <ImageIcon class={styles.sectionIcon} />
+                <span class={styles.sectionLabel}>Choose Photo</span>
+              </Button>
+            </div>
+          </Show>
 
-					<input
-						ref={cameraInputRef}
-						type="file"
-						accept="image/*"
-						capture="environment"
-						aria-label="Take a photo"
-						class={styles.hiddenInput}
-						onChange={handleImageUpload}
-					/>
-					<input
-						ref={fileInputRef}
-						type="file"
-						accept="image/*"
-						aria-label="Choose a photo"
-						class={styles.hiddenInput}
-						onChange={handleImageUpload}
-					/>
+          <input
+            ref={cameraInputRef}
+            type="file"
+            accept="image/*"
+            capture="environment"
+            aria-label="Take a photo"
+            class={styles.hiddenInput}
+            onChange={handleImageUpload}
+          />
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            aria-label="Choose a photo"
+            class={styles.hiddenInput}
+            onChange={handleImageUpload}
+          />
 
-					<Show when={imagePreview()}>
-						<div class={styles.previewContainer}>
-							<img
-								src={imagePreview() || ""}
-								alt="Preview"
-								class={styles.previewImage}
-							/>
-							<button
-								type="button"
-								onClick={() => {
-									setImagePreview(null);
-									setImageFile(undefined);
-								}}
-								class={styles.clearButton}
-							>
-								<X class={styles.clearIcon} />
-							</button>
-						</div>
-					</Show>
-				</div>
+          <Show when={imagePreview()}>
+            <div class={styles.previewContainer}>
+              <img
+                src={imagePreview() || ""}
+                alt="Preview"
+                class={styles.previewImage}
+              />
+              <button
+                type="button"
+                aria-label="Clear image"
+                onClick={() => {
+                  setImagePreview(null);
+                  setImageFile(undefined);
+                }}
+                class={styles.clearButton}
+              >
+                <X class={styles.clearIcon} />
+              </button>
+            </div>
+          </Show>
+        </div>
 
-				<TextField
-					value={comment()}
-					onChange={setComment}
-					class={styles.commentField}
-				>
-					<SectionHeader icon={<MessageSquare />}>
-						<TextFieldLabel>Comment</TextFieldLabel>
-					</SectionHeader>
-					<TextFieldTextArea
-						placeholder="Optional info..."
-						class={styles.commentTextarea}
-					/>
-				</TextField>
+        <TextField
+          value={comment()}
+          onChange={setComment}
+          class={styles.commentField}
+        >
+          <SectionHeader icon={<MessageSquare />}>
+            <TextFieldLabel>Comment</TextFieldLabel>
+          </SectionHeader>
+          <TextFieldTextArea
+            placeholder="Optional info..."
+            class={styles.commentTextarea}
+          />
+        </TextField>
 
-				<Button
-					type="submit"
-					size="xl"
-					class={styles.submitButton}
-					disabled={isSubmitting()}
-				>
-					<div class={styles.submitButtonContent}>
-						<Send class={styles.submitIcon} />
-						<span>Register</span>
-					</div>
-				</Button>
-			</form>
-		</div>
-	);
+        <Button
+          type="submit"
+          size="xl"
+          class={styles.submitButton}
+          disabled={isSubmitting()}
+        >
+          <div class={styles.submitButtonContent}>
+            <Send class={styles.submitIcon} />
+            <span>Register</span>
+          </div>
+        </Button>
+      </form>
+    </div>
+  );
 };
 
 export default RegisterForm;

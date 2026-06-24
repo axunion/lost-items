@@ -37,19 +37,6 @@ Browser → Astro SSR (pages/*.astro)     → D1 via Drizzle (server-side data f
 
 A Vite plugin that stubs the `debug` npm package. Required because `debug` uses CJS `module.exports` which is unavailable in the workerd runtime. This is a workaround for a transitive dependency issue in the Astro ecosystem, not a project code concern.
 
-## Commit message conventions
-
-Use conventional prefixes with **English** message body:
-
-- **feat**: New feature
-- **fix**: Bug fix
-- **docs**: Documentation only
-- **style**: Formatting, no logic change
-- **refactor**: Code restructure without behavior change
-- **perf**: Performance improvement
-- **test**: Adding or updating tests
-- **chore**: Build config, tooling, dependencies
-
 ## Code quality workflow
 
 After making changes, verify in this order:

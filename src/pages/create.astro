@@ -8,9 +8,9 @@ export const prerender = false;
 const db = createDb((env as Bindings).DB);
 const id = crypto.randomUUID();
 await db.insert(lists).values({
-	id,
-	name: null,
-	createdAt: new Date(),
+  id,
+  name: null,
+  createdAt: new Date(),
 });
 
 return Astro.redirect(`/${id}/register`);

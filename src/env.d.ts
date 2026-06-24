@@ -4,5 +4,5 @@ import type { Runtime } from "@astrojs/cloudflare";
 import type { Bindings } from "~/server/bindings";
 
 declare namespace App {
-	interface Locals extends Runtime<Bindings> {}
+  interface Locals extends Runtime<Bindings> {}
 }

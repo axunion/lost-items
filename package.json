@@ -1,71 +1,71 @@
 {
-	"name": "lost-items",
-	"type": "module",
-	"version": "0.0.1",
-	"devEngines": {
-		"runtime": {
-			"name": "node",
-			"version": "24.16.0",
-			"onFail": "warn"
-		},
-		"packageManager": {
-			"name": "pnpm",
-			"version": "11.4.0",
-			"onFail": "warn"
-		}
-	},
-	"scripts": {
-		"dev": "astro dev",
-		"build": "astro build",
-		"preview": "astro preview",
-		"astro": "astro",
-		"check": "biome check src && astro check",
-		"fix": "biome check --write src",
-		"prepare": "lefthook install",
-		"db:check": "drizzle-kit check",
-		"db:generate": "drizzle-kit generate",
-		"db:migrate": "wrangler d1 migrations apply lost-items-db --local",
-		"db:reset": "rm -rf migrations .wrangler/state/v3/d1 && pnpm db:generate && pnpm db:migrate",
-		"db:studio": "drizzle-kit studio",
-		"test": "vitest",
-		"test:ui": "vitest --ui",
-		"test:coverage": "vitest run --coverage",
-		"test:e2e": "playwright test",
-		"test:e2e:ui": "playwright test --ui",
-		"test:e2e:headed": "playwright test --headed"
-	},
-	"dependencies": {
-		"@astrojs/cloudflare": "^13.1.1",
-		"@astrojs/solid-js": "^6.0.0",
-		"@fontsource-variable/inter": "^5.2.8",
-		"@fontsource-variable/noto-sans-jp": "^5.2.10",
-		"@hono/zod-validator": "^0.7.5",
-		"@iconify-json/lucide": "^1.2.82",
-		"@kobalte/core": "^0.13.11",
-		"astro": "^6.0.4",
-		"astro-icon": "^1.1.5",
-		"drizzle-orm": "^0.44.7",
-		"hono": "^4.10.6",
-		"lucide-solid": "^0.554.0",
-		"solid-js": "^1.9.10",
-		"zod": "^4.1.12"
-	},
-	"devDependencies": {
-		"@astrojs/check": "^0.9.9",
-		"@biomejs/biome": "2.4.15",
-		"@cloudflare/workers-types": "^4.20260313.1",
-		"@playwright/test": "^1.57.0",
-		"@solidjs/testing-library": "^0.8.10",
-		"@testing-library/jest-dom": "^6.9.1",
-		"@vitest/coverage-v8": "^4.1.6",
-		"@vitest/ui": "^4.1.0",
-		"drizzle-kit": "^0.31.7",
-		"jsdom": "^27.4.0",
-		"lefthook": "^2.1.9",
-		"typescript": "^6.0.3",
-		"vite": "^7.3.1",
-		"vite-plugin-solid": "^2.11.10",
-		"vitest": "^4.1.0",
-		"wrangler": "^4.91.0"
-	}
+  "name": "lost-items",
+  "type": "module",
+  "version": "0.0.1",
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": "^24",
+      "onFail": "warn"
+    },
+    "packageManager": {
+      "name": "pnpm",
+      "version": "^11",
+      "onFail": "warn"
+    }
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "check": "biome check && astro check",
+    "fix": "biome check --write",
+    "prepare": "lefthook install",
+    "db:check": "drizzle-kit check",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "wrangler d1 migrations apply lost-items-db --local",
+    "db:reset": "rm -rf migrations .wrangler/state/v3/d1 && pnpm db:generate && pnpm db:migrate",
+    "db:studio": "drizzle-kit studio",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest run --coverage",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:headed": "playwright test --headed"
+  },
+  "dependencies": {
+    "@astrojs/cloudflare": "^13.1.1",
+    "@astrojs/solid-js": "^6.0.0",
+    "@fontsource-variable/inter": "^5.2.8",
+    "@fontsource-variable/noto-sans-jp": "^5.2.10",
+    "@hono/zod-validator": "^0.7.5",
+    "@iconify-json/lucide": "^1.2.82",
+    "@kobalte/core": "^0.13.11",
+    "astro": "^6.0.4",
+    "astro-icon": "^1.1.5",
+    "drizzle-orm": "^0.44.7",
+    "hono": "^4.10.6",
+    "lucide-solid": "^0.554.0",
+    "solid-js": "^1.9.10",
+    "zod": "^4.1.12"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.9",
+    "@biomejs/biome": "2.5.0",
+    "@cloudflare/workers-types": "^4.20260313.1",
+    "@playwright/test": "^1.57.0",
+    "@solidjs/testing-library": "^0.8.10",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@vitest/coverage-v8": "^4.1.6",
+    "@vitest/ui": "^4.1.0",
+    "drizzle-kit": "^0.31.7",
+    "jsdom": "^27.4.0",
+    "lefthook": "^2.1.9",
+    "typescript": "^6.0.3",
+    "vite": "^7.3.1",
+    "vite-plugin-solid": "^2.11.10",
+    "vitest": "^4.1.0",
+    "wrangler": "^4.91.0"
+  }
 }

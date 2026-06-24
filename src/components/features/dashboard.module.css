@@ -1,62 +1,62 @@
 .main {
-	padding: 1.5rem 1rem;
-	display: flex;
-	flex-direction: column;
-	gap: 1.5rem;
+  padding: 1.5rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 }
 
 .newRoomSection {
-	display: flex;
-	flex-direction: column;
-	gap: 1rem;
-	padding: 0.5rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 0.5rem 0;
 }
 
 .recentSection {
-	display: flex;
-	flex-direction: column;
-	gap: 1rem;
-	padding-top: 2rem;
-	border-top: 1px solid var(--color-border-alpha-30);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--color-border-alpha-30);
 }
 
 .recentHeader {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	padding: 0 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 0.25rem;
 }
 
 .recentTitle {
-	display: flex;
-	align-items: center;
-	gap: 0.5rem;
-	font-size: 1.125rem;
-	font-weight: 700;
-	letter-spacing: 0.05em;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.125rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
 }
 
 .recentIcon {
-	width: 1.5rem;
-	height: 1.5rem;
-	color: var(--color-primary);
+  width: 1.5rem;
+  height: 1.5rem;
+  color: var(--color-primary);
 }
 
 .allLink {
-	font-size: 0.875rem;
-	color: var(--color-primary);
-	text-decoration: none;
-	display: flex;
-	align-items: center;
-	gap: 0.25rem;
-	font-weight: 500;
+  font-size: 0.875rem;
+  color: var(--color-primary);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-weight: 500;
 }
 
 .allLink:hover {
-	text-decoration: underline;
+  text-decoration: underline;
 }
 
 .allLinkIcon {
-	width: 1rem;
-	height: 1rem;
+  width: 1rem;
+  height: 1rem;
 }
