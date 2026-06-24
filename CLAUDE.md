@@ -24,7 +24,7 @@ pnpm db:reset         # Delete migration history and regenerate from current sch
 
 ## Architecture
 
-**Astro 6 SSR + Hono API on Cloudflare Workers.** Pages are server-rendered by Astro; interactive islands use SolidJS with `client:load`. The API is a standalone Hono app mounted at `/api` via a catch-all Astro route.
+**Astro 7 SSR + Hono API on Cloudflare Workers.** Pages are server-rendered by Astro; interactive islands use SolidJS with `client:load`. The API is a standalone Hono app mounted at `/api` via a catch-all Astro route.
 
 ### Request flow
 

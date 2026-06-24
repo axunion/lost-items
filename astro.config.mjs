@@ -32,6 +32,9 @@ export default defineConfig({
   integrations: [solidJs(), icon()],
 
   vite: {
+    css: {
+      transformer: "lightningcss",
+    },
     plugins: [mockDebugPlugin()],
     resolve: {
       alias: {

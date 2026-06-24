@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { defineConfig } from "drizzle-kit";
 
-// ローカルのD1データベース（Wranglerが管理）のパスを取得
+// Resolve the path to the local D1 database managed by Wrangler
 const getLocalD1DB = () => {
   const basePath = ".wrangler/state/v3/d1/miniflare-D1DatabaseObject";
   if (fs.existsSync(basePath)) {

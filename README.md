@@ -61,20 +61,20 @@ Each room has a **Public Page** URL. Share this with people who may have lost so
 
 ## Tech Stack
 
-- **Framework:** [Astro 6](https://astro.build/) + [@astrojs/cloudflare v13](https://docs.astro.build/en/guides/deploy/cloudflare/)
+- **Framework:** [Astro 7](https://astro.build/) + [@astrojs/cloudflare v14](https://docs.astro.build/en/guides/deploy/cloudflare/)
 - **UI Library:** [SolidJS](https://www.solidjs.com/)
 - **Icons:** [Lucide](https://lucide.dev/) (lucide-solid, astro-icon)
 - **API/Backend:** [Hono](https://hono.dev/)
 - **Database:** [Cloudflare D1](https://developers.cloudflare.com/d1/)
 - **Storage:** [Cloudflare R2](https://developers.cloudflare.com/r2/)
 - **ORM:** [Drizzle ORM](https://orm.drizzle.team/)
-- **Styling:** CSS Modules
+- **Styling:** CSS Modules + [LightningCSS](https://lightningcss.dev/)
 
 ## Getting Started
 
 ### Prerequisites
 
-- **Node.js** (v22.12.0+ required)
+- **Node.js** v24+
 - **pnpm** v11+ (Package manager)
 - **Wrangler** (Cloudflare CLI)
 
@@ -126,7 +126,7 @@ public/             # Static assets
 
 ```bash
 pnpm test          # Run unit tests (Vitest)
-pnpm test:e2e      # Run E2E tests (Playwright, requires dev server running)
+pnpm test:e2e      # Run E2E tests (Playwright, dev server auto-starts)
 ```
 
 ## Scripts
