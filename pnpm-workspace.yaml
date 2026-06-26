@@ -1,8 +1,6 @@
 allowBuilds:
+  better-sqlite3: true
   esbuild: true
   lefthook: true
   sharp: true
   workerd: true
-minimumReleaseAgeExclude:
-  - '@astrojs/markdown-satteri@0.3.2'
-  - astro@7.0.2
