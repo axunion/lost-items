@@ -1,7 +1,7 @@
-# CLAUDE.md
+# AGENTS.md
 
-Guidance for Claude Code when working with this repository.
-Keep this file in sync with `AGENTS.md` — edit both when changing either.
+Guidance for AI coding agents when working with this repository.
+Keep this file in sync with `CLAUDE.md` — edit both when changing either.
 
 ## Working principles
 
@@ -16,7 +16,7 @@ Keep this file in sync with `AGENTS.md` — edit both when changing either.
   failing test, then make it pass). For multi-step work, state a brief plan with a
   verification check per step.
 - **English only** in code comments, console/log/error messages, and AI-readable config
-  (CLAUDE.md, AGENT.md, etc.).
+  (CLAUDE.md, AGENTS.md, etc.).
 
 ## Commands
 
