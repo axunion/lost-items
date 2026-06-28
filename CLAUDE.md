@@ -16,7 +16,7 @@ Keep this file in sync with `AGENTS.md` — edit both when changing either.
   failing test, then make it pass). For multi-step work, state a brief plan with a
   verification check per step.
 - **English only** in code comments, console/log/error messages, and AI-readable config
-  (CLAUDE.md, AGENT.md, etc.).
+  (CLAUDE.md, AGENTS.md, etc.).
 
 ## Commands
 
@@ -91,6 +91,9 @@ self-contained with no shared mutable state.
 
 ## Additional configuration
 
+- **`DESIGN.md`** — Visual design specification: color palette (Trust Blue primary, amber/green
+  status colors), typography, component sizing, layout, and elevation. Source of truth for all
+  design decisions; aligning `src/styles/global.css` to these tokens is a tracked follow-up.
 - **`.claude/rules/`** — Context-specific guidelines auto-loaded by glob pattern:
   - `frontend.md` — SolidJS components, UI design system (`src/components/**`, `src/pages/**`)
   - `backend.md` — Hono API patterns, bindings, R2 (`src/server/**`)

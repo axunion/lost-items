@@ -15,8 +15,8 @@ Aim for premium, modern UI that delights users.
 - **Premium quality**: Avoid plain primary colors; use refined palettes with tuned HSL values.
 - **Depth and motion**: Use glassmorphism, subtle borders, appropriate shadows, and opacity to convey depth.
 - **Styling subtlety**: Avoid overly strong rings or borders.
-    - **Borders**: Use reduced opacity to blend naturally — e.g. `border: 1px solid hsl(30 10% 88% / 0.3)`.
-    - **Focus rings**: Use `outline: 2px solid hsl(var(--color-ring) / 0.3)` for subtle feedback that doesn't disrupt the design.
+    - **Borders**: Use reduced opacity to blend naturally — e.g. `border: 1px solid hsl(30 12% 86% / 0.3)`.
+    - **Focus rings**: Use `outline: 2px solid hsl(var(--color-ring) / 0.4)` for subtle feedback that doesn't disrupt the design.
 - **Interactions**: Implement feedback for every user action via hover effects and micro-animations (e.g. scale-down on tap).
 - **No placeholders**: When demos or previews are needed, create concrete visuals rather than placeholder content.
 
@@ -42,9 +42,16 @@ Split components appropriately for maintainability and reusability.
 
 ## 4. Design Standards (Tokens)
 
+> **Design specification**: `DESIGN.md` (repo root) is the authoritative source for the full
+> color palette, typography scale, component sizing, and elevation system. When making visual
+> decisions, consult `DESIGN.md` first. The token names below correspond to CSS Custom Properties
+> in `src/styles/global.css`; reconciling those values with `DESIGN.md` is a tracked follow-up.
+
 - **CSS Custom Properties (Design Tokens)**:
     - All colors, spacing, etc. must use tokens defined in `:root {}` in `src/styles/global.css`.
-    - Key tokens: `--color-primary`, `--color-background`, `--color-foreground`, `--color-border`, `--color-muted-foreground`, `--color-destructive`, `--color-accent`, `--color-secondary`, etc.
+    - Key tokens: `--color-primary`, `--color-background`, `--color-foreground`, `--color-border`,
+      `--color-muted-foreground`, `--color-destructive`, `--color-secondary`,
+      `--color-accent`, `--color-accent-foreground`, etc.
     - **Radius**: Use `border-radius: 0.75rem` (12px) as the base for cards and main elements.
 - **Styling approach**:
     - **`.tsx` (SolidJS)**: Use CSS Modules (`.module.css`). Place alongside the component in the same directory.
@@ -55,8 +62,9 @@ Split components appropriately for maintainability and reusability.
     - **Main actions**: Ensure `56px` height to prioritize finger operability.
     - **Icon buttons**: Edit/delete buttons must be `44px` or larger to prevent mis-taps.
 - **Colors**:
-    - **Background**: Base on `var(--color-background)` (warm beige tone).
-    - **Accent**: Base on `var(--color-primary)`.
+    - **Background**: Base on `var(--color-background)` (warm white surface).
+    - **Primary / CTA**: Base on `var(--color-primary)` (Trust Blue per `DESIGN.md`).
+    - **Status colors**: In Storage = amber; Returned = green. See `DESIGN.md` §2.2 for exact HSL values and badge text rules (amber requires dark text, not white).
 - **Icons**: Use `lucide-solid`.
 - **UX and label simplicity**:
     - Communicate intuitively via visual **icons** and **minimal English words**.
