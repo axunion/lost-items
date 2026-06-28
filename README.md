@@ -142,4 +142,5 @@ pnpm test:e2e      # Run E2E tests (Playwright, dev server auto-starts)
 | `pnpm test:e2e` | Run E2E tests (Playwright) |
 | `pnpm db:generate` | Generate Drizzle migration from schema changes |
 | `pnpm db:migrate` | Apply migrations locally |
-| `pnpm db:reset` | Delete migration history and regenerate from current schema (local only) |
+| `pnpm db:reset` | Clear local DB data and re-apply existing migrations (local only) |
+| `pnpm db:rebuild` | Nuke migration files + local DB and regenerate from current schema (local only) |

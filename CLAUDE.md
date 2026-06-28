@@ -19,7 +19,8 @@ pnpm test:e2e:headed  # Same, with browser visible (debugging)
 
 pnpm db:generate      # Generate Drizzle migration from schema changes
 pnpm db:migrate       # Apply migrations locally
-pnpm db:reset         # Delete migration history and regenerate from current schema (local only, data is lost)
+pnpm db:reset         # Clear local DB data and re-apply existing migrations (local only)
+pnpm db:rebuild       # Nuke migration files + local DB and regenerate from current schema (local only, use after major schema rework)
 ```
 
 ## Architecture
@@ -56,4 +57,4 @@ After making changes, verify in this order:
 - **`.mcp.json`** — MCP servers: `context7` (live docs lookup)
 - **`lefthook.yml`** — Git pre-commit hooks: Biome auto-fix (staged files) + `astro check`, runs in parallel
 - **`.claude/agents/`** — Custom agents: `@code-reviewer`, `@test-writer`, `@db-reviewer`
-- **`.claude/skills/`** — Slash commands: `/db-migrate`, `/db-reset`, `/quality-check [--fix]`, `/new-component <Name> [ui|features]`
+- **`.claude/skills/`** — Slash commands: `/db-migrate`, `/quality-check [--fix]`, `/new-component <Name> [ui|features]`
