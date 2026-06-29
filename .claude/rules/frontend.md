@@ -16,7 +16,7 @@ Aim for premium, modern UI that delights users.
 - **Depth and motion**: Use glassmorphism, subtle borders, appropriate shadows, and opacity to convey depth.
 - **Styling subtlety**: Avoid overly strong rings or borders.
     - **Borders**: Use reduced opacity to blend naturally — e.g. `border: 1px solid hsl(30 12% 86% / 0.3)`.
-    - **Focus rings**: Use `outline: 2px solid hsl(var(--color-ring) / 0.4)` for subtle feedback that doesn't disrupt the design.
+    - **Focus rings**: Use `outline: 2px solid var(--color-ring)` for subtle feedback that doesn't disrupt the design (`--color-ring` already contains the 40% opacity).
 - **Interactions**: Implement feedback for every user action via hover effects and micro-animations (e.g. scale-down on tap).
 - **No placeholders**: When demos or previews are needed, create concrete visuals rather than placeholder content.
 

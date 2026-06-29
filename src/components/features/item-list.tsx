@@ -99,7 +99,7 @@ const ItemList: Component<ItemListProps> = (props) => {
               <Card
                 class={cx(
                   styles.card,
-                  isDeleted(item) ? styles.cardDeleted : undefined,
+                  isDeleted(item) ? styles.cardDeleted : styles.cardInStorage,
                 )}
                 data-testid="item-card"
               >
@@ -113,9 +113,16 @@ const ItemList: Component<ItemListProps> = (props) => {
                   <div class={styles.dateBadge}>
                     {formatDate(item.createdAt)}
                   </div>
-                  <Show when={isDeleted(item)}>
-                    <div class={styles.deletedBadge}>Deleted</div>
-                  </Show>
+                  <div
+                    class={cx(
+                      styles.statusBadge,
+                      isDeleted(item)
+                        ? styles.statusDeleted
+                        : styles.statusInStorage,
+                    )}
+                  >
+                    {isDeleted(item) ? "Deleted" : "In Storage"}
+                  </div>
                 </div>
                 <Show when={item.comment}>
                   <CardContent class={styles.commentContent}>

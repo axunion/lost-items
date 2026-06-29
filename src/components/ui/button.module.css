@@ -4,10 +4,9 @@
   justify-content: center;
   gap: 0.5rem;
   white-space: nowrap;
-  border-radius: 0.75rem;
+  border-radius: var(--radius);
   font-size: 0.875rem;
   font-weight: 500;
-  letter-spacing: 0.025em;
   border: none;
   cursor: pointer;
   transition:
@@ -18,8 +17,8 @@
 }
 
 .base:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 1px hsl(220 12% 28% / 0.4);
+  outline: 2px solid var(--color-ring);
+  outline-offset: 2px;
 }
 
 .base:disabled {
@@ -38,10 +37,10 @@
 .variantDefault {
   background-color: var(--color-primary);
   color: var(--color-primary-foreground);
-  box-shadow: 0 1px 2px hsl(0 0% 0% / 0.05);
+  box-shadow: var(--elevation-1);
 }
 .variantDefault:hover:not(:disabled) {
-  background-color: hsl(220 12% 28% / 0.85);
+  background-color: var(--color-primary-hover);
 }
 
 .variantDestructive {
@@ -49,12 +48,12 @@
   color: var(--color-destructive-foreground);
 }
 .variantDestructive:hover:not(:disabled) {
-  background-color: hsl(4 60% 55% / 0.85);
+  background-color: var(--color-destructive-hover);
 }
 
 .variantOutline {
   background-color: transparent;
-  border: 1px solid hsl(30 10% 88% / 0.6);
+  border: 1px solid var(--color-border-alpha-30);
   color: var(--color-foreground);
 }
 .variantOutline:hover:not(:disabled) {
@@ -67,7 +66,7 @@
   color: var(--color-secondary-foreground);
 }
 .variantSecondary:hover:not(:disabled) {
-  background-color: hsl(30 12% 93% / 0.8);
+  background-color: var(--color-secondary-alpha-80);
 }
 
 .variantGhost {
@@ -86,7 +85,7 @@
   color: var(--color-destructive);
 }
 .variantDestructiveGhost:hover:not(:disabled) {
-  background-color: hsl(4 60% 55% / 0.1);
+  background-color: var(--color-destructive-alpha-10);
   color: var(--color-destructive);
 }
 
@@ -107,9 +106,10 @@
 }
 
 .sizeSm {
-  height: 2.25rem;
+  height: 2rem;
   padding: 0 0.75rem;
-  font-size: 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
 }
 
 .sizeLg {
@@ -117,13 +117,16 @@
   padding: 0 2rem;
 }
 
+/* CTA — 56px, ≥200px wide (DESIGN.md §4.1) */
 .sizeXl {
   height: 3.5rem;
+  min-width: 12.5rem;
   padding: 0 2rem;
-  font-size: 1.125rem;
-  border-radius: 0.75rem;
+  font-size: 1rem;
+  font-weight: 600;
 }
 
+/* Icon button — 44×44px minimum touch target (DESIGN.md §4.1) */
 .sizeIcon {
   width: 2.75rem;
   height: 2.75rem;

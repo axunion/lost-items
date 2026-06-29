@@ -14,5 +14,5 @@
 .button {
   width: 100%;
   font-weight: 700;
-  box-shadow: 0 4px 12px hsl(220 12% 28% / 0.15);
+  box-shadow: var(--elevation-1);
 }

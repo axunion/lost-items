@@ -2,41 +2,102 @@
 @import "@fontsource-variable/noto-sans-jp";
 
 :root {
+  /* Font */
   --font-sans: "Inter Variable", "Noto Sans JP Variable", system-ui, sans-serif;
+  /* === Brand / Action === */
+  --color-primary: hsl(214 90% 48%); /* Trust Blue */
+  --color-primary-hover: hsl(214 90% 42%);
+  --color-primary-subdued: hsl(214 90% 96%);
+  --color-primary-foreground: hsl(0 0% 100%);
 
-  /* Base tokens */
-  --color-app-bg: hsl(35 12% 95%);
-  --color-border: hsl(30 10% 88%);
-  --color-input: hsl(30 10% 88%);
-  --color-ring: hsl(220 12% 28%);
-  --color-background: hsl(40 20% 99%);
-  --color-foreground: hsl(20 10% 12%);
-  --color-primary: hsl(220 12% 28%);
-  --color-primary-foreground: hsl(40 20% 98%);
-  --color-secondary: hsl(30 12% 93%);
-  --color-secondary-foreground: hsl(220 12% 18%);
-  --color-destructive: hsl(4 60% 55%);
-  --color-destructive-foreground: hsl(40 20% 98%);
-  --color-muted: hsl(30 12% 93%);
-  --color-muted-foreground: hsl(20 6% 46%);
-  --color-accent: hsl(150 8% 90%);
-  --color-accent-foreground: hsl(220 12% 18%);
-  --color-card: hsl(40 15% 98%);
-  --color-card-foreground: hsl(20 10% 12%);
+  /* === Semantic === */
+  --color-destructive: hsl(4 70% 52%);
+  --color-destructive-hover: hsl(4 70% 44%);
+  --color-destructive-foreground: hsl(0 0% 100%);
+  --color-destructive-subdued: hsl(4 70% 96%);
 
-  /* Alpha-variant tokens — avoids raw HSL literals in component CSS */
-  --color-background-alpha-85: hsl(40 20% 99% / 0.85);
-  --color-background-alpha-90: hsl(40 20% 99% / 0.9);
-  --color-border-alpha-30: hsl(30 10% 88% / 0.3);
-  --color-border-alpha-40: hsl(30 10% 88% / 0.4);
-  --color-border-alpha-50: hsl(30 10% 88% / 0.5);
-  --color-secondary-alpha-30: hsl(30 12% 93% / 0.3);
-  --color-secondary-alpha-50: hsl(30 12% 93% / 0.5);
-  --color-muted-foreground-alpha-40: hsl(20 6% 46% / 0.4);
-  --color-muted-foreground-alpha-60: hsl(20 6% 46% / 0.6);
-  --color-foreground-alpha-80: hsl(20 10% 12% / 0.8);
-  --color-primary-alpha-90: hsl(220 12% 28% / 0.9);
-  --color-destructive-alpha-90: hsl(4 60% 55% / 0.9);
+  /* === Status — In Storage (amber) === */
+  --color-status-storage: hsl(38 92% 50%);
+  --color-status-storage-foreground: hsl(
+    28 45% 16%
+  ); /* dark — amber requires dark text for WCAG AA */
+  --color-status-storage-subdued: hsl(40 95% 93%);
+
+  /* === Status — Returned (green) — tokens defined; UI awaiting data-model migration === */
+  --color-status-returned: hsl(152 55% 42%);
+  --color-status-returned-foreground: hsl(0 0% 100%);
+  --color-status-returned-subdued: hsl(150 48% 93%);
+  --color-status-returned-text: hsl(152 60% 28%);
+
+  /* === Neutral — Surfaces === */
+  --color-app-bg: hsl(40 24% 96%); /* Page chrome, outer shell */
+  --color-background: hsl(40 30% 99%); /* Card / content background */
+  --color-card: hsl(40 30% 99%);
+  --color-secondary: hsl(
+    40 16% 94%
+  ); /* Section backgrounds, input fill, muted areas */
+  --color-accent: var(--color-secondary); /* alias — same value as secondary */
+
+  /* === Neutral — Text === */
+  --color-foreground: hsl(20 14% 12%); /* Body text — near-black, never #000 */
+  --color-card-foreground: hsl(20 14% 12%);
+  --color-secondary-foreground: hsl(20 14% 12%);
+  --color-accent-foreground: hsl(20 14% 12%);
+  --color-muted-foreground: hsl(20 8% 46%); /* Secondary labels, captions */
+
+  /* === Borders === */
+  --color-border: hsl(30 12% 86%);
+  --color-input: hsl(30 12% 86%);
+
+  /* === Focus ring === */
+  --color-ring: hsl(214 90% 48% / 0.4); /* :focus-visible outline */
+
+  /* === Alpha variants (pre-baked — avoids raw HSL literals in component CSS) === */
+  --color-background-alpha-85: hsl(40 30% 99% / 0.85);
+  --color-background-alpha-90: hsl(40 30% 99% / 0.9);
+
+  --color-border-alpha-30: hsl(30 12% 86% / 0.3);
+  --color-border-alpha-40: hsl(30 12% 86% / 0.4);
+  --color-border-alpha-50: hsl(30 12% 86% / 0.5);
+
+  --color-secondary-alpha-30: hsl(40 16% 94% / 0.3);
+  --color-secondary-alpha-50: hsl(40 16% 94% / 0.5);
+  --color-secondary-alpha-80: hsl(40 16% 94% / 0.8);
+
+  --color-muted-foreground-alpha-40: hsl(20 8% 46% / 0.4);
+  --color-muted-foreground-alpha-60: hsl(20 8% 46% / 0.6);
+
+  --color-foreground-alpha-50: hsl(20 14% 12% / 0.5); /* overlay / scrim */
+  --color-foreground-alpha-80: hsl(20 14% 12% / 0.8);
+  --color-hover-tint: hsl(20 14% 12% / 0.025); /* card hover overlay */
+
+  --color-primary-alpha-90: hsl(214 90% 48% / 0.9);
+
+  --color-destructive-alpha-10: hsl(4 70% 52% / 0.1);
+  --color-destructive-alpha-40: hsl(4 70% 52% / 0.4);
+  --color-destructive-alpha-90: hsl(4 70% 52% / 0.9);
+
+  --color-status-storage-alpha-30: hsl(38 92% 50% / 0.3);
+  --color-status-returned-alpha-30: hsl(152 55% 42% / 0.3);
+
+  /* === Elevation — dual shadow (ambient + key) === */
+  --elevation-1:
+    0 1px 3px 1px hsl(0 0% 0% / 0.1), 0 1px 2px 0 hsl(0 0% 0% / 0.16);
+  --elevation-4:
+    0 4px 8px 3px hsl(0 0% 0% / 0.1), 0 1px 3px 0 hsl(0 0% 0% / 0.16);
+  --elevation-6:
+    0 6px 10px 4px hsl(0 0% 0% / 0.1), 0 2px 3px 0 hsl(0 0% 0% / 0.16);
+
+  /* === Spacing — 4px base === */
+  --space-1: 0.25rem; /* 4px */
+  --space-2: 0.5rem; /* 8px */
+  --space-3: 0.75rem; /* 12px */
+  --space-4: 1rem; /* 16px */
+  --space-6: 1.5rem; /* 24px */
+  --space-8: 2rem; /* 32px */
+
+  /* === Radius === */
+  --radius: 0.75rem; /* 12px — cards, dialogs, main elements */
 }
 
 *,
@@ -47,11 +108,15 @@
 
 html {
   -webkit-tap-highlight-color: transparent;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 body {
   margin: 0;
   font-family: var(--font-sans);
+  font-size: 0.9375rem; /* 15px body */
+  line-height: 1.65;
   background-color: var(--color-app-bg);
   color: var(--color-foreground);
   font-feature-settings: "cv11", "ss01";
