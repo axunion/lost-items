@@ -10,8 +10,8 @@ type EmptyStateProps = {
 
 export const EmptyState: Component<EmptyStateProps> = (props) => (
   <div class={cx(styles.root, props.class)}>
-    <Show when={props.icon !== undefined}>
-      <div class={styles.iconWrapper}>{props.icon}</div>
+    <Show when={props.icon}>
+      {(icon) => <div class={styles.iconWrapper}>{icon()}</div>}
     </Show>
     <p class={styles.message}>{props.message}</p>
   </div>
