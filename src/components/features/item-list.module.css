@@ -24,19 +24,10 @@
 }
 
 .card:hover {
-  /* background-image layers above background-color, so this tint applies
-     over both default and amber (.cardInStorage) cards without replacing them */
   background-image: linear-gradient(
     var(--color-hover-tint),
     var(--color-hover-tint)
   );
-}
-
-/* In Storage — amber tint (non-deleted items). Compound selector wins over
-   Card's .card rule regardless of stylesheet emission order. */
-.card.cardInStorage {
-  background-color: var(--color-status-storage-subdued);
-  border-color: var(--color-status-storage-alpha-30);
 }
 
 /* Deleted — grayed out, awaiting restore */
@@ -45,9 +36,11 @@
   filter: grayscale(1);
 }
 
+.photoFrame {
+  padding: var(--space-2) var(--space-2) var(--space-4);
+}
+
 .imageWrapper {
-  position: relative;
-  overflow: hidden;
   background-color: var(--color-secondary);
   aspect-ratio: 1;
 }
@@ -55,45 +48,37 @@
 .image {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
+  filter: drop-shadow(0 1px 3px hsl(0 0% 0% / 0.2));
 }
 
-/* Status badge — top-left of image overlay */
-.statusBadge {
-  position: absolute;
-  top: var(--space-2);
-  left: var(--space-2);
+.info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  min-height: 4.5rem;
+  border-top: 1px solid var(--color-border-alpha-30);
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.statusIcon {
+  display: inline-flex;
+  flex-shrink: 0;
+  width: 1rem;
+  height: 1rem;
+  color: var(--color-status-returned);
+}
+
+.date {
   font-size: 0.75rem;
-  font-weight: 700;
-  padding: 0.125rem 0.5rem;
-  border-radius: 0.25rem;
-  line-height: 1.6;
-}
-
-.statusInStorage {
-  background-color: var(--color-status-storage);
-  color: var(--color-status-storage-foreground); /* dark — WCAG AA on amber */
-}
-
-.statusDeleted {
-  background-color: var(--color-destructive-alpha-90);
-  color: var(--color-destructive-foreground);
-}
-
-/* Date badge — top-right of image overlay (DESIGN.md §4.4) */
-.dateBadge {
-  position: absolute;
-  top: var(--space-2);
-  right: var(--space-2);
-  background-color: var(--color-background-alpha-90);
-  color: var(--color-foreground);
-  font-size: 0.6875rem;
-  font-weight: 700;
-  padding: 0.125rem 0.375rem;
-  border-radius: 0.25rem;
-  border: 1px solid var(--color-border-alpha-30);
-  box-shadow: 0 1px 2px hsl(0 0% 0% / 0.1);
-  line-height: 1.6;
+  font-weight: 600;
+  color: var(--color-muted-foreground);
 }
 
 .comment {
@@ -112,10 +97,6 @@
   gap: var(--space-1);
   padding: var(--space-2);
   border-top: 1px solid var(--color-border-alpha-30);
-}
-
-.commentContent {
-  padding: var(--space-3);
 }
 
 .editField {

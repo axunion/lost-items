@@ -1,4 +1,10 @@
-import { RotateCcw, Search, SquarePen, Trash2 } from "lucide-solid";
+import {
+  CircleCheck,
+  RotateCcw,
+  Search,
+  SquarePen,
+  Trash2,
+} from "lucide-solid";
 import { type Component, createSignal, For, Show } from "solid-js";
 import {
   deleteItem,
@@ -8,7 +14,7 @@ import {
 } from "~/client/api";
 import { cx, formatDate } from "~/client/utils";
 import { Button } from "~/components/ui/Button";
-import { Card, CardContent } from "~/components/ui/Card";
+import { Card } from "~/components/ui/Card";
 import { ConfirmDialog } from "~/components/ui/confirm-dialog";
 import {
   Dialog,
@@ -97,40 +103,44 @@ const ItemList: Component<ItemListProps> = (props) => {
           <For each={props.items}>
             {(item) => (
               <Card
-                class={cx(
-                  styles.card,
-                  isDeleted(item) ? styles.cardDeleted : styles.cardInStorage,
-                )}
+                class={cx(styles.card, isDeleted(item) && styles.cardDeleted)}
+                style={{ "border-radius": "0.375rem" }}
                 data-testid="item-card"
               >
-                <div class={styles.imageWrapper}>
-                  <img
-                    src={item.imageUrl || "/placeholder.svg"}
-                    alt="Lost Item"
-                    class={styles.image}
-                    loading="lazy"
-                  />
-                  <div class={styles.dateBadge}>
-                    {formatDate(item.createdAt)}
-                  </div>
-                  <div
-                    class={cx(
-                      styles.statusBadge,
-                      isDeleted(item)
-                        ? styles.statusDeleted
-                        : styles.statusInStorage,
-                    )}
-                  >
-                    {isDeleted(item) ? "Deleted" : "In Storage"}
+                <div class={styles.photoFrame}>
+                  <div class={styles.imageWrapper}>
+                    <img
+                      src={item.imageUrl || "/placeholder.svg"}
+                      alt="Lost Item"
+                      class={styles.image}
+                      loading="lazy"
+                    />
                   </div>
                 </div>
-                <Show when={item.comment}>
-                  <CardContent class={styles.commentContent}>
+                <div class={styles.info}>
+                  <div class={styles.meta}>
+                    <Show when={isDeleted(item)}>
+                      <CircleCheck
+                        class={styles.statusIcon}
+                        role="img"
+                        aria-label="Picked up"
+                      />
+                    </Show>
+                    <span class={styles.date}>
+                      {/* year: undefined overrides formatDate's own default to drop it — a lost-and-found board has no use for the year */}
+                      {formatDate(item.createdAt, {
+                        year: undefined,
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </span>
+                  </div>
+                  <Show when={item.comment}>
                     <p class={styles.comment} data-testid="item-comment">
                       {item.comment}
                     </p>
-                  </CardContent>
-                </Show>
+                  </Show>
+                </div>
                 <Show when={!props.readonly}>
                   <div class={styles.actions}>
                     <Show

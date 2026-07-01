@@ -19,9 +19,4 @@ const CardTitle: Component<ComponentProps<"h3">> = (props) => {
   return <h3 class={cx(styles.title, local.class)} {...others} />;
 };
 
-const CardContent: Component<ComponentProps<"div">> = (props) => {
-  const [local, others] = splitProps(props, ["class"]);
-  return <div class={cx(styles.content, local.class)} {...others} />;
-};
-
-export { Card, CardContent, CardHeader, CardTitle };
+export { Card, CardHeader, CardTitle };

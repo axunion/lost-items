@@ -33,14 +33,14 @@ test("API flow: create room → register item → delete → restore → public 
     page.getByTestId("item-card").filter({ hasText: comment }),
   ).toBeVisible();
 
-  // 5. Delete item via API → Deleted badge
+  // 5. Delete item via API → picked-up icon
   const deleteRes = await request.delete(`/api/lists/${id}/items/${itemId}`);
   expect(deleteRes.ok()).toBeTruthy();
 
   await page.reload();
   const itemCard = page.getByTestId("item-card").filter({ hasText: comment });
   await expect(itemCard).toBeVisible();
-  await expect(itemCard.getByText("Deleted")).toBeVisible();
+  await expect(itemCard.getByRole("img", { name: "Picked up" })).toBeVisible();
 
   // 6. Restore item via API
   const restoreRes = await request.post(
