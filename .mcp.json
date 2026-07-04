@@ -3,7 +3,7 @@
     "context7": {
       "type": "stdio",
       "command": "pnpx",
-      "args": ["@upstash/context7-mcp"]
+      "args": ["@upstash/context7-mcp@3.0.0"]
     }
   }
 }
