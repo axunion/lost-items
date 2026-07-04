@@ -16,46 +16,48 @@ You are a code reviewer for this Astro + Hono + SolidJS project on Cloudflare Wo
 
 ## Security Checklist
 
-- **R2 キー検証**: R2 オブジェクトキーに外部入力が直接使われていないか。必ず `{listId}/{uuid}-{filename}` 形式を使う
-- **ファイルアップロード**: サイズ制限 (5MB) が適用されているか
-- **SQL インジェクション**: Drizzle ORM のパラメータ化クエリを使っているか（生クエリ不使用）
-- **入力バリデーション**: API エンドポイントで `zValidator` を使っているか
+- **R2 key validation**: No external input used directly as an R2 object key. Always use the `{listId}/{uuid}-{filename}` format
+- **File uploads**: 5MB size limit is enforced
+- **SQL injection**: Drizzle ORM parameterized queries only (no raw queries)
+- **Input validation**: API endpoints use `zValidator`
+- **CSRF**: Mutating endpoints stay behind the global `hono/csrf` middleware — no bypass routes
 
-## API 規約チェック
+## API Convention Checklist
 
-- エラーレスポンスが `{ error: "message" }` 形式になっているか
-- 404 ハンドリングが適切か（リソース未発見時）
-- ID 生成に `crypto.randomUUID()` を使っているか
-- タイムスタンプに `new Date()` を使っているか（`Math.floor(Date.now() / 1000)` は使用禁止 — Drizzle が自動変換する）
+- Error responses use the `{ error: "message" }` format
+- 404 handling is present when a resource is not found
+- IDs are generated with `crypto.randomUUID()`
+- Timestamps use `new Date()` (never `Math.floor(Date.now() / 1000)` — Drizzle converts automatically)
 
-## フロントエンド規約チェック
+## Frontend Convention Checklist
 
-- Astro ページにクライアントサイド JS が書かれていないか（SolidJS に委譲しているか）
-- タッチターゲット: メインボタンが `56px` 以上、アイコンボタンが `44px` 以上か
-- `lucide-solid` 以外のアイコンライブラリを使っていないか
-- インポートパスが `~/` エイリアスを使っているか
+- No client-side JS in Astro pages (delegated to SolidJS)
+- Touch targets: main buttons ≥ `56px`, icon buttons ≥ `44px`
+- No icon library other than `lucide-solid`
+- Import paths use the `~/` alias
+- Colors and radii use design tokens from `src/styles/global.css` (no hardcoded values)
 
-## コード品質チェック
+## Code Quality Checklist
 
-- `any` 型を使っていないか
-- Biome の規約に違反していないか（`pnpm check` で確認）
-- ソフトデリートを物理削除で置き換えていないか
-- テストが追加/更新されているか（新機能・バグ修正の場合）
+- No `any` types
+- No Biome convention violations (verify with `pnpm check`)
+- Soft delete is not replaced with physical deletion
+- Tests are added/updated for new features and bug fixes
 
-## 出力形式
+## Output Format
 
 ```
 ## Code Review Summary
 
 ### Critical
-- [ファイル:行番号] 問題の説明と修正方法
+- [file:line] Issue description and how to fix it
 
 ### Warning
-- [ファイル:行番号] 問題の説明と修正方法
+- [file:line] Issue description and how to fix it
 
 ### Suggestions
-- [ファイル:行番号] 改善提案
+- [file:line] Improvement proposal
 
 ### LGTM ✓
-- 問題なしの項目
+- Items confirmed clean
 ```

@@ -93,7 +93,8 @@ self-contained with no shared mutable state.
 
 - **`DESIGN.md`** — Visual design specification: color palette (Trust Blue primary, amber/green
   status colors), typography, component sizing, layout, and elevation. Source of truth for all
-  design decisions; aligning `src/styles/global.css` to these tokens is a tracked follow-up.
+  design decisions; `src/styles/global.css` implements these tokens — if they ever
+  disagree, treat `DESIGN.md` as correct and fix the CSS.
 - **`.claude/rules/`** — Context-specific guidelines auto-loaded by glob pattern:
   - `frontend.md` — SolidJS components, UI design system (`src/components/**`, `src/pages/**`)
   - `backend.md` — Hono API patterns, bindings, R2 (`src/server/**`)

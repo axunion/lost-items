@@ -48,6 +48,13 @@ app.post(
 );
 ```
 
+### CSRF Guard
+
+The API app applies `csrf()` from `hono/csrf` globally (`src/server/index.ts`). Mutating
+requests (POST/PATCH/DELETE) are rejected with 403 unless the `origin` header matches the
+site origin — this is why E2E tests and non-browser clients must set an explicit
+`origin` header (see testing.md).
+
 ### Error Response Format
 
 Always return errors in `{ error: "message" }` format:

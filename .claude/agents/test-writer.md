@@ -19,47 +19,45 @@ You are a test writer for this Astro + Hono + SolidJS project. Analyze the sourc
 
 ## Pattern: Hono Route Tests
 
-Use `vi.hoisted` + `vi.mock` for DB mocking, then test via `route.request()`:
+`src/server/routes/lists.test.ts` is the reference implementation — reuse its
+`setupDbMock()` / `createEnv()` helpers as the template. Mock `createDb` with
+`vi.hoisted` + `vi.mock`, then test via `route.request(path, init, env)`. The DB mock
+is queue-based (`enqueueOne` for `.get()`, `enqueueMany` for awaited arrays), not a
+chainable `mockReturnThis()` object.
 
 ```typescript
-import { describe, test, expect, vi, beforeEach } from "vitest";
+// @vitest-environment node
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { mockDb } = vi.hoisted(() => {
-  const chain = {
-    select: vi.fn().mockReturnThis(),
-    from: vi.fn().mockReturnThis(),
-    where: vi.fn().mockReturnThis(),
-    limit: vi.fn().mockReturnThis(),
-    orderBy: vi.fn().mockReturnThis(),
-    insert: vi.fn().mockReturnThis(),
-    values: vi.fn().mockReturnThis(),
-    update: vi.fn().mockReturnThis(),
-    set: vi.fn().mockReturnThis(),
-    returning: vi.fn().mockResolvedValue([]),
-    execute: vi.fn().mockResolvedValue([]),
-  };
-  return { mockDb: chain };
-});
+const createDbMock = vi.hoisted(() => vi.fn());
 
-vi.mock("../db", () => ({ createDb: vi.fn(() => mockDb) }));
+vi.mock("../db", () => ({ createDb: createDbMock }));
 
-import { app } from "./your-route";
+import { listsRoute } from "./lists"; // routes are named exports, not `app`
 
-describe("GET /resource", () => {
+describe("GET /", () => {
   beforeEach(() => vi.clearAllMocks());
 
-  test("returns list", async () => {
-    mockDb.execute.mockResolvedValueOnce([{ id: "1", name: "Test" }]);
-    const res = await app.request("/resource");
+  it("returns lists", async () => {
+    const { db, enqueueMany } = setupDbMock(); // copy helper from lists.test.ts
+    createDbMock.mockReturnValue(db);
+    enqueueMany([{ id: "1", name: "Test" }]);
+
+    const res = await listsRoute.request("/", { method: "GET" }, createEnv());
+
     expect(res.status).toBe(200);
-    expect(await res.json()).toEqual([{ id: "1", name: "Test" }]);
+    await expect(res.json()).resolves.toEqual([{ id: "1", name: "Test" }]);
   });
 
-  test("returns 404 when not found", async () => {
-    mockDb.execute.mockResolvedValueOnce([]);
-    const res = await app.request("/resource/nonexistent");
+  it("returns 404 when not found", async () => {
+    const { db, enqueueOne } = setupDbMock();
+    createDbMock.mockReturnValue(db);
+    enqueueOne(undefined);
+
+    const res = await listsRoute.request("/nonexistent", { method: "GET" }, createEnv());
+
     expect(res.status).toBe(404);
-    expect(await res.json()).toEqual({ error: expect.any(String) });
+    await expect(res.json()).resolves.toEqual({ error: expect.any(String) });
   });
 });
 ```
@@ -68,16 +66,16 @@ describe("GET /resource", () => {
 
 ```typescript
 import { render, screen, fireEvent } from "@solidjs/testing-library";
-import { describe, test, expect, vi } from "vitest";
-import { MyComponent } from "./MyComponent";
+import { describe, expect, it, vi } from "vitest";
+import MyComponent from "./my-component"; // features use default exports
 
 describe("MyComponent", () => {
-  test("renders with props", () => {
+  it("renders with props", () => {
     render(() => <MyComponent title="Test Title" />);
     expect(screen.getByText("Test Title")).toBeInTheDocument();
   });
 
-  test("calls handler on click", async () => {
+  it("calls handler on click", async () => {
     const onSave = vi.fn();
     render(() => <MyComponent onSave={onSave} />);
     fireEvent.click(screen.getByRole("button", { name: /save/i }));
@@ -86,18 +84,21 @@ describe("MyComponent", () => {
 });
 ```
 
+Kobalte caveat: DropdownMenu triggers open on `pointerDown` and menu items fire
+`onSelect` on `pointerUp` — plain `click` does not work (see `history-list.test.tsx`).
+
 ## Pattern: Utility Tests
 
 ```typescript
-import { describe, test, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { myUtil } from "./utils";
 
 describe("myUtil", () => {
-  test("handles normal input", () => {
+  it("handles normal input", () => {
     expect(myUtil("input")).toBe("expected");
   });
 
-  test("handles edge case", () => {
+  it("handles edge case", () => {
     expect(myUtil("")).toBe("");
   });
 });
@@ -106,6 +107,6 @@ describe("myUtil", () => {
 ## Test File Location
 
 - Source: `src/server/routes/lists.ts` → Test: `src/server/routes/lists.test.ts`
-- Source: `src/components/features/Dashboard.tsx` → Test: `src/components/features/Dashboard.test.tsx`
-- Source: `src/lib/utils.ts` → Test: `src/lib/utils.test.ts`
+- Source: `src/components/features/dashboard.tsx` → Test: `src/components/features/dashboard.test.tsx`
+- Source: `src/client/utils.ts` → Test: `src/client/utils.test.ts`
 - E2E only: `tests/e2e/*.spec.ts`
