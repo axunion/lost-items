@@ -23,9 +23,10 @@ const RoomCreateForm: Component<RoomCreateFormProps> = (props) => {
     setIsSubmitting(true);
 
     try {
-      const { id } = await createList(currentName);
+      const { id, publicId } = await createList(currentName);
       props.onCreated?.({
         id,
+        publicId,
         name: currentName,
         createdAt: new Date(),
       });

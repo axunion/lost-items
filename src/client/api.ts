@@ -9,6 +9,7 @@ export type Item = {
 
 export type List = {
   id: string;
+  publicId: string;
   name: string | null;
   createdAt: string | Date;
 };
@@ -49,7 +50,9 @@ export const getItems = async (
   return await res.json();
 };
 
-export const createList = async (name: string): Promise<{ id: string }> => {
+export const createList = async (
+  name: string,
+): Promise<{ id: string; publicId: string }> => {
   const res = await fetch("/api/lists", {
     method: "POST",
     headers: { "Content-Type": "application/json" },

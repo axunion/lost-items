@@ -11,6 +11,9 @@ CREATE TABLE `items` (
 CREATE INDEX `items_list_id_idx` ON `items` (`list_id`);--> statement-breakpoint
 CREATE TABLE `lists` (
 	`id` text PRIMARY KEY NOT NULL,
+	`public_id` text NOT NULL,
 	`created_at` integer NOT NULL,
 	`name` text
 );
+--> statement-breakpoint
+CREATE UNIQUE INDEX `lists_public_id_unique` ON `lists` (`public_id`);

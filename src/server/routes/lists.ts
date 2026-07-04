@@ -4,6 +4,7 @@ import { Hono } from "hono";
 import type { Bindings } from "../bindings";
 import { createDb } from "../db";
 import { items, lists } from "../db/schema";
+import { withImageUrl } from "../images";
 import {
   addItemSchema,
   createListSchema,
@@ -13,30 +14,42 @@ import {
 
 export const listsRoute = new Hono<{ Bindings: Bindings }>();
 
-function imageUrl(key: string | null | undefined): string | null {
-  return key ? `/api/images/${key}` : null;
-}
+// Raster image types only. SVG is excluded on purpose: it can carry inline
+// scripts and, served same-origin by imagesRoute, would be a stored XSS vector.
+const ALLOWED_IMAGE_TYPES = new Set([
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/gif",
+]);
 
-// Get all lists
-listsRoute.get("/", async (c) => {
-  const db = createDb(c.env.DB);
-  const result = await db.select().from(lists).orderBy(desc(lists.createdAt));
-  return c.json(result);
-});
+type Db = ReturnType<typeof createDb>;
+
+const findList = (db: Db, id: string) =>
+  db.select().from(lists).where(eq(lists.id, id)).get();
+
+const findItem = (db: Db, listId: string, itemId: string) =>
+  db
+    .select()
+    .from(items)
+    .where(and(eq(items.id, itemId), eq(items.listId, listId)))
+    .get();
 
 // Create a new list
 listsRoute.post("/", zValidator("json", createListSchema), async (c) => {
   const { name } = c.req.valid("json");
   const id = crypto.randomUUID();
+  const publicId = crypto.randomUUID();
   const db = createDb(c.env.DB);
 
   await db.insert(lists).values({
     id,
+    publicId,
     name: name || null,
     createdAt: new Date(),
   });
 
-  return c.json({ id });
+  return c.json({ id, publicId });
 });
 
 // Get a list by ID
@@ -44,7 +57,7 @@ listsRoute.get("/:id", async (c) => {
   const id = c.req.param("id");
   const db = createDb(c.env.DB);
 
-  const result = await db.select().from(lists).where(eq(lists.id, id)).get();
+  const result = await findList(db, id);
 
   if (!result) {
     return c.json({ error: "List not found" }, 404);
@@ -59,7 +72,7 @@ listsRoute.patch("/:id", zValidator("json", renameListSchema), async (c) => {
   const { name } = c.req.valid("json");
   const db = createDb(c.env.DB);
 
-  const existing = await db.select().from(lists).where(eq(lists.id, id)).get();
+  const existing = await findList(db, id);
 
   if (!existing) {
     return c.json({ error: "List not found" }, 404);
@@ -75,17 +88,15 @@ listsRoute.delete("/:id", async (c) => {
   const id = c.req.param("id");
   const db = createDb(c.env.DB);
 
-  const existing = await db.select().from(lists).where(eq(lists.id, id)).get();
+  // Both queries key on the same id and are independent — run them together.
+  const [existing, itemsToDelete] = await Promise.all([
+    findList(db, id),
+    db.select().from(items).where(eq(items.listId, id)),
+  ]);
 
   if (!existing) {
     return c.json({ error: "List not found" }, 404);
   }
-
-  // Get items to clean up R2 images
-  const itemsToDelete = await db
-    .select()
-    .from(items)
-    .where(eq(items.listId, id));
 
   // Delete images from R2 — failures are logged and non-fatal so the DB transaction still runs.
   // Log the specific key on failure so orphaned objects can be identified and cleaned up manually.
@@ -127,12 +138,7 @@ listsRoute.get("/:id/items", async (c) => {
     .where(condition)
     .orderBy(desc(items.createdAt));
 
-  return c.json(
-    result.map(({ imageKey, ...rest }) => ({
-      ...rest,
-      imageUrl: imageUrl(imageKey),
-    })),
-  );
+  return c.json(result.map(withImageUrl));
 });
 
 // Add item to a list
@@ -141,7 +147,7 @@ listsRoute.post("/:id/items", zValidator("form", addItemSchema), async (c) => {
   const db = createDb(c.env.DB);
   const { comment, image } = c.req.valid("form");
 
-  const list = await db.select().from(lists).where(eq(lists.id, listId)).get();
+  const list = await findList(db, listId);
 
   if (!list) {
     return c.json({ error: "List not found" }, 404);
@@ -150,7 +156,7 @@ listsRoute.post("/:id/items", zValidator("form", addItemSchema), async (c) => {
   let itemImageKey: string | undefined;
 
   if (image && image.size > 0) {
-    if (!image.type.startsWith("image/")) {
+    if (!ALLOWED_IMAGE_TYPES.has(image.type)) {
       return c.json({ error: "Invalid file type" }, 400);
     }
     if (image.size > 5 * 1024 * 1024) {
@@ -176,14 +182,7 @@ listsRoute.post("/:id/items", zValidator("form", addItemSchema), async (c) => {
 
   await db.insert(items).values(newItem);
 
-  return c.json({
-    id: newItem.id,
-    listId: newItem.listId,
-    comment: newItem.comment,
-    imageUrl: imageUrl(itemImageKey),
-    createdAt: newItem.createdAt,
-    deletedAt: null,
-  });
+  return c.json({ ...withImageUrl(newItem), deletedAt: null });
 });
 
 // Update item comment
@@ -196,11 +195,7 @@ listsRoute.patch(
     const { comment } = c.req.valid("json");
     const db = createDb(c.env.DB);
 
-    const existing = await db
-      .select()
-      .from(items)
-      .where(and(eq(items.id, itemId), eq(items.listId, listId)))
-      .get();
+    const existing = await findItem(db, listId, itemId);
 
     if (!existing) {
       return c.json({ error: "Item not found" }, 404);
@@ -208,14 +203,7 @@ listsRoute.patch(
 
     await db.update(items).set({ comment }).where(eq(items.id, itemId));
 
-    return c.json({
-      id: existing.id,
-      listId: existing.listId,
-      comment,
-      imageUrl: imageUrl(existing.imageKey),
-      createdAt: existing.createdAt,
-      deletedAt: existing.deletedAt,
-    });
+    return c.json({ ...withImageUrl(existing), comment });
   },
 );
 
@@ -225,11 +213,7 @@ listsRoute.delete("/:id/items/:itemId", async (c) => {
   const itemId = c.req.param("itemId");
   const db = createDb(c.env.DB);
 
-  const existing = await db
-    .select()
-    .from(items)
-    .where(and(eq(items.id, itemId), eq(items.listId, listId)))
-    .get();
+  const existing = await findItem(db, listId, itemId);
 
   if (!existing) {
     return c.json({ error: "Item not found" }, 404);
@@ -249,11 +233,7 @@ listsRoute.post("/:id/items/:itemId/restore", async (c) => {
   const itemId = c.req.param("itemId");
   const db = createDb(c.env.DB);
 
-  const existing = await db
-    .select()
-    .from(items)
-    .where(and(eq(items.id, itemId), eq(items.listId, listId)))
-    .get();
+  const existing = await findItem(db, listId, itemId);
 
   if (!existing) {
     return c.json({ error: "Item not found" }, 404);

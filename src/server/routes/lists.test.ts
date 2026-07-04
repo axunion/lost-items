@@ -112,36 +112,6 @@ describe("listsRoute", () => {
     vi.clearAllMocks();
   });
 
-  // ─── GET / ───────────────────────────────────────────────────────────────
-
-  describe("GET /", () => {
-    it("returns empty array when no lists exist", async () => {
-      const { db, enqueueMany } = setupDbMock();
-      createDbMock.mockReturnValue(db);
-      enqueueMany([]);
-
-      const res = await listsRoute.request("/", { method: "GET" }, createEnv());
-
-      expect(res.status).toBe(200);
-      await expect(res.json()).resolves.toEqual([]);
-    });
-
-    it("returns all lists", async () => {
-      const { db, enqueueMany } = setupDbMock();
-      createDbMock.mockReturnValue(db);
-      const lists = [
-        { id: "a", name: "Alpha", createdAt: "2023-01-01T00:00:00.000Z" },
-        { id: "b", name: "Beta", createdAt: "2023-01-02T00:00:00.000Z" },
-      ];
-      enqueueMany(lists);
-
-      const res = await listsRoute.request("/", { method: "GET" }, createEnv());
-
-      expect(res.status).toBe(200);
-      await expect(res.json()).resolves.toEqual(lists);
-    });
-  });
-
   // ─── POST / ──────────────────────────────────────────────────────────────
 
   describe("POST /", () => {
@@ -160,10 +130,13 @@ describe("listsRoute", () => {
       );
 
       expect(res.status).toBe(200);
-      const body = (await res.json()) as { id: string };
+      const body = (await res.json()) as { id: string; publicId: string };
       expect(body.id).toMatch(UUID_PATTERN);
+      // publicId is a distinct token from the admin id (finding: access separation)
+      expect(body.publicId).toMatch(UUID_PATTERN);
+      expect(body.publicId).not.toBe(body.id);
       expect(insertValues).toHaveBeenCalledWith(
-        expect.objectContaining({ name: "Test Room" }),
+        expect.objectContaining({ name: "Test Room", publicId: body.publicId }),
       );
     });
 
@@ -519,6 +492,32 @@ describe("listsRoute", () => {
       formData.append(
         "image",
         new File(["hello"], "note.txt", { type: "text/plain" }),
+      );
+
+      const res = await listsRoute.request(
+        "/list-1/items",
+        { method: "POST", body: formData },
+        env,
+      );
+
+      expect(res.status).toBe(400);
+      await expect(res.json()).resolves.toEqual({ error: "Invalid file type" });
+      expect(env.BUCKET.put).not.toHaveBeenCalled();
+      expect(insertValues).not.toHaveBeenCalled();
+    });
+
+    it("rejects SVG uploads with 400 (stored XSS vector)", async () => {
+      const { db, enqueueOne, insertValues } = setupDbMock();
+      createDbMock.mockReturnValue(db);
+      enqueueOne({ id: "list-1" });
+      const env = createEnv();
+
+      const formData = new FormData();
+      formData.append(
+        "image",
+        new File(["<svg onload=alert(1)>"], "x.svg", {
+          type: "image/svg+xml",
+        }),
       );
 
       const res = await listsRoute.request(

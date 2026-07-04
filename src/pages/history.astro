@@ -9,7 +9,13 @@ import { createDb } from "~/server/db";
 import { lists } from "~/server/db/schema";
 
 const db = createDb((env as Bindings).DB);
-const allLists = await db.select().from(lists).orderBy(desc(lists.createdAt));
+// Bounds the SSR query cost; no pagination UI exists yet, so rooms beyond
+// the 100 most recent won't appear here until pagination is added.
+const allLists = await db
+  .select()
+  .from(lists)
+  .orderBy(desc(lists.createdAt))
+  .limit(100);
 ---
 
 <Layout title="History">

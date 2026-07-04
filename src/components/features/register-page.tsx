@@ -1,8 +1,7 @@
 import { type Component, createSignal } from "solid-js";
-import { getItems, type Item } from "~/client/api";
+import type { Item } from "~/client/api";
 import ItemList from "~/components/features/item-list";
 import RegisterForm from "~/components/features/register-form";
-import { showToast } from "~/components/ui/toast";
 import styles from "./register-page.module.css";
 
 type RegisterPageProps = {
@@ -13,18 +12,16 @@ type RegisterPageProps = {
 const RegisterPage: Component<RegisterPageProps> = (props) => {
   const [items, setItems] = createSignal<Item[]>(props.items);
 
-  const refreshItems = async () => {
-    try {
-      const latest = await getItems(props.listId, { includeDeleted: true });
-      setItems(latest);
-    } catch (error) {
-      console.error("Failed to refresh items:", error);
-      showToast("Failed to refresh items", "error");
-    }
-  };
-
   const handleCreated = (item: Item) => {
     setItems((prev) => [item, ...prev]);
+  };
+
+  // Mutations return the updated item, so patch it in place instead of
+  // re-fetching the whole list on every edit/delete/restore.
+  const handleItemUpdated = (updated: Item) => {
+    setItems((prev) =>
+      prev.map((item) => (item.id === updated.id ? updated : item)),
+    );
   };
 
   return (
@@ -35,7 +32,7 @@ const RegisterPage: Component<RegisterPageProps> = (props) => {
         <ItemList
           items={items()}
           listId={props.listId}
-          onItemUpdated={refreshItems}
+          onItemUpdated={handleItemUpdated}
         />
       </div>
     </main>

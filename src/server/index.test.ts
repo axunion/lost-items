@@ -12,7 +12,7 @@ import app from "./index";
 
 describe("app onError handler", () => {
   it("returns 500 JSON when a route handler throws", async () => {
-    const res = await app.request("/api/lists", { method: "GET" });
+    const res = await app.request("/api/lists/some-id", { method: "GET" });
 
     expect(res.status).toBe(500);
     await expect(res.json()).resolves.toEqual({

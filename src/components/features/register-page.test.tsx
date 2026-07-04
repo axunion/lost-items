@@ -4,7 +4,6 @@ import * as api from "~/client/api";
 import RegisterPage from "./register-page";
 
 vi.mock("~/client/api", () => ({
-  getItems: vi.fn(),
   addItem: vi.fn(),
   updateItemComment: vi.fn(),
   deleteItem: vi.fn(),
@@ -18,8 +17,6 @@ vi.mock("~/components/ui/toast", () => ({
 vi.mock("~/client/image-utils", () => ({
   compressImage: vi.fn(),
 }));
-
-import { showToast } from "~/components/ui/toast";
 
 const makeItem = (id: string, comment = `item ${id}`): api.Item => ({
   id,
@@ -65,49 +62,45 @@ describe("RegisterPage", () => {
     expect(screen.getByText("Existing item")).toBeInTheDocument();
   });
 
-  it("calls getItems and replaces state on refreshItems (onItemUpdated)", async () => {
-    vi.mocked(api.getItems).mockResolvedValue([
-      makeItem("fresh", "Fresh item"),
-    ]);
+  it("marks item as picked up in place on delete without re-fetching", async () => {
     vi.mocked(api.deleteItem).mockResolvedValue(undefined);
 
     const initialItems = [makeItem("a", "Old item")];
     render(() => <RegisterPage listId="list-1" items={initialItems} />);
 
-    // Trigger onItemUpdated via the delete flow
+    // Delete flow updates the item in place: it stays visible with the
+    // picked-up icon and a Restore button, no full-list re-fetch.
     fireEvent.click(screen.getByRole("button", { name: "Delete item" }));
     const confirmBtn = await screen.findByRole("button", { name: "Delete" });
     fireEvent.click(confirmBtn);
 
     await waitFor(() => {
-      expect(api.getItems).toHaveBeenCalledWith("list-1", {
-        includeDeleted: true,
-      });
+      expect(api.deleteItem).toHaveBeenCalledWith("list-1", "a");
     });
     await waitFor(() => {
-      expect(screen.getByText("Fresh item")).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: "Restore item" }),
+      ).toBeInTheDocument();
     });
+    expect(screen.getByText("Old item")).toBeInTheDocument();
   });
 
-  it("shows error toast and keeps items unchanged when getItems fails", async () => {
-    vi.spyOn(console, "error").mockImplementation(() => {});
-    vi.mocked(api.getItems).mockRejectedValue(new Error("network error"));
-    vi.mocked(api.deleteItem).mockResolvedValue(undefined);
+  it("replaces item comment in place after a successful edit", async () => {
+    vi.mocked(api.updateItemComment).mockResolvedValue(
+      makeItem("a", "Edited comment"),
+    );
 
-    const initialItems = [makeItem("a", "Keep me")];
+    const initialItems = [makeItem("a", "Original comment")];
     render(() => <RegisterPage listId="list-1" items={initialItems} />);
 
-    fireEvent.click(screen.getByRole("button", { name: "Delete item" }));
-    const confirmBtn = await screen.findByRole("button", { name: "Delete" });
-    fireEvent.click(confirmBtn);
+    fireEvent.click(screen.getByRole("button", { name: "Edit item" }));
+    const textarea = await screen.findByPlaceholderText("Enter comment...");
+    fireEvent.input(textarea, { target: { value: "Edited comment" } });
+    fireEvent.click(screen.getByRole("button", { name: "Save" }));
 
     await waitFor(() => {
-      expect(showToast).toHaveBeenCalledWith(
-        "Failed to refresh items",
-        "error",
-      );
+      expect(screen.getByText("Edited comment")).toBeInTheDocument();
     });
-    // Previous items remain visible
-    expect(screen.getByText("Keep me")).toBeInTheDocument();
+    expect(screen.queryByText("Original comment")).not.toBeInTheDocument();
   });
 });

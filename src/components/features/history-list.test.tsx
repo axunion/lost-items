@@ -14,6 +14,7 @@ const makeList = (
   name: string | null = `Room ${id}`,
 ): api.List => ({
   id,
+  publicId: `public-${id}`,
   name,
   createdAt: "2023-01-01T00:00:00.000Z",
 });
@@ -207,6 +208,36 @@ describe("HistoryList", () => {
 
     expect(openMock).toHaveBeenCalledWith(
       expect.stringContaining("/a/"),
+      "_blank",
+      "noopener,noreferrer",
+    );
+
+    vi.unstubAllGlobals();
+  });
+
+  it("uses the admin id for the register link and publicId for the room link", async () => {
+    const openMock = vi.fn();
+    vi.stubGlobal("open", openMock);
+    render(() => (
+      <HistoryList lists={[makeList("a")]} origin="http://localhost:4321" />
+    ));
+
+    // Registration Open Page (first group) → admin id
+    openDropdown(screen.getAllByRole("button")[0]);
+    let openPageItems = await screen.findAllByText("Open Page");
+    selectMenuItem(openPageItems[0]);
+    expect(openMock).toHaveBeenLastCalledWith(
+      "/a/register",
+      "_blank",
+      "noopener,noreferrer",
+    );
+
+    // Public Room Open Page (second group) → publicId, never the admin id
+    openDropdown(screen.getAllByRole("button")[0]);
+    openPageItems = await screen.findAllByText("Open Page");
+    selectMenuItem(openPageItems[1]);
+    expect(openMock).toHaveBeenLastCalledWith(
+      "/public-a/room",
       "_blank",
       "noopener,noreferrer",
     );

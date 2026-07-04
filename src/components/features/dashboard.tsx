@@ -23,10 +23,7 @@ const Dashboard: Component<DashboardProps> = (props) => {
 
       <div class={styles.recentSection}>
         <div class={styles.recentHeader}>
-          <div class={styles.recentTitle}>
-            <Clock class={styles.recentIcon} />
-            <span>Recent</span>
-          </div>
+          <SectionHeader icon={<Clock />}>Recent</SectionHeader>
           <a href="/history" class={styles.allLink}>
             All
             <ChevronRight class={styles.allLinkIcon} />

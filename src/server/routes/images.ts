@@ -16,7 +16,11 @@ imagesRoute.get("/:key{.+}", async (c) => {
     return c.json({ error: "Invalid key format" }, 400);
   }
 
-  const object = await c.env.BUCKET.get(key);
+  // Keys are immutable (UUID-based), so honor conditional requests: when the
+  // client's If-None-Match matches, R2 returns no body and we reply 304.
+  const object = await c.env.BUCKET.get(key, {
+    onlyIf: c.req.raw.headers,
+  });
 
   if (!object) {
     return c.json({ error: "Image not found" }, 404);
@@ -24,7 +28,17 @@ imagesRoute.get("/:key{.+}", async (c) => {
 
   const headers = new Headers();
   headers.set("Content-Type", object.httpMetadata?.contentType || "image/jpeg");
-  headers.set("Cache-Control", "public, max-age=31536000");
+  headers.set("Cache-Control", "public, max-age=31536000, immutable");
+  // Prevent the browser from MIME-sniffing a stored file into an executable type.
+  headers.set("X-Content-Type-Options", "nosniff");
+  if (object.httpEtag) {
+    headers.set("ETag", object.httpEtag);
+  }
+
+  // R2 omits the body when a conditional (onlyIf) precondition fails.
+  if (!("body" in object)) {
+    return new Response(null, { status: 304, headers });
+  }
 
   return new Response(object.body, { headers });
 });

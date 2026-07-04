@@ -10,7 +10,10 @@ test("API flow: create room → register item → delete → restore → public 
     data: { name: roomName },
   });
   expect(createRes.ok()).toBeTruthy();
-  const { id } = (await createRes.json()) as { id: string };
+  const { id, publicId } = (await createRes.json()) as {
+    id: string;
+    publicId: string;
+  };
 
   // 2. Verify room appears on dashboard (SSR)
   await page.goto("/");
@@ -48,8 +51,8 @@ test("API flow: create room → register item → delete → restore → public 
   );
   expect(restoreRes.ok()).toBeTruthy();
 
-  // 7. Public room page is read-only
-  await page.goto(`/${id}/room`);
+  // 7. Public room page is read-only (reached via the separate publicId)
+  await page.goto(`/${publicId}/room`);
   await expect(
     page.getByTestId("item-card").filter({ hasText: comment }),
   ).toBeVisible();

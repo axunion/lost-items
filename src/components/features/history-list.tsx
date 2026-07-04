@@ -17,6 +17,7 @@ import {
 } from "~/components/ui/dialog";
 import { EmptyState } from "~/components/ui/empty-state";
 import { TextField, TextFieldInput } from "~/components/ui/text-field";
+import { showToast } from "~/components/ui/toast";
 import styles from "./history-list.module.css";
 import { HistoryListItem } from "./history-list-item";
 
@@ -77,6 +78,7 @@ const HistoryList: Component<HistoryListProps> = (props) => {
       setListNames((prev) => ({ ...prev, [id]: newName }));
     } catch (error) {
       console.error("Failed to update name:", error);
+      showToast("Failed to update name", "error");
     }
     closeEditDialog();
   };
@@ -90,15 +92,22 @@ const HistoryList: Component<HistoryListProps> = (props) => {
       setLocalLists((prev) => prev.filter((item) => item.id !== id));
     } catch (error) {
       console.error("Failed to delete:", error);
+      showToast("Failed to delete", "error");
     }
     setDeletingId(null);
   };
 
   const handleCopy = (url: string) => {
-    navigator.clipboard.writeText(url).then(() => {
-      setCopiedUrl(url);
-      setTimeout(() => setCopiedUrl(null), 2000);
-    });
+    navigator.clipboard
+      .writeText(url)
+      .then(() => {
+        setCopiedUrl(url);
+        setTimeout(() => setCopiedUrl(null), 2000);
+      })
+      .catch((error) => {
+        console.error("Failed to copy URL:", error);
+        showToast("Failed to copy URL", "error");
+      });
   };
 
   const handleOpenPage = (path: string) => {

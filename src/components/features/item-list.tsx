@@ -35,7 +35,7 @@ import styles from "./item-list.module.css";
 type ItemListProps = {
   items: Item[];
   listId: string;
-  onItemUpdated?: () => void;
+  onItemUpdated?: (item: Item) => void;
   readonly?: boolean;
 };
 
@@ -56,9 +56,13 @@ const ItemList: Component<ItemListProps> = (props) => {
 
     setIsSubmitting(true);
     try {
-      await updateItemComment(props.listId, item.id, editComment());
+      const updated = await updateItemComment(
+        props.listId,
+        item.id,
+        editComment(),
+      );
       setEditingItem(null);
-      props.onItemUpdated?.();
+      props.onItemUpdated?.(updated);
     } catch (error) {
       console.error("Failed to update comment:", error);
       showToast("Failed to update comment", "error");
@@ -74,7 +78,7 @@ const ItemList: Component<ItemListProps> = (props) => {
     try {
       await deleteItem(props.listId, item.id);
       setDeletingItem(null);
-      props.onItemUpdated?.();
+      props.onItemUpdated?.({ ...item, deletedAt: new Date().toISOString() });
     } catch (error) {
       console.error("Failed to delete item:", error);
       showToast("Failed to delete", "error");
@@ -84,7 +88,7 @@ const ItemList: Component<ItemListProps> = (props) => {
   const handleRestore = async (item: Item) => {
     try {
       await restoreItem(props.listId, item.id);
-      props.onItemUpdated?.();
+      props.onItemUpdated?.({ ...item, deletedAt: null });
     } catch (error) {
       console.error("Failed to restore item:", error);
       showToast("Failed to restore", "error");

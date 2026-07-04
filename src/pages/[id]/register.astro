@@ -7,25 +7,25 @@ import Layout from "~/layouts/layout.astro";
 import type { Bindings } from "~/server/bindings";
 import { createDb } from "~/server/db";
 import { items, lists } from "~/server/db/schema";
+import { withImageUrl } from "~/server/images";
 
 const { id = "" } = Astro.params;
 const db = createDb((env as Bindings).DB);
 
-const list = await db.select().from(lists).where(eq(lists.id, id)).get();
+// Both queries key on the same id and are independent — run them together.
+const [list, rawItems] = await Promise.all([
+  db.select().from(lists).where(eq(lists.id, id)).get(),
+  db
+    .select()
+    .from(items)
+    .where(eq(items.listId, id))
+    .orderBy(desc(items.createdAt)),
+]);
 if (!list) {
   return Astro.redirect("/");
 }
 
-const rawItems = await db
-  .select()
-  .from(items)
-  .where(eq(items.listId, id))
-  .orderBy(desc(items.createdAt));
-
-const itemList = rawItems.map(({ imageKey, ...rest }) => ({
-  ...rest,
-  imageUrl: imageKey ? `/api/images/${imageKey}` : null,
-}));
+const itemList = rawItems.map(withImageUrl);
 
 const title = list.name || "Register Item";
 ---

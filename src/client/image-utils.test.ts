@@ -4,11 +4,9 @@ import { compressImage } from "./image-utils";
 describe("image-utils", () => {
   describe("compressImage", () => {
     let originalImage: typeof Image;
-    let originalFileReader: typeof FileReader;
 
     beforeEach(() => {
       originalImage = global.Image;
-      originalFileReader = global.FileReader;
 
       // Default mock: 2000x2000 image
       global.Image = class {
@@ -28,22 +26,10 @@ describe("image-utils", () => {
           return this._src;
         }
       } as unknown as typeof Image;
-
-      global.FileReader = class {
-        onload: ((e: { target: { result: string } }) => void) | null = null;
-        readAsDataURL() {
-          setTimeout(() => {
-            if (this.onload) {
-              this.onload({ target: { result: "data:image/png;base64,mock" } });
-            }
-          }, 0);
-        }
-      } as unknown as typeof FileReader;
     });
 
     afterEach(() => {
       global.Image = originalImage;
-      global.FileReader = originalFileReader;
       vi.restoreAllMocks();
     });
 
@@ -251,6 +237,19 @@ describe("image-utils", () => {
       await expect(compressImage(file)).rejects.toThrow("Failed to load image");
     });
 
+    it("should revoke the object URL after loading", async () => {
+      const revokeSpy = vi.spyOn(URL, "revokeObjectURL");
+      const { canvas } = makeCanvas();
+      vi.spyOn(document, "createElement").mockReturnValue(
+        canvas as unknown as HTMLElement,
+      );
+
+      const file = new File(["mock"], "test.png", { type: "image/png" });
+      await compressImage(file, { maxWidth: 1000, maxHeight: 1000 });
+
+      expect(revokeSpy).toHaveBeenCalled();
+    });
+
     it("should apply default options (1280px, quality 0.7) when none provided", async () => {
       // Default Image mock is 2000x2000
       const { canvas } = makeCanvas();
@@ -269,21 +268,6 @@ describe("image-utils", () => {
         "image/jpeg",
         0.7,
       );
-    });
-
-    it("should reject when file reading fails", async () => {
-      global.FileReader = class {
-        onload: ((e: { target: { result: string } }) => void) | null = null;
-        onerror: ((e: Event) => void) | null = null;
-        readAsDataURL() {
-          setTimeout(() => {
-            if (this.onerror) this.onerror(new Event("error"));
-          }, 0);
-        }
-      } as unknown as typeof FileReader;
-
-      const file = new File(["mock"], "test.png", { type: "image/png" });
-      await expect(compressImage(file)).rejects.toThrow("Failed to read file");
     });
   });
 });

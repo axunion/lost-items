@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "e4f56679-a8ba-4e25-987e-a4fa973ffdb7",
+  "id": "b4135455-e3fc-47d3-a393-5827d7a456b1",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "items": {
@@ -82,6 +82,13 @@
           "notNull": true,
           "autoincrement": false
         },
+        "public_id": {
+          "name": "public_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
         "created_at": {
           "name": "created_at",
           "type": "integer",
@@ -97,7 +104,13 @@
           "autoincrement": false
         }
       },
-      "indexes": {},
+      "indexes": {
+        "lists_public_id_unique": {
+          "name": "lists_public_id_unique",
+          "columns": ["public_id"],
+          "isUnique": true
+        }
+      },
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},

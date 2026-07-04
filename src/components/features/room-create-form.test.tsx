@@ -23,7 +23,10 @@ describe("RoomCreateForm", () => {
   });
 
   it("submits with valid input, calls onCreated, shows success toast, and resets name", async () => {
-    vi.mocked(api.createList).mockResolvedValue({ id: "new-room-id" });
+    vi.mocked(api.createList).mockResolvedValue({
+      id: "new-room-id",
+      publicId: "new-public-id",
+    });
     const handleCreated = vi.fn();
 
     render(() => <RoomCreateForm onCreated={handleCreated} />);
@@ -37,7 +40,11 @@ describe("RoomCreateForm", () => {
     });
 
     expect(handleCreated).toHaveBeenCalledWith(
-      expect.objectContaining({ id: "new-room-id", name: "My New Room" }),
+      expect.objectContaining({
+        id: "new-room-id",
+        publicId: "new-public-id",
+        name: "My New Room",
+      }),
     );
     expect(showToast).toHaveBeenCalledWith("Room created", "success");
 
@@ -66,7 +73,9 @@ describe("RoomCreateForm", () => {
   it("shows loading overlay and disables input/button while submitting", async () => {
     vi.mocked(api.createList).mockImplementation(
       () =>
-        new Promise((resolve) => setTimeout(() => resolve({ id: "x" }), 200)),
+        new Promise((resolve) =>
+          setTimeout(() => resolve({ id: "x", publicId: "px" }), 200),
+        ),
     );
 
     render(() => <RoomCreateForm />);

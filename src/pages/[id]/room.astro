@@ -7,11 +7,17 @@ import Layout from "~/layouts/layout.astro";
 import type { Bindings } from "~/server/bindings";
 import { createDb } from "~/server/db";
 import { items, lists } from "~/server/db/schema";
+import { withImageUrl } from "~/server/images";
 
-const { id = "" } = Astro.params;
+// The public room URL carries the read-only publicId, never the admin id.
+const { id: publicId = "" } = Astro.params;
 const db = createDb((env as Bindings).DB);
 
-const list = await db.select().from(lists).where(eq(lists.id, id)).get();
+const list = await db
+  .select()
+  .from(lists)
+  .where(eq(lists.publicId, publicId))
+  .get();
 if (!list) {
   return Astro.redirect("/");
 }
@@ -19,13 +25,10 @@ if (!list) {
 const rawItems = await db
   .select()
   .from(items)
-  .where(and(eq(items.listId, id), isNull(items.deletedAt)))
+  .where(and(eq(items.listId, list.id), isNull(items.deletedAt)))
   .orderBy(desc(items.createdAt));
 
-const itemList = rawItems.map(({ imageKey, ...rest }) => ({
-  ...rest,
-  imageUrl: imageKey ? `/api/images/${imageKey}` : null,
-}));
+const itemList = rawItems.map(withImageUrl);
 
 const title = list.name || "Room Items";
 ---
@@ -34,7 +37,7 @@ const title = list.name || "Room Items";
   <AppHeader title={title} />
 
   <main class="room-main">
-    <ItemList items={itemList} listId={id} readonly client:visible />
+    <ItemList items={itemList} listId={publicId} readonly client:visible />
   </main>
 </Layout>
 

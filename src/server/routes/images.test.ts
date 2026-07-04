@@ -49,7 +49,9 @@ describe("imagesRoute", () => {
       env,
     );
 
-    expect(env.BUCKET.get).toHaveBeenCalledWith(key);
+    expect(env.BUCKET.get).toHaveBeenCalledWith(key, {
+      onlyIf: expect.anything(),
+    });
     expect(response.status).toBe(404);
     await expect(response.json()).resolves.toEqual({
       error: "Image not found",
@@ -109,6 +111,7 @@ describe("imagesRoute", () => {
     env.BUCKET.get.mockResolvedValueOnce({
       body: "mock-image",
       httpMetadata: { contentType: "image/png" },
+      httpEtag: '"abc123"',
     });
 
     const response = await imagesRoute.request(
@@ -120,8 +123,31 @@ describe("imagesRoute", () => {
     expect(response.status).toBe(200);
     expect(response.headers.get("Content-Type")).toBe("image/png");
     expect(response.headers.get("Cache-Control")).toBe(
-      "public, max-age=31536000",
+      "public, max-age=31536000, immutable",
     );
+    expect(response.headers.get("X-Content-Type-Options")).toBe("nosniff");
+    expect(response.headers.get("ETag")).toBe('"abc123"');
     await expect(response.text()).resolves.toBe("mock-image");
+  });
+
+  it("returns 304 with no body when the conditional precondition fails", async () => {
+    const env = createEnv();
+    const key =
+      "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa/bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb-item.png";
+    // R2 returns an R2Object without a body when onlyIf precondition is not met.
+    env.BUCKET.get.mockResolvedValueOnce({
+      httpMetadata: { contentType: "image/png" },
+      httpEtag: '"abc123"',
+    });
+
+    const response = await imagesRoute.request(
+      `/${key}`,
+      { method: "GET", headers: { "If-None-Match": '"abc123"' } },
+      env,
+    );
+
+    expect(response.status).toBe(304);
+    expect(response.headers.get("ETag")).toBe('"abc123"');
+    await expect(response.text()).resolves.toBe("");
   });
 });

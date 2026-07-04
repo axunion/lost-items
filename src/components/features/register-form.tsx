@@ -33,18 +33,23 @@ const RegisterForm: Component<RegisterFormProps> = (props) => {
   let cameraInputRef: HTMLInputElement | undefined;
   let fileInputRef: HTMLInputElement | undefined;
 
+  // Swap the selected file and its object-URL preview, revoking the previous
+  // URL so replaced/cleared previews don't leak. Pass undefined to clear.
+  const setSelectedImage = (file: File | undefined) => {
+    const previous = imagePreview();
+    if (previous) {
+      URL.revokeObjectURL(previous);
+    }
+    setImageFile(file);
+    setImagePreview(file ? URL.createObjectURL(file) : null);
+  };
+
   const handleImageUpload = async (e: Event) => {
     const file = (e.target as HTMLInputElement).files?.[0];
     if (file) {
       try {
         const compressedFile = await compressImage(file);
-        setImageFile(compressedFile);
-
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          setImagePreview(reader.result as string);
-        };
-        reader.readAsDataURL(compressedFile);
+        setSelectedImage(compressedFile);
       } catch (error) {
         console.error("Failed to compress image:", error);
         showToast("Failed to process image", "error");
@@ -64,8 +69,7 @@ const RegisterForm: Component<RegisterFormProps> = (props) => {
       });
       props.onCreated?.(newItem);
       setComment("");
-      setImagePreview(null);
-      setImageFile(undefined);
+      setSelectedImage(undefined);
       showToast("Item registered", "success");
     } catch (error) {
       console.error("Failed to register item:", error);
@@ -136,10 +140,7 @@ const RegisterForm: Component<RegisterFormProps> = (props) => {
               <button
                 type="button"
                 aria-label="Clear image"
-                onClick={() => {
-                  setImagePreview(null);
-                  setImageFile(undefined);
-                }}
+                onClick={() => setSelectedImage(undefined)}
                 class={styles.clearButton}
               >
                 <X class={styles.clearIcon} />

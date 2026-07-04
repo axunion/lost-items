@@ -27,21 +27,6 @@
   padding: 0 0.25rem;
 }
 
-.recentTitle {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 1.125rem;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-}
-
-.recentIcon {
-  width: 1.5rem;
-  height: 1.5rem;
-  color: var(--color-primary);
-}
-
 .allLink {
   font-size: 0.875rem;
   color: var(--color-primary);

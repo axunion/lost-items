@@ -26,10 +26,12 @@ type UrlGroup = {
   path: string;
 };
 
-function getUrlGroups(itemId: string): UrlGroup[] {
+function getUrlGroups(item: List): UrlGroup[] {
   return [
-    { label: "Registration", path: `/${itemId}/register` },
-    { label: "Public Room", path: `/${itemId}/room` },
+    // Registration uses the secret admin id; the public room uses the separate
+    // publicId so sharing the room link grants no access to register/mutations.
+    { label: "Registration", path: `/${item.id}/register` },
+    { label: "Public Room", path: `/${item.publicId}/room` },
   ];
 }
 
@@ -45,7 +47,7 @@ type HistoryListItemProps = {
 };
 
 export const HistoryListItem: Component<HistoryListItemProps> = (props) => {
-  const urlGroups = getUrlGroups(props.item.id);
+  const urlGroups = getUrlGroups(props.item);
 
   return (
     <div class={styles.listItem} data-testid="room-item">
