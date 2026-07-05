@@ -8,6 +8,12 @@ import type { Bindings } from "~/server/bindings";
 import { createDb } from "~/server/db";
 import { lists } from "~/server/db/schema";
 
+const { token } = Astro.params;
+if (token !== (env as Bindings).ADMIN_TOKEN) {
+  Astro.response.status = 404;
+  return Astro.rewrite("/404");
+}
+
 const db = createDb((env as Bindings).DB);
 // Bounds the SSR query cost; no pagination UI exists yet, so rooms beyond
 // the 100 most recent won't appear here until pagination is added.
@@ -19,7 +25,7 @@ const allLists = await db
 ---
 
 <Layout title="History">
-  <AppHeader title="History" showBack backUrl="/" />
+  <AppHeader title="History" showBack backUrl={`/${token}/dashboard`} />
 
   <main class="history-main">
     <HistoryList lists={allLists} origin={Astro.url.origin} client:idle />

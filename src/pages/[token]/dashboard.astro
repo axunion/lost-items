@@ -8,6 +8,12 @@ import type { Bindings } from "~/server/bindings";
 import { createDb } from "~/server/db";
 import { lists } from "~/server/db/schema";
 
+const { token } = Astro.params;
+if (token !== (env as Bindings).ADMIN_TOKEN) {
+  Astro.response.status = 404;
+  return Astro.rewrite("/404");
+}
+
 const db = createDb((env as Bindings).DB);
 const recentLists = await db
   .select()
@@ -19,5 +25,10 @@ const recentLists = await db
 <Layout title="Dashboard">
   <AppHeader title="Dashboard" />
 
-  <Dashboard lists={recentLists} origin={Astro.url.origin} client:load />
+  <Dashboard
+    lists={recentLists}
+    origin={Astro.url.origin}
+    historyHref={`/${token}/history`}
+    client:load
+  />
 </Layout>

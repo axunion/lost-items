@@ -18,11 +18,11 @@ Lost Items allows you to create "rooms" to organize lost items by location or ev
 
 ### 1. Create a Room
 
-Enter a room name on the homepage (e.g., "2025 New Year Party", "3F Meeting Room") and create a new room. Each room manages lost items for a specific location or event.
+Open the Dashboard (`/:token/dashboard`, where `token` is the secret `ADMIN_TOKEN`), enter a room name (e.g., "2025 New Year Party", "3F Meeting Room"), and create a new room. Each room manages lost items for a specific location or event.
 
 ### 2. Register Lost Items
 
-Each room has a **Registration Page** URL. Share this with staff or finders. They can:
+Each room has a **Registration Page** URL (`/:id/register`). Share this with staff or finders. They can:
 - Register items with a photo and/or comment
 - Edit comments on existing items
 - Delete items (soft delete - items remain visible but grayed out)
@@ -30,14 +30,14 @@ Each room has a **Registration Page** URL. Share this with staff or finders. The
 
 ### 3. View Lost Items
 
-Each room has a **Public Page** URL. Share this with people who may have lost something. They can browse all registered items to find their belongings.
+Each room also has a separate, read-only **Public Page** URL (`/:publicId/room`). Share this with people who may have lost something. The `publicId` is distinct from the registration id, so this link never grants edit access.
 
 ## Screens
 
 | Screen | Description |
 |--------|-------------|
-| Dashboard | Create rooms, view all rooms |
-| Room Manager | Manage room settings, copy URLs, rename, delete |
+| Dashboard | Create rooms, view recent rooms (admin-only, requires `ADMIN_TOKEN` in the URL) |
+| History | View all rooms, copy URLs, rename, delete (admin-only) |
 | Registration Page | Register, edit, delete, and restore lost items (admin) |
 | Public Page | View-only list of registered lost items |
 
@@ -53,7 +53,9 @@ Each room has a **Public Page** URL. Share this with people who may have lost so
 
 ## Important Notes
 
-- Anyone with the room URL can access and edit it
+- Anyone with the Registration Page URL can access and edit that room
+- The Public Page URL is read-only and cannot be used to reach the Registration Page
+- The Dashboard and History screens require the `ADMIN_TOKEN` secret in the URL
 - Not suitable for sensitive or confidential use cases
 - Maximum image size: 5MB per file
 
@@ -92,6 +94,14 @@ Run database migrations (required before first run):
 pnpm db:migrate
 ```
 
+### Environment Variables
+
+Create a `.dev.vars` file with a secret token used to protect the Dashboard/History pages:
+
+```
+ADMIN_TOKEN=<any-secret-value>
+```
+
 ### Development
 
 Start the local development server:
@@ -117,7 +127,7 @@ src/
 ├── pages/          # Astro pages and API routes
 ├── components/     # UI components (Astro & SolidJS)
 ├── server/         # Backend routes and database
-└── lib/            # Utility functions
+└── client/         # Client-side API calls and utility functions
 migrations/         # Database migrations
 public/             # Static assets
 ```

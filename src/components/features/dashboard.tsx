@@ -9,6 +9,7 @@ import styles from "./dashboard.module.css";
 type DashboardProps = {
   lists: List[];
   origin: string;
+  historyHref: string;
 };
 
 const Dashboard: Component<DashboardProps> = (props) => {
@@ -24,7 +25,7 @@ const Dashboard: Component<DashboardProps> = (props) => {
       <div class={styles.recentSection}>
         <div class={styles.recentHeader}>
           <SectionHeader icon={<Clock />}>Recent</SectionHeader>
-          <a href="/history" class={styles.allLink}>
+          <a href={props.historyHref} class={styles.allLink}>
             All
             <ChevronRight class={styles.allLinkIcon} />
           </a>
