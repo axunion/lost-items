@@ -29,20 +29,7 @@ Scaffold a new SolidJS component following this project's design conventions.
 
 ### Design rules
 
-- **Styling**: CSS Modules (`.module.css`) — no Tailwind utilities. Use `cx()` from `~/client/utils` to combine classes.
-- **Design tokens**: use `var(--color-primary)`, `var(--color-background)` etc. from `:root` (defined in `src/styles/global.css`). Never hardcode colors.
-- **Imports**: use `~/` alias (never relative `../../`), icons from `lucide-solid`
-- **Exports**: `features/` components use default exports; `ui/` components use named exports
-- **Main CTA buttons**: `size="xl"` (56px height, `border-radius: var(--radius)`)
-- **Icon / sub buttons**: at least 44px, use `size="icon"` or `variant="ghost"`
-- **Focus rings**: `outline: 2px solid var(--color-ring)` — the token already includes the 40% opacity; never re-wrap it in `hsl()`
-- **Borders**: `border: 1px solid var(--color-border-alpha-30)` — always with reduced opacity via the alpha tokens
-- **Card radius**: `border-radius: var(--radius)` as the base for containers
-- **Hover + active**: include `:hover` and `:active { transform: scale(0.98); }` on interactive elements
-- **Kobalte state**: use `[data-expanded]`, `[data-closed]`, `[data-highlighted]`, `[data-invalid]` attribute selectors in `.module.css`
-- **Variants**: resolve via lookup object — `const variantClass = { default: styles.variantDefault, ... } as const`
-- **Animations**: define `@keyframes` locally in the component's `.module.css`
-- **No client-side JS in Astro pages** — all interactivity belongs in SolidJS components
+Follow `.claude/rules/frontend.md` (auto-loaded for `src/components/**`) — it covers styling (CSS Modules + design tokens), `~/` imports, touch targets, export conventions, and Kobalte state selectors. Do not restate those rules here.
 
 ### Component structure template (features)
 

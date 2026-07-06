@@ -100,8 +100,6 @@ self-contained with no shared mutable state.
   - `backend.md` — Hono API patterns, bindings, R2 (`src/server/**`)
   - `testing.md` — Unit/E2E test patterns (`src/**/*.test.*`, `tests/e2e/**`)
   - `database.md` — Drizzle schema, migrations, soft delete (`src/server/db/**`, `migrations/**`)
-- **`.claude/settings.json`** — Shared config: MCP server enablement (`context7`)
 - **`.mcp.json`** — MCP servers: `context7` (live docs lookup)
 - **`lefthook.yml`** — Git pre-commit hooks: Biome auto-fix (staged files) + `astro check`, runs in parallel
-- **`.claude/agents/`** — Custom agents: `@code-reviewer`, `@test-writer`, `@db-reviewer`
 - **`.claude/skills/`** — Slash commands: `/db-migrate`, `/quality-check [--fix]`, `/new-component <Name> [ui|features]`
