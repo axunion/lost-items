@@ -15,13 +15,13 @@
     }
   },
   "scripts": {
+    "prepare": "lefthook install",
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
     "check": "biome check && astro check",
     "fix": "biome check --write",
-    "prepare": "lefthook install",
     "db:check": "drizzle-kit check",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "wrangler d1 migrations apply lost-items-db --local",

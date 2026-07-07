@@ -74,10 +74,13 @@ return c.json({ id, name, createdAt });
 
 ### Key Naming Convention
 
-Use `{listId}/{uuid}-{filename}` format for R2 object keys:
+Use `{publicId}/{uuid}-{filename}` format for R2 object keys, via the shared
+`buildImageKey` helper (`~/server/images`). The key is exposed in image URLs on the
+public room page, so it must use the list's `publicId` — never the admin `id`, which
+would let anyone with the public link derive the register URL:
 
 ```typescript
-const key = `${listId}/${crypto.randomUUID()}-${file.name}`;
+const key = buildImageKey(list.publicId, file.name);
 await c.env.BUCKET.put(key, buffer, {
   httpMetadata: { contentType: file.type },
 });

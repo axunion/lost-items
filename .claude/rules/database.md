@@ -33,6 +33,12 @@ export const items = sqliteTable("items", {
 });
 ```
 
+### Query Safety
+
+Use Drizzle's parameterized query builder (`.where(eq(...))`, `.values({...})`, etc.)
+exclusively — never build SQL via raw string interpolation with user input, even with
+Drizzle's `sql` tag.
+
 ### Naming Conventions
 
 - Table names: plural `snake_case` (`lists`, `items`)

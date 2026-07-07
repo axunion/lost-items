@@ -24,6 +24,7 @@ Steps:
 - **NOT NULL without DEFAULT**: Fails at migration time if existing rows have NULLs — check whether existing data must be backfilled
 - **Column renames**: Drizzle generates `DROP COLUMN + ADD COLUMN` — this destroys existing data; flag unless handled manually
 - **Foreign key changes**: Verify `ON DELETE` behavior is intentional (D1 enforces FK constraints when `PRAGMA foreign_keys = ON`)
+- **Index changes on large tables**: May cause a slow migration; note if the table could have a significant row count
 - **Type changes**: SQLite is loosely typed, but changing `integer` ↔ `text` semantics can break application queries
 - **Physical `DELETE` statements**: Deletion must use the soft delete pattern (`deletedAt`); a physical `DELETE` in a migration requires explicit justification
 - **Timestamp columns**: Must use `integer` (Unix seconds) per project convention — not `text` or `datetime`

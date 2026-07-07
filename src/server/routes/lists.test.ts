@@ -61,14 +61,14 @@ function setupDbMock() {
   setFn.mockReturnValue({ where: updateWhere });
 
   const deleteWhere = vi.fn().mockResolvedValue(undefined);
-  const transactionFn = vi.fn().mockResolvedValue(undefined);
+  const batchFn = vi.fn().mockResolvedValue([]);
 
   const db = {
     select: vi.fn(() => ({ from: vi.fn().mockReturnValue(fromResult) })),
     insert: vi.fn(() => ({ values: insertValues })),
     update: vi.fn(() => ({ set: setFn })),
     delete: vi.fn(() => ({ where: deleteWhere })),
-    transaction: transactionFn,
+    batch: batchFn,
   };
 
   return {
@@ -81,7 +81,7 @@ function setupDbMock() {
     setFn,
     updateWhere,
     deleteWhere,
-    transactionFn,
+    batchFn,
   };
 }
 
@@ -278,7 +278,7 @@ describe("listsRoute", () => {
     });
 
     it("deletes R2 images for items that have imageKey", async () => {
-      const { db, enqueueOne, enqueueMany, transactionFn } = setupDbMock();
+      const { db, enqueueOne, enqueueMany, batchFn } = setupDbMock();
       createDbMock.mockReturnValue(db);
       const env = createEnv();
 
@@ -301,11 +301,13 @@ describe("listsRoute", () => {
       expect(env.BUCKET.delete).toHaveBeenCalledTimes(2);
       expect(env.BUCKET.delete).toHaveBeenCalledWith("list-1/uuid-a.jpg");
       expect(env.BUCKET.delete).toHaveBeenCalledWith("list-1/uuid-b.png");
-      expect(transactionFn).toHaveBeenCalledTimes(1);
+      expect(batchFn).toHaveBeenCalledTimes(1);
+      // Items delete + list delete run in one atomic batch
+      expect(batchFn.mock.calls[0][0]).toHaveLength(2);
     });
 
     it("continues DB deletion even when some R2 deletes fail", async () => {
-      const { db, enqueueOne, enqueueMany, transactionFn } = setupDbMock();
+      const { db, enqueueOne, enqueueMany, batchFn } = setupDbMock();
       createDbMock.mockReturnValue(db);
 
       const deleteMock = vi
@@ -328,11 +330,11 @@ describe("listsRoute", () => {
 
       expect(res.status).toBe(200);
       expect(deleteMock).toHaveBeenCalledTimes(2);
-      expect(transactionFn).toHaveBeenCalledTimes(1);
+      expect(batchFn).toHaveBeenCalledTimes(1);
     });
 
     it("succeeds with no R2 calls when list has no items with images", async () => {
-      const { db, enqueueOne, enqueueMany, transactionFn } = setupDbMock();
+      const { db, enqueueOne, enqueueMany, batchFn } = setupDbMock();
       createDbMock.mockReturnValue(db);
       const env = createEnv();
 
@@ -347,7 +349,7 @@ describe("listsRoute", () => {
 
       expect(res.status).toBe(200);
       expect(env.BUCKET.delete).not.toHaveBeenCalled();
-      expect(transactionFn).toHaveBeenCalledTimes(1);
+      expect(batchFn).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -561,7 +563,7 @@ describe("listsRoute", () => {
     it("stores image in R2 and returns item with proper imageUrl", async () => {
       const { db, enqueueOne, insertValues } = setupDbMock();
       createDbMock.mockReturnValue(db);
-      enqueueOne({ id: "list-1" });
+      enqueueOne({ id: "list-1", publicId: "pub-1" });
       const env = createEnv();
 
       const formData = new FormData();
@@ -589,13 +591,15 @@ describe("listsRoute", () => {
       expect(body.listId).toBe("list-1");
       expect(body.comment).toBe("umbrella");
       expect(body.imageUrl).toMatch(
-        /^\/api\/images\/list-1\/[0-9a-f-]+-photo\.png$/,
+        /^\/api\/images\/pub-1\/[0-9a-f-]+-photo\.png$/,
       );
       expect(body.deletedAt).toBeNull();
 
       expect(env.BUCKET.put).toHaveBeenCalledTimes(1);
       const [putKey, , putOpts] = env.BUCKET.put.mock.calls[0];
-      expect(putKey).toMatch(/^list-1\/.+-photo\.png$/);
+      expect(putKey).toMatch(/^pub-1\/.+-photo\.png$/);
+      // The key is exposed in public image URLs — it must never leak the admin id.
+      expect(putKey).not.toContain("list-1");
       expect(putOpts.httpMetadata.contentType).toBe("image/png");
       expect(insertValues).toHaveBeenCalledTimes(1);
     });
@@ -650,7 +654,7 @@ describe("listsRoute", () => {
     it("sanitizes non-safe filename characters in R2 key", async () => {
       const { db, enqueueOne } = setupDbMock();
       createDbMock.mockReturnValue(db);
-      enqueueOne({ id: "list-1" });
+      enqueueOne({ id: "list-1", publicId: "pub-1" });
       const env = createEnv();
 
       const formData = new FormData();
@@ -667,7 +671,7 @@ describe("listsRoute", () => {
 
       const [putKey] = env.BUCKET.put.mock.calls[0];
       // All non-safe chars replaced with _
-      expect(putKey).toMatch(/^list-1\//);
+      expect(putKey).toMatch(/^pub-1\//);
       // Only ASCII-safe chars remain after sanitization
       expect(putKey).toMatch(/^[a-zA-Z0-9/_.-]+$/);
     });

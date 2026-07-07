@@ -33,7 +33,7 @@ import { listsRoute } from "./lists";
 //   (1) .select().from(...).where(...).get()   → resolves enqueueOne(val)
 //   (2) await .select().from(...).where(...)   → resolves enqueueMany(arr)
 //   (3) await .select().from(...).orderBy(...) → resolves enqueueMany(arr)
-// plus insert/update/delete/transaction spies for asserting mutations.
+// plus insert/update/delete/batch spies for asserting mutations.
 
 it("returns all lists", async () => {
   const { db, enqueueMany } = setupDbMock();

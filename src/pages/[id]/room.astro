@@ -7,7 +7,7 @@ import Layout from "~/layouts/layout.astro";
 import type { Bindings } from "~/server/bindings";
 import { createDb } from "~/server/db";
 import { items, lists } from "~/server/db/schema";
-import { withImageUrl } from "~/server/images";
+import { toPublicItem } from "~/server/images";
 
 // The public room URL carries the read-only publicId, never the admin id.
 const { id: publicId = "" } = Astro.params;
@@ -28,7 +28,9 @@ const rawItems = await db
   .where(and(eq(items.listId, list.id), isNull(items.deletedAt)))
   .orderBy(desc(items.createdAt));
 
-const itemList = rawItems.map(withImageUrl);
+// Island props are serialized into the public page HTML, so each item's
+// listId (the admin id) must be replaced with the publicId before hydration.
+const itemList = rawItems.map((item) => toPublicItem(item, list.publicId));
 
 const title = list.name || "Room Items";
 ---

@@ -4,7 +4,7 @@ import { Hono } from "hono";
 import type { Bindings } from "../bindings";
 import { createDb } from "../db";
 import { items, lists } from "../db/schema";
-import { withImageUrl } from "../images";
+import { buildImageKey, withImageUrl } from "../images";
 import {
   addItemSchema,
   createListSchema,
@@ -98,7 +98,7 @@ listsRoute.delete("/:id", async (c) => {
     return c.json({ error: "List not found" }, 404);
   }
 
-  // Delete images from R2 — failures are logged and non-fatal so the DB transaction still runs.
+  // Delete images from R2 — failures are logged and non-fatal so the DB batch still runs.
   // Log the specific key on failure so orphaned objects can be identified and cleaned up manually.
   const itemsWithImages = itemsToDelete.filter((item) => item.imageKey);
   const deleteSettled = await Promise.allSettled(
@@ -113,11 +113,12 @@ listsRoute.delete("/:id", async (c) => {
     }
   }
 
-  // Delete from database using transaction
-  await db.transaction(async (tx) => {
-    await tx.delete(items).where(eq(items.listId, id));
-    await tx.delete(lists).where(eq(lists.id, id));
-  });
+  // D1 rejects the SQL BEGIN that db.transaction issues; db.batch is the
+  // D1-native alternative and executes the statements atomically.
+  await db.batch([
+    db.delete(items).where(eq(items.listId, id)),
+    db.delete(lists).where(eq(lists.id, id)),
+  ]);
 
   return c.json({ success: true });
 });
@@ -164,7 +165,7 @@ listsRoute.post("/:id/items", zValidator("form", addItemSchema), async (c) => {
     }
 
     const safeName = image.name.replace(/[^a-zA-Z0-9._-]/g, "_");
-    const key = `${listId}/${crypto.randomUUID()}-${safeName}`;
+    const key = buildImageKey(list.publicId, safeName);
     await c.env.BUCKET.put(key, image, {
       httpMetadata: { contentType: image.type },
     });
