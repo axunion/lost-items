@@ -29,19 +29,13 @@ type HistoryListProps = {
 };
 
 const HistoryList: Component<HistoryListProps> = (props) => {
-  const [localLists, setLocalLists] = createSignal<List[]>(props.lists);
-  const [listNames, setListNames] = createSignal<Record<string, string>>({});
+  const [localLists, setLocalLists] = createSignal<List[]>(
+    props.maxItems ? props.lists.slice(0, props.maxItems) : props.lists,
+  );
   const [editingId, setEditingId] = createSignal<string | null>(null);
   const [deletingId, setDeletingId] = createSignal<string | null>(null);
   const [tempName, setTempName] = createSignal("");
   const [copiedUrl, setCopiedUrl] = createSignal<string | null>(null);
-
-  createEffect(() => {
-    const base = props.maxItems
-      ? props.lists.slice(0, props.maxItems)
-      : props.lists;
-    setLocalLists(base);
-  });
 
   createEffect(() => {
     const created = props.newList;
@@ -53,8 +47,7 @@ const HistoryList: Component<HistoryListProps> = (props) => {
     });
   });
 
-  const getName = (item: List) =>
-    listNames()[item.id] ?? item.name ?? "Untitled Room";
+  const getName = (item: List) => item.name ?? "Untitled Room";
 
   const handleEditClick = (item: List) => {
     setTempName(getName(item));
@@ -75,7 +68,11 @@ const HistoryList: Component<HistoryListProps> = (props) => {
 
     try {
       await updateList(id, { name: newName });
-      setListNames((prev) => ({ ...prev, [id]: newName }));
+      setLocalLists((prev) =>
+        prev.map((item) =>
+          item.id === id ? { ...item, name: newName } : item,
+        ),
+      );
     } catch (error) {
       console.error("Failed to update name:", error);
       showToast("Failed to update name", "error");

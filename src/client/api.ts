@@ -14,6 +14,22 @@ export type List = {
   createdAt: string | Date;
 };
 
+// Forwards to fetch and throws a labeled error on a non-ok response, so each
+// endpoint below only needs to state its URL, init, and error label once.
+async function request(
+  action: string,
+  url: string,
+  init?: RequestInit,
+): Promise<Response> {
+  const res = init ? await fetch(url, init) : await fetch(url);
+
+  if (!res.ok) {
+    throw new Error(`Failed to ${action}: ${res.status}`);
+  }
+
+  return res;
+}
+
 export const addItem = async (
   listId: string,
   item: { comment: string; image?: File },
@@ -24,14 +40,10 @@ export const addItem = async (
     formData.append("image", item.image);
   }
 
-  const res = await fetch(`/api/lists/${listId}/items`, {
+  const res = await request("add item", `/api/lists/${listId}/items`, {
     method: "POST",
     body: formData,
   });
-
-  if (!res.ok) {
-    throw new Error(`Failed to add item: ${res.status}`);
-  }
 
   return await res.json();
 };
@@ -41,11 +53,10 @@ export const getItems = async (
   options?: { includeDeleted?: boolean },
 ): Promise<Item[]> => {
   const query = options?.includeDeleted ? "?includeDeleted=true" : "";
-  const res = await fetch(`/api/lists/${listId}/items${query}`);
-
-  if (!res.ok) {
-    throw new Error(`Failed to fetch items: ${res.status}`);
-  }
+  const res = await request(
+    "fetch items",
+    `/api/lists/${listId}/items${query}`,
+  );
 
   return await res.json();
 };
@@ -53,15 +64,11 @@ export const getItems = async (
 export const createList = async (
   name: string,
 ): Promise<{ id: string; publicId: string }> => {
-  const res = await fetch("/api/lists", {
+  const res = await request("create list", "/api/lists", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ name }),
   });
-
-  if (!res.ok) {
-    throw new Error(`Failed to create list: ${res.status}`);
-  }
 
   return await res.json();
 };
@@ -70,25 +77,17 @@ export const updateList = async (
   id: string,
   data: { name: string },
 ): Promise<void> => {
-  const res = await fetch(`/api/lists/${id}`, {
+  await request("update list", `/api/lists/${id}`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   });
-
-  if (!res.ok) {
-    throw new Error(`Failed to update list: ${res.status}`);
-  }
 };
 
 export const deleteList = async (id: string): Promise<void> => {
-  const res = await fetch(`/api/lists/${id}`, {
+  await request("delete list", `/api/lists/${id}`, {
     method: "DELETE",
   });
-
-  if (!res.ok) {
-    throw new Error(`Failed to delete list: ${res.status}`);
-  }
 };
 
 export const updateItemComment = async (
@@ -96,15 +95,15 @@ export const updateItemComment = async (
   itemId: string,
   comment: string,
 ): Promise<Item> => {
-  const res = await fetch(`/api/lists/${listId}/items/${itemId}`, {
-    method: "PATCH",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ comment }),
-  });
-
-  if (!res.ok) {
-    throw new Error(`Failed to update item: ${res.status}`);
-  }
+  const res = await request(
+    "update item",
+    `/api/lists/${listId}/items/${itemId}`,
+    {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ comment }),
+    },
+  );
 
   return await res.json();
 };
@@ -113,24 +112,20 @@ export const deleteItem = async (
   listId: string,
   itemId: string,
 ): Promise<void> => {
-  const res = await fetch(`/api/lists/${listId}/items/${itemId}`, {
+  await request("delete item", `/api/lists/${listId}/items/${itemId}`, {
     method: "DELETE",
   });
-
-  if (!res.ok) {
-    throw new Error(`Failed to delete item: ${res.status}`);
-  }
 };
 
 export const restoreItem = async (
   listId: string,
   itemId: string,
 ): Promise<void> => {
-  const res = await fetch(`/api/lists/${listId}/items/${itemId}/restore`, {
-    method: "POST",
-  });
-
-  if (!res.ok) {
-    throw new Error(`Failed to restore item: ${res.status}`);
-  }
+  await request(
+    "restore item",
+    `/api/lists/${listId}/items/${itemId}/restore`,
+    {
+      method: "POST",
+    },
+  );
 };

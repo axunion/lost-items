@@ -30,5 +30,6 @@ export function toPublicItem<
   item: T,
   publicId: string,
 ): Omit<T, "imageKey"> & { imageUrl: string | null; listId: string } {
-  return { ...withImageUrl(item), listId: publicId };
+  const { imageKey, ...rest } = item;
+  return { ...rest, imageUrl: imageUrl(imageKey), listId: publicId };
 }
