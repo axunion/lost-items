@@ -21,7 +21,15 @@ export default defineConfig({
   ],
   webServer: {
     command: "pnpm dev",
-    url: "http://localhost:4321",
+    // `url` readiness checks require a 2xx-3xx response, but this app has no page at "/"
+    // (routes are all under dynamic segments like /:token/dashboard) so root always 404s.
+    // `port` only waits for the TCP listener, which matches what we actually need here.
+    port: 4321,
     reuseExistingServer: !process.env.CI,
+    // Astro auto-detects AI coding agent environments (e.g. Claude Code) and daemonizes
+    // `astro dev` in the background, causing the spawned process to exit immediately and
+    // Playwright to report "Process from config.webServer exited early". This opts out of
+    // that auto-detection so the dev server stays in the foreground as Playwright expects.
+    env: { ASTRO_DEV_BACKGROUND: "1" },
   },
 });

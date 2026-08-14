@@ -1,4 +1,18 @@
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import { expect, test } from "@playwright/test";
+
+// .dev.vars is gitignored and holds the local ADMIN_TOKEN secret that the dev
+// server (miniflare) reads directly; parse it here so the test knows the
+// same value without committing it.
+const devVars = readFileSync(
+  path.resolve(import.meta.dirname, "../../.dev.vars"),
+  "utf-8",
+);
+const adminToken = devVars.match(/^ADMIN_TOKEN=(.+)$/m)?.[1];
+if (!adminToken) {
+  throw new Error("ADMIN_TOKEN not found in .dev.vars");
+}
 
 test("API flow: create room → register item → delete → restore → public read-only", async ({
   page,
@@ -16,7 +30,7 @@ test("API flow: create room → register item → delete → restore → public 
   };
 
   // 2. Verify room appears on dashboard (SSR)
-  await page.goto("/");
+  await page.goto(`/${adminToken}/dashboard`);
   await expect(page).toHaveTitle("Dashboard");
   await expect(
     page.getByTestId("room-name").filter({ hasText: roomName }),
