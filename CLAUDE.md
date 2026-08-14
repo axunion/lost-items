@@ -1,43 +1,18 @@
 # CLAUDE.md
 
 Guidance for Claude Code when working with this repository.
-Keep this file in sync with `AGENTS.md` — edit both when changing either.
 
 ## Working principles
 
-- **Think before coding.** State assumptions; if uncertain, ask. Surface multiple
-  interpretations instead of silently picking one. Push back when a simpler path exists.
-- **Simplest thing that works.** Write the minimum code that solves the stated problem —
-  no speculative abstractions, flexibility, or error handling for impossible cases.
-- **Surgical changes.** Every changed line should trace to the request. Don't refactor or
-  reformat adjacent code that isn't broken; match the surrounding style. Remove only the
-  imports your change orphaned; leave unrelated dead code and mention it.
+- **Think before coding.** State assumptions. Make routine judgment calls yourself and note
+  them; ask only when different interpretations would lead to materially different work. If
+  a simpler path exists, say so and push back when warranted.
+- **Surgical changes.** Match the surrounding style. Remove only the imports and symbols
+  your change orphaned; leave unrelated dead code alone and mention it.
 - **Goal-driven.** Turn each task into a verifiable outcome (e.g. "fix the bug" → write a
-  failing test, then make it pass). For multi-step work, state a brief plan with a
-  verification check per step.
-- **English only** in code comments, console/log/error messages, and AI-readable config
-  (CLAUDE.md, AGENTS.md, etc.).
-
-## Commands
-
-```bash
-pnpm dev              # Start dev server (workerd runtime via @astrojs/cloudflare)
-pnpm build            # Build for production (verification only — deploy via CI)
-pnpm preview          # Preview production build on local workerd
-
-pnpm check            # Biome lint/format + astro check (TS type errors)
-pnpm fix              # Biome auto-fix (format/lint only)
-
-pnpm test             # Run unit tests (Vitest)
-pnpm test -- src/server/routes/lists.test.ts  # Run a single test file
-pnpm test:e2e         # Run e2e tests (Playwright, dev server auto-starts via webServer)
-pnpm test:e2e:headed  # Same, with browser visible (debugging)
-
-pnpm db:generate      # Generate Drizzle migration from schema changes
-pnpm db:migrate       # Apply migrations locally
-pnpm db:reset         # Clear local DB data and re-apply existing migrations (local only)
-pnpm db:rebuild       # Nuke migration files + local DB and regenerate from current schema (local only, use after major schema rework)
-```
+  failing test, then make it pass). For multi-step work, state a brief plan before starting.
+- **English only** in code comments, console/log/error messages, AI-readable config
+  (CLAUDE.md, etc.), and reader-facing docs (README and the like).
 
 ## Architecture
 
@@ -69,25 +44,20 @@ self-contained with no shared mutable state.
 ## Code structure
 
 - Name variables, functions, and files to communicate intent.
-- One concern per file; split when a file exceeds ~300 lines.
+- One concern per file; split new code when a file exceeds ~300 lines. Don't split existing
+  files unless asked.
 - Extract a helper only when used in 3+ places; otherwise inline it.
 - Delete dead code you create; never comment it out.
 
 ## Commits
 
 ```
-<one-line summary>
+<summary: imperative mood, ≤70 chars, no trailing period, no prefix tags (`feat:`, `fix:`)>
 
-<Why: one sentence — motivation or problem>
+<motivation: one sentence, only when not evident from the diff>
 
-- <change 1>
-- <change 2>
+- <change bullets: only for 2+ distinct changes>
 ```
-
-- Summary: imperative mood, ≤70 chars, no trailing period, no prefix tags (`feat:`, `fix:`).
-- Why line: include only when motivation isn't evident from the diff.
-- Bullets: include only for 2+ distinct changes.
-- Never commit secrets (`*.key`, `*.pem`, `credentials*`); never use `--no-verify` or `--amend`.
 
 ## Additional configuration
 
@@ -100,6 +70,5 @@ self-contained with no shared mutable state.
   - `backend.md` — Hono API patterns, bindings, R2 (`src/server/**`)
   - `testing.md` — Unit/E2E test patterns (`src/**/*.test.*`, `tests/e2e/**`)
   - `database.md` — Drizzle schema, migrations, soft delete (`src/server/db/**`, `migrations/**`)
-- **`.mcp.json`** — MCP servers: `context7` (live docs lookup)
 - **`lefthook.yml`** — Git pre-commit hooks: Biome auto-fix (staged files) + `astro check`, runs in parallel
 - **`.claude/skills/`** — Slash commands: `/db-migrate`, `/quality-check [--fix]`, `/new-component <Name> [ui|features]`
