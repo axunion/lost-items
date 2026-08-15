@@ -2,9 +2,9 @@ import {
   CircleCheck,
   Clock,
   MapPin,
+  Pencil,
   RotateCcw,
   Search,
-  SquarePen,
   Trash2,
 } from "lucide-solid";
 import { type Component, createSignal, For, Show } from "solid-js";
@@ -110,7 +110,6 @@ const ItemList: Component<ItemListProps> = (props) => {
             {(item) => (
               <Card
                 class={cx(styles.card, isDeleted(item) && styles.cardDeleted)}
-                style={{ "border-radius": "0.375rem" }}
                 data-testid="item-card"
               >
                 <div class={styles.photoFrame}>
@@ -128,9 +127,9 @@ const ItemList: Component<ItemListProps> = (props) => {
                     <Show when={isDeleted(item)}>
                       <CircleCheck
                         class={styles.statusIcon}
-                        role="img"
-                        aria-label="Picked up"
+                        aria-hidden="true"
                       />
+                      <span class={styles.statusText}>Picked up</span>
                     </Show>
                     <Show when={item.foundAt}>
                       <Clock
@@ -182,7 +181,7 @@ const ItemList: Component<ItemListProps> = (props) => {
                         aria-label="Edit item"
                         onClick={() => handleEdit(item)}
                       >
-                        <SquarePen />
+                        <Pencil />
                       </Button>
                       <Button
                         variant="destructiveGhost"

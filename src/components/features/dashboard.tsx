@@ -1,4 +1,4 @@
-import { ChevronRight, Clock, DoorOpen } from "lucide-solid";
+import { ChevronRight, Clock, SquarePlus } from "lucide-solid";
 import { type Component, createSignal } from "solid-js";
 import type { List } from "~/client/api";
 import HistoryList from "~/components/features/history-list";
@@ -18,7 +18,7 @@ const Dashboard: Component<DashboardProps> = (props) => {
   return (
     <main class={styles.main}>
       <div class={styles.newRoomSection}>
-        <SectionHeader icon={<DoorOpen />}>New Room</SectionHeader>
+        <SectionHeader icon={<SquarePlus />}>New Room</SectionHeader>
         <RoomCreateForm onCreated={setNewList} />
       </div>
 

@@ -20,12 +20,12 @@
 .iconWrapper :global(svg) {
   width: 2rem;
   height: 2rem;
-  color: var(--color-muted-foreground-alpha-40);
+  color: var(--color-muted-foreground-alpha-60);
 }
 
 .message {
   font-size: 1rem;
   font-weight: 700;
-  color: var(--color-muted-foreground-alpha-40);
+  color: var(--color-muted-foreground);
   margin: 0;
 }

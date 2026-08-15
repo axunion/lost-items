@@ -1,6 +1,6 @@
 import {
   Check,
-  ClipboardList,
+  Copy,
   EllipsisVertical,
   ExternalLink,
   Pencil,
@@ -86,7 +86,7 @@ export const HistoryListItem: Component<HistoryListItemProps> = (props) => {
                   >
                     <Show
                       when={props.copiedUrl === `${props.origin}${group.path}`}
-                      fallback={<ClipboardList />}
+                      fallback={<Copy />}
                     >
                       <Check
                         style={{
