@@ -1,18 +1,21 @@
 import {
   Camera,
+  Clock,
   Image as ImageIcon,
+  MapPin,
   MessageSquare,
   Send,
   X,
 } from "lucide-solid";
 import { type Component, createSignal, Show } from "solid-js";
-import { addItem, type Item } from "~/client/api";
+import { addItem } from "~/client/api";
 import { compressImage } from "~/client/image-utils";
 import { Button } from "~/components/ui/Button";
 import { Loading } from "~/components/ui/loading";
 import { SectionHeader } from "~/components/ui/section-header";
 import {
   TextField,
+  TextFieldInput,
   TextFieldLabel,
   TextFieldTextArea,
 } from "~/components/ui/text-field";
@@ -21,11 +24,12 @@ import styles from "./register-form.module.css";
 
 type RegisterFormProps = {
   listId: string;
-  onCreated?: (item: Item) => void;
 };
 
 const RegisterForm: Component<RegisterFormProps> = (props) => {
   const [comment, setComment] = createSignal("");
+  const [foundAtInput, setFoundAtInput] = createSignal("");
+  const [location, setLocation] = createSignal("");
   const [imagePreview, setImagePreview] = createSignal<string | null>(null);
   const [imageFile, setImageFile] = createSignal<File | undefined>(undefined);
   const [isSubmitting, setIsSubmitting] = createSignal(false);
@@ -63,12 +67,15 @@ const RegisterForm: Component<RegisterFormProps> = (props) => {
     setIsSubmitting(true);
 
     try {
-      const newItem = await addItem(props.listId, {
+      await addItem(props.listId, {
         comment: comment(),
         image: imageFile(),
+        foundAt: foundAtInput() ? new Date(foundAtInput()) : undefined,
+        location: location() || undefined,
       });
-      props.onCreated?.(newItem);
       setComment("");
+      setFoundAtInput("");
+      setLocation("");
       setSelectedImage(undefined);
       showToast("Item registered", "success");
     } catch (error) {
@@ -148,6 +155,32 @@ const RegisterForm: Component<RegisterFormProps> = (props) => {
             </div>
           </Show>
         </div>
+
+        <TextField
+          value={foundAtInput()}
+          onChange={setFoundAtInput}
+          class={styles.section}
+        >
+          <SectionHeader icon={<Clock />}>
+            <TextFieldLabel>Found Time</TextFieldLabel>
+          </SectionHeader>
+          <TextFieldInput type="datetime-local" />
+        </TextField>
+
+        <TextField
+          value={location()}
+          onChange={setLocation}
+          class={styles.section}
+        >
+          <SectionHeader icon={<MapPin />}>
+            <TextFieldLabel>Location</TextFieldLabel>
+          </SectionHeader>
+          <TextFieldInput
+            type="text"
+            placeholder="Where it was found..."
+            maxlength={200}
+          />
+        </TextField>
 
         <TextField
           value={comment()}

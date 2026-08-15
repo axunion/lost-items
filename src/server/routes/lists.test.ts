@@ -691,6 +691,66 @@ describe("listsRoute", () => {
 
       expect(res.status).toBe(400);
     });
+
+    it("stores foundAt as a Date and location as-is when both are provided", async () => {
+      const { db, enqueueOne, insertValues } = setupDbMock();
+      createDbMock.mockReturnValue(db);
+      enqueueOne({ id: "list-1" });
+
+      const formData = new FormData();
+      formData.append("comment", "found it");
+      formData.append("foundAt", "2026-08-14T21:30:00.000Z");
+      formData.append("location", "Near the west gate");
+
+      const res = await listsRoute.request(
+        "/list-1/items",
+        { method: "POST", body: formData },
+        createEnv(),
+      );
+
+      expect(res.status).toBe(200);
+      expect(insertValues).toHaveBeenCalledWith(
+        expect.objectContaining({
+          foundAt: new Date("2026-08-14T21:30:00.000Z"),
+          location: "Near the west gate",
+        }),
+      );
+    });
+
+    it("defaults foundAt and location to null when omitted", async () => {
+      const { db, enqueueOne, insertValues } = setupDbMock();
+      createDbMock.mockReturnValue(db);
+      enqueueOne({ id: "list-1" });
+
+      const formData = new FormData();
+      formData.append("comment", "no extras");
+
+      await listsRoute.request(
+        "/list-1/items",
+        { method: "POST", body: formData },
+        createEnv(),
+      );
+
+      expect(insertValues).toHaveBeenCalledWith(
+        expect.objectContaining({ foundAt: null, location: null }),
+      );
+    });
+
+    it("returns 400 when foundAt is not a valid ISO datetime string", async () => {
+      const { db } = setupDbMock();
+      createDbMock.mockReturnValue(db);
+
+      const formData = new FormData();
+      formData.append("foundAt", "not-a-date");
+
+      const res = await listsRoute.request(
+        "/list-1/items",
+        { method: "POST", body: formData },
+        createEnv(),
+      );
+
+      expect(res.status).toBe(400);
+    });
   });
 
   // ─── PATCH /:id/items/:itemId ─────────────────────────────────────────────

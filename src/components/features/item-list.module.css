@@ -67,18 +67,44 @@
   gap: var(--space-1);
 }
 
-.statusIcon {
+.icon16 {
   display: inline-flex;
   flex-shrink: 0;
   width: 1rem;
   height: 1rem;
+}
+
+.statusIcon {
+  composes: icon16;
   color: var(--color-status-returned);
 }
 
-.date {
+.metaText {
   font-size: 0.75rem;
   font-weight: 600;
   color: var(--color-muted-foreground);
+}
+
+.date {
+  composes: metaText;
+}
+
+.location {
+  composes: metaText;
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.locationIcon {
+  composes: icon16;
+}
+
+.locationText {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .comment {

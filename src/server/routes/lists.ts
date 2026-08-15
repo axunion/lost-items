@@ -146,7 +146,7 @@ listsRoute.get("/:id/items", async (c) => {
 listsRoute.post("/:id/items", zValidator("form", addItemSchema), async (c) => {
   const listId = c.req.param("id");
   const db = createDb(c.env.DB);
-  const { comment, image } = c.req.valid("form");
+  const { comment, image, foundAt, location } = c.req.valid("form");
 
   const list = await findList(db, listId);
 
@@ -178,6 +178,8 @@ listsRoute.post("/:id/items", zValidator("form", addItemSchema), async (c) => {
     listId,
     comment: comment || "",
     imageKey: itemImageKey ?? null,
+    foundAt: foundAt ? new Date(foundAt) : null,
+    location: location || null,
     createdAt: new Date(),
   };
 

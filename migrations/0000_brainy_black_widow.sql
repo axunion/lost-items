@@ -3,6 +3,8 @@ CREATE TABLE `items` (
 	`list_id` text NOT NULL,
 	`comment` text,
 	`image_key` text,
+	`found_at` integer,
+	`location` text,
 	`created_at` integer NOT NULL,
 	`deleted_at` integer,
 	FOREIGN KEY (`list_id`) REFERENCES `lists`(`id`) ON UPDATE no action ON DELETE no action

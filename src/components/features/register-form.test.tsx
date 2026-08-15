@@ -20,6 +20,8 @@ const mockItem = (overrides?: Partial<api.Item>) => ({
   listId: "test-list-id",
   comment: "test",
   imageUrl: null,
+  foundAt: null,
+  location: null,
   createdAt: new Date(),
   deletedAt: null,
   ...overrides,
@@ -32,21 +34,22 @@ describe("RegisterForm", () => {
     vi.clearAllMocks();
   });
 
-  it("renders photo section, comment field, and submit button", () => {
+  it("renders photo section, found time, location, comment field, and submit button", () => {
     render(() => <RegisterForm listId={listId} />);
     expect(screen.getByText("Photo")).toBeInTheDocument();
+    expect(screen.getByText("Found Time")).toBeInTheDocument();
+    expect(screen.getByText("Location")).toBeInTheDocument();
     expect(screen.getByText("Comment")).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: /register/i }),
     ).toBeInTheDocument();
   });
 
-  it("submits comment without image and calls onCreated", async () => {
+  it("submits comment without image, found time, or location", async () => {
     const mockAddItem = vi.mocked(api.addItem);
-    const handleCreated = vi.fn();
     mockAddItem.mockResolvedValue(mockItem({ comment: "Test comment" }));
 
-    render(() => <RegisterForm listId={listId} onCreated={handleCreated} />);
+    render(() => <RegisterForm listId={listId} />);
 
     fireEvent.input(screen.getByPlaceholderText("Optional info..."), {
       target: { value: "Test comment" },
@@ -57,11 +60,55 @@ describe("RegisterForm", () => {
       expect(mockAddItem).toHaveBeenCalledWith(listId, {
         comment: "Test comment",
         image: undefined,
+        foundAt: undefined,
+        location: undefined,
       });
     });
-    expect(handleCreated).toHaveBeenCalledWith(
-      expect.objectContaining({ id: "item-1" }),
-    );
+  });
+
+  it("submits found time and location when filled in", async () => {
+    const mockAddItem = vi.mocked(api.addItem);
+    mockAddItem.mockResolvedValue(mockItem());
+
+    render(() => <RegisterForm listId={listId} />);
+
+    fireEvent.input(screen.getByLabelText("Found Time"), {
+      target: { value: "2026-08-14T21:30" },
+    });
+    fireEvent.input(screen.getByLabelText("Location"), {
+      target: { value: "Near the west gate" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: /register/i }));
+
+    await waitFor(() => {
+      expect(mockAddItem).toHaveBeenCalledWith(listId, {
+        comment: "",
+        image: undefined,
+        foundAt: new Date("2026-08-14T21:30"),
+        location: "Near the west gate",
+      });
+    });
+  });
+
+  it("resets found time and location after successful submission", async () => {
+    const mockAddItem = vi.mocked(api.addItem);
+    mockAddItem.mockResolvedValue(mockItem());
+
+    render(() => <RegisterForm listId={listId} />);
+
+    const foundAtInput = screen.getByLabelText(
+      "Found Time",
+    ) as HTMLInputElement;
+    const locationInput = screen.getByLabelText("Location") as HTMLInputElement;
+    fireEvent.input(foundAtInput, { target: { value: "2026-08-14T21:30" } });
+    fireEvent.input(locationInput, { target: { value: "Near the west gate" } });
+    fireEvent.click(screen.getByRole("button", { name: /register/i }));
+
+    await waitFor(() => {
+      expect(mockAddItem).toHaveBeenCalled();
+    });
+    expect(foundAtInput.value).toBe("");
+    expect(locationInput.value).toBe("");
   });
 
   it("shows success toast and resets form after successful submission", async () => {
@@ -106,6 +153,8 @@ describe("RegisterForm", () => {
       expect(mockAddItem).toHaveBeenCalledWith(listId, {
         comment: "",
         image: compressed,
+        foundAt: undefined,
+        location: undefined,
       });
     });
   });

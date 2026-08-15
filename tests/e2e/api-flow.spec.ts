@@ -44,8 +44,8 @@ test("API flow: create room → register item → delete → restore → public 
   expect(itemRes.ok()).toBeTruthy();
   const { id: itemId } = (await itemRes.json()) as { id: string };
 
-  // 4. Verify item appears on register page (SSR)
-  await page.goto(`/${id}/register`);
+  // 4. Verify item appears on the manage page (SSR)
+  await page.goto(`/${id}/manage`);
   await expect(
     page.getByTestId("item-card").filter({ hasText: comment }),
   ).toBeVisible();

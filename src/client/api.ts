@@ -3,6 +3,8 @@ export type Item = {
   listId: string;
   comment: string | null;
   imageUrl: string | null;
+  foundAt: string | Date | null;
+  location: string | null;
   createdAt: string | Date;
   deletedAt: string | Date | null;
 };
@@ -32,12 +34,18 @@ async function request(
 
 export const addItem = async (
   listId: string,
-  item: { comment: string; image?: File },
+  item: { comment: string; image?: File; foundAt?: Date; location?: string },
 ): Promise<Item> => {
   const formData = new FormData();
   formData.append("comment", item.comment);
   if (item.image) {
     formData.append("image", item.image);
+  }
+  if (item.foundAt) {
+    formData.append("foundAt", item.foundAt.toISOString());
+  }
+  if (item.location) {
+    formData.append("location", item.location);
   }
 
   const res = await request("add item", `/api/lists/${listId}/items`, {

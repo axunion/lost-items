@@ -20,6 +20,8 @@ const makeItem = (overrides: Partial<api.Item> = {}): api.Item => ({
   listId: "list-1",
   comment: "A lost phone",
   imageUrl: null,
+  foundAt: null,
+  location: null,
   createdAt: "2023-01-01T00:00:00.000Z",
   deletedAt: null,
   ...overrides,
@@ -48,6 +50,27 @@ describe("ItemList", () => {
     render(() => <ItemList items={[item]} listId="list-1" />);
     const img = screen.getByRole("img");
     expect(img).toHaveAttribute("src", "https://example.com/photo.jpg");
+  });
+
+  it("renders location when present", () => {
+    const item = makeItem({ location: "Near the west gate" });
+    render(() => <ItemList items={[item]} listId="list-1" />);
+    expect(screen.getByText("Near the west gate")).toBeInTheDocument();
+  });
+
+  it("does not render a location row when location is absent", () => {
+    const item = makeItem({ location: null });
+    render(() => <ItemList items={[item]} listId="list-1" />);
+    expect(screen.queryByTestId("item-location")).toBeNull();
+  });
+
+  it("shows the found-time icon and prioritizes foundAt over createdAt", () => {
+    const item = makeItem({
+      foundAt: "2023-06-01T00:00:00.000Z",
+      createdAt: "2023-01-01T00:00:00.000Z",
+    });
+    render(() => <ItemList items={[item]} listId="list-1" />);
+    expect(screen.getByRole("img", { name: "Found time" })).toBeInTheDocument();
   });
 
   it("hides all action buttons when readonly is true", () => {

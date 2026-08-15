@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "b4135455-e3fc-47d3-a393-5827d7a456b1",
+  "id": "4966e12d-2b9d-4e37-bb97-71539c3d5f54",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "items": {
@@ -30,6 +30,20 @@
         },
         "image_key": {
           "name": "image_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "found_at": {
+          "name": "found_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "location": {
+          "name": "location",
           "type": "text",
           "primaryKey": false,
           "notNull": false,

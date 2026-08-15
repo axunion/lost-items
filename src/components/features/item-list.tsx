@@ -1,5 +1,7 @@
 import {
   CircleCheck,
+  Clock,
+  MapPin,
   RotateCcw,
   Search,
   SquarePen,
@@ -130,15 +132,29 @@ const ItemList: Component<ItemListProps> = (props) => {
                         aria-label="Picked up"
                       />
                     </Show>
+                    <Show when={item.foundAt}>
+                      <Clock
+                        class={styles.statusIcon}
+                        role="img"
+                        aria-label="Found time"
+                      />
+                    </Show>
                     <span class={styles.date}>
                       {/* year: undefined overrides formatDate's own default to drop it — a lost-and-found board has no use for the year */}
-                      {formatDate(item.createdAt, {
+                      {/* Found time (if the reporter entered one) takes priority over the registration timestamp */}
+                      {formatDate(item.foundAt || item.createdAt, {
                         year: undefined,
                         hour: "2-digit",
                         minute: "2-digit",
                       })}
                     </span>
                   </div>
+                  <Show when={item.location}>
+                    <div class={styles.location} data-testid="item-location">
+                      <MapPin class={styles.locationIcon} aria-hidden="true" />
+                      <span class={styles.locationText}>{item.location}</span>
+                    </div>
+                  </Show>
                   <Show when={item.comment}>
                     <p class={styles.comment} data-testid="item-comment">
                       {item.comment}

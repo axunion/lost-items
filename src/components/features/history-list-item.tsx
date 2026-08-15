@@ -30,6 +30,8 @@ function getUrlGroups(item: List): UrlGroup[] {
   return [
     // Registration uses the secret admin id; the public room uses the separate
     // publicId so sharing the room link grants no access to register/mutations.
+    // The manage page (edit/delete/restore) is linked from the register page
+    // itself rather than duplicated here, to keep this menu to two entries.
     { label: "Registration", path: `/${item.id}/register` },
     { label: "Public Room", path: `/${item.publicId}/room` },
   ];
