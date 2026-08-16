@@ -23,6 +23,8 @@ const title = list.name || "Register Item";
   <AppHeader title={title} />
 
   <main class="register-main">
+    <RegisterForm listId={id} client:load />
+
     <a href={`/${id}/manage`} class="manage-link">
       <span>Manage items</span>
       <svg
@@ -43,8 +45,6 @@ const title = list.name || "Register Item";
         />
       </svg>
     </a>
-
-    <RegisterForm listId={id} client:load />
   </main>
 </Layout>
 
@@ -57,11 +57,12 @@ const title = list.name || "Register Item";
   }
 
   .manage-link {
-    align-self: flex-end;
+    align-self: center;
     display: flex;
     align-items: center;
     gap: 0.25rem;
     min-height: 2.75rem;
+    padding-inline: 0.5rem;
     font-size: 0.875rem;
     font-weight: 500;
     color: var(--color-primary);

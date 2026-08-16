@@ -1,10 +1,10 @@
 import {
   Camera,
+  Check,
   Clock,
   Image as ImageIcon,
   MapPin,
   MessageSquare,
-  Send,
   X,
 } from "lucide-solid";
 import { type Component, createSignal, Show } from "solid-js";
@@ -203,7 +203,7 @@ const RegisterForm: Component<RegisterFormProps> = (props) => {
           disabled={isSubmitting()}
         >
           <div class={styles.submitButtonContent}>
-            <Send class={styles.submitIcon} />
+            <Check class={styles.submitIcon} />
             <span>Register</span>
           </div>
         </Button>
