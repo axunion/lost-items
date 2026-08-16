@@ -30,10 +30,10 @@
   );
 }
 
-/* Deleted — grayed out, awaiting restore */
+/* Picked up — green tint, not grayed out (DESIGN.md §2.2: stays fully readable) */
 .cardDeleted {
-  opacity: 0.5;
-  filter: grayscale(1);
+  background-color: var(--color-status-returned-subdued);
+  border-color: var(--color-status-returned-alpha-30);
 }
 
 .photoFrame {
@@ -77,6 +77,12 @@
 .statusIcon {
   composes: icon16;
   color: var(--color-status-returned);
+}
+
+.statusText {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-status-returned-text);
 }
 
 .metaText {

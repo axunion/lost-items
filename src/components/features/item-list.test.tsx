@@ -87,10 +87,10 @@ describe("ItemList", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("shows picked-up icon and Restore button for deleted items", () => {
+  it("shows picked-up label and Restore button for deleted items", () => {
     const item = makeItem({ deletedAt: "2023-06-01T00:00:00.000Z" });
     render(() => <ItemList items={[item]} listId="list-1" />);
-    expect(screen.getByRole("img", { name: "Picked up" })).toBeInTheDocument();
+    expect(screen.getByText("Picked up")).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: "Restore item" }),
     ).toBeInTheDocument();
