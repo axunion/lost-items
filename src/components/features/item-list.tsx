@@ -112,15 +112,13 @@ const ItemList: Component<ItemListProps> = (props) => {
                 class={cx(styles.card, isDeleted(item) && styles.cardDeleted)}
                 data-testid="item-card"
               >
-                <div class={styles.photoFrame}>
-                  <div class={styles.imageWrapper}>
-                    <img
-                      src={item.imageUrl || "/placeholder.svg"}
-                      alt="Lost Item"
-                      class={styles.image}
-                      loading="lazy"
-                    />
-                  </div>
+                <div class={styles.imageWrapper}>
+                  <img
+                    src={item.imageUrl || "/placeholder.svg"}
+                    alt="Lost Item"
+                    class={styles.image}
+                    loading="lazy"
+                  />
                 </div>
                 <div class={styles.info}>
                   <div class={styles.meta}>

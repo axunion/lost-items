@@ -36,20 +36,16 @@
   border-color: var(--color-status-returned-alpha-30);
 }
 
-.photoFrame {
-  padding: var(--space-2) var(--space-2) var(--space-4);
-}
-
 .imageWrapper {
   background-color: var(--color-secondary);
   aspect-ratio: 1;
 }
 
 .image {
+  display: block;
   width: 100%;
   height: 100%;
-  object-fit: contain;
-  filter: drop-shadow(0 1px 3px hsl(0 0% 0% / 0.2));
+  object-fit: cover;
 }
 
 .info {
