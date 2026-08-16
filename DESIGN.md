@@ -4,8 +4,12 @@
 > Covers color palette, typography, component styling, layout, and elevation — everything
 > needed to build a staff-operated, glanceable, high-visibility item management UI.
 >
-> **Status note:** The CSS Custom Properties in `src/styles/global.css` reflect a previous palette.
-> Aligning `global.css` to the tokens defined here is tracked as a separate follow-up task.
+> **Status note:** The brand, status, semantic, and surface/border tokens defined here (§2.1–2.5)
+> are already implemented in `src/styles/global.css` with matching values. What's still missing
+> from `global.css` are a handful of individually-named tokens this spec references but that
+> aren't load-bearing for any current component: `--color-border-strong`, `--color-info`,
+> the Foreground 800/600/200 gray-scale steps (§2.4), and `--font-mono` (§3.1). Add them if a
+> future component needs them; there is no broad palette-alignment task pending.
 
 ---
 
@@ -300,10 +304,21 @@ Font: 15px / 400 (matches body)
 Placeholder: var(--color-muted-foreground)
 ```
 
-File upload area (photo input):
-- Dashed border, 2px, `--color-border`
-- Background: `--color-secondary`
-- On drag-over: border-color → `--color-primary`, background → `--color-primary-subdued`
+File upload area (photo input, e.g. "Take Photo" / "Choose Photo"):
+- Dashed border, 2px, `--color-primary` — **not** `--color-border`. `--color-border` on
+  `--color-secondary` composites to roughly 1.2:1, far under the 3:1 WCAG 1.4.11 minimum for a
+  UI component boundary; `--color-border-strong` only reaches ~1.5:1, still failing. `--color-primary`
+  clears ~4:1 against a light-tinted fill and reads as a tappable action affordance rather than a
+  passive placeholder, which fits these buttons better since they trigger an action immediately
+  on tap (no actual drop target).
+- Background: `--color-primary-subdued`
+- Icon: `--color-primary`. Label text: `--color-foreground` (kept near-black rather than
+  primary-colored, since primary-on-primary-subdued sits marginally under the 4.5:1 text
+  contrast target even though it clears the 3:1 non-text minimum).
+- Hover: border-color → `--color-primary-hover`
+- This is a tap-to-act control, not a drop target — no drag-and-drop is implemented (mobile-first
+  usage makes it low-value); a desktop-only drag-over affordance is a reasonable future addition
+  but isn't required.
 
 ### 4.6 Navigation
 

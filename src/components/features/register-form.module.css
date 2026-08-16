@@ -25,7 +25,6 @@
 .sectionLabel {
   font-size: 1.125rem;
   font-weight: 700;
-  letter-spacing: 0.05em;
 }
 
 .photoGrid {
@@ -71,12 +70,26 @@
   min-height: 2.75rem;
 }
 
-.photoButton {
+/* Nested under .photoGrid (not just .photoButton) so this reliably outranks
+   Button's .variantOutline border/background — same class-selector
+   specificity otherwise, which would make the override order-dependent. */
+.photoGrid .photoButton {
   height: 6rem;
   flex-direction: column;
   gap: 0.5rem;
   border-radius: var(--radius);
-  border-style: dashed;
+  border: 2px dashed var(--color-primary);
+  background-color: var(--color-primary-subdued);
+  color: var(--color-foreground);
+}
+
+.photoGrid .photoButton:hover:not(:disabled) {
+  border-color: var(--color-primary-hover);
+  background-color: var(--color-primary-subdued);
+}
+
+.photoGrid .photoButton:active:not(:disabled) {
+  transform: scale(0.98);
 }
 
 .clearButton:hover {

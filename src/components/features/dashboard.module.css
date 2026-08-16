@@ -1,5 +1,5 @@
 .main {
-  padding: 1.5rem 1rem;
+  padding: 1.5rem var(--content-padding-inline);
   display: flex;
   flex-direction: column;
   gap: 1.5rem;

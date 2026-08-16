@@ -98,6 +98,17 @@
 
   /* === Radius === */
   --radius: 0.75rem; /* 12px — cards, dialogs, main elements */
+
+  /* Page horizontal inset (DESIGN.md §5.2): 1rem mobile, 1.5rem ≥480px.
+     Single source of truth — page `<main>` classes reference this instead
+     of each repeating the breakpoint. */
+  --content-padding-inline: 1rem;
+}
+
+@media (min-width: 480px) {
+  :root {
+    --content-padding-inline: 1.5rem;
+  }
 }
 
 *,
