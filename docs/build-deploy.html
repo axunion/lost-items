@@ -112,8 +112,7 @@ footer{margin-top:3rem;padding-top:1.25rem;border-top:1px solid var(--brd);font-
     </svg>
   </div>
 
-  <pre><code># ワンコマンドデプロイ
-pnpm deploy     # = astro build &amp;&amp; wrangler deploy</code></pre>
+  <div class="warn">本番デプロイはローカルから実行しない。<code>main</code> ブランチへの push で GitHub Actions が自動的にビルド・マイグレーション・デプロイを行う（詳細は<a href="#ci">CI / 観測</a>参照）。</div>
 
   <!-- Astro config -->
   <h2 id="astro">astro.config.mjs</h2>
@@ -205,7 +204,6 @@ pnpm fix         # Biome の自動修正（biome check --write src）</code></pr
       <tr><td><code>pnpm dev</code></td><td>Astro 開発サーバー（workerd/miniflare）</td><td>localhost:4321</td></tr>
       <tr><td><code>pnpm build</code></td><td><code>astro build</code></td><td><code>dist/</code> を生成</td></tr>
       <tr><td><code>pnpm preview</code></td><td><code>astro preview</code></td><td>ローカル workerd でビルド済みを確認</td></tr>
-      <tr><td><code>pnpm deploy</code></td><td><code>astro build &amp;&amp; wrangler deploy</code></td><td>本番デプロイ</td></tr>
       <tr><td><code>pnpm check</code></td><td><code>biome check src &amp;&amp; astro check</code></td><td>lint + TypeScript 型チェック</td></tr>
       <tr><td><code>pnpm fix</code></td><td><code>biome check --write src</code></td><td>Biome 自動修正</td></tr>
       <tr><td><code>pnpm test</code></td><td>Vitest（ウォッチモード）</td><td><code>--run</code> で単発実行</td></tr>
@@ -224,16 +222,23 @@ pnpm fix         # Biome の自動修正（biome check --write src）</code></pr
 
   <!-- CI / Observability -->
   <h2 id="ci">CI / 観測</h2>
-  <div class="warn">
-    <strong>GitHub Actions は未設定。</strong> デプロイは手動で <code>pnpm deploy</code> を実行する。CI が必要になった場合は別途 <code>.github/workflows/</code> を追加する。
-  </div>
+  <p><code>.github/workflows/deploy.yml</code> が <code>main</code> への push（および手動 <code>workflow_dispatch</code>）をトリガーに以下を順に実行する:</p>
+  <ol>
+    <li><code>pnpm install --frozen-lockfile</code></li>
+    <li><code>pnpm check</code>（Biome + astro check）</li>
+    <li><code>pnpm test --run</code>（Vitest）</li>
+    <li><code>pnpm build</code></li>
+    <li><code>wrangler d1 migrations apply lost-items-db --remote</code></li>
+    <li><code>wrangler deploy</code></li>
+  </ol>
+  <div class="note">Cloudflare 認証は <code>CLOUDFLARE_API_TOKEN</code> / <code>CLOUDFLARE_ACCOUNT_ID</code> を GitHub Actions の Secrets に登録して使う。ローカル環境には本番認証情報を置かない方針のため、本番デプロイ・本番マイグレーションはこのワークフロー経由でのみ行う。</div>
   <ul>
     <li><strong>観測</strong> — <code>wrangler.jsonc</code> の <code>observability.enabled: true</code> により、Cloudflare ダッシュボードでリクエスト数・エラー率・レイテンシを確認できる</li>
     <li><strong>ローカルデータ</strong> — miniflare の D1 は <code>.wrangler/state/v3/d1/</code> に SQLite ファイルとして保存される。<code>.gitignore</code> で除外済み</li>
     <li><strong>ビルド成果物</strong> — <code>dist/</code> も <code>.gitignore</code> で除外済み</li>
   </ul>
 
-  <footer>Lost Items — 実装ドキュメント | 2026-05-16</footer>
+  <footer>Lost Items — 実装ドキュメント | 2026-08-27</footer>
 </div>
 </body>
 </html>
