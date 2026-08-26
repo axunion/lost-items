@@ -2,16 +2,30 @@
 
 Guidance for Claude Code when working with this repository.
 
-## Working principles
+## Approach
 
-- **Think before coding.** State assumptions. If a simpler path exists, say so and push
-  back when warranted.
-- **Surgical changes.** Match the surrounding style. Remove only the imports and symbols
-  your change orphaned; leave unrelated dead code alone and mention it.
-- **Goal-driven.** Turn each task into a verifiable outcome (e.g. "fix the bug" → write a
-  failing test, then make it pass). For multi-step work, state a brief plan before starting.
-- **English only** in code comments, console/log/error messages, AI-readable config
-  (CLAUDE.md, etc.), and reader-facing docs (README and the like).
+- **Think before coding.** State assumptions. Make routine judgment calls yourself and
+  note them; ask only when different interpretations would lead to materially different
+  work. If a simpler path exists, say so and push back when warranted.
+- **Simplest thing that works.** No unasked-for abstractions, flexibility, or error
+  handling for impossible cases. If 200 lines could be 50, rewrite it.
+- **Surgical changes.** Every changed line should trace to the request. Don't refactor,
+  reformat, or "improve" adjacent code that isn't broken; match the surrounding style.
+  Remove only the imports and symbols your change orphaned; leave unrelated dead code alone
+  and mention it.
+- **Goal-driven.** Turn each task into a verifiable outcome ("fix the bug" → "write a
+  failing test that reproduces it, then make it pass"). For multi-step work, state a brief
+  plan before starting.
+
+## Language
+
+Default to the user's language for everything interactive — chat replies, plan-mode
+proposals, clarifying questions, and any other back-and-forth during the session.
+
+Switch to English only for durable artifacts: things other people or tools will read
+after the session ends — in-code comments, console/log/error output, AI-readable
+instruction files, and reader-facing docs (README and the like). Scratch notes and other
+throwaway dev artifacts stay in the user's language.
 
 ## Architecture
 
@@ -28,17 +42,25 @@ Browser → Astro SSR (pages/*.astro)     → D1 via Drizzle (server-side data f
 
 A Vite plugin that stubs the `debug` npm package. Required because `debug` uses CJS `module.exports` which is unavailable in the workerd runtime. This is a workaround for a transitive dependency issue in the Astro ecosystem, not a project code concern.
 
-## Code quality workflow
+## Code Structure
+
+- Name variables, functions, and files to communicate intent.
+- One concern per file; split new code when a file exceeds ~300 lines. Don't split existing
+  files unless asked.
+- Extract a helper only when used in 3+ places; otherwise inline it.
+- Delete dead code you create; never comment it out.
+
+## Testing
+
+- Write tests before or alongside implementation — they are your success criteria.
+- Test observable outcomes and edge cases, not implementation details.
+- Each test is fully self-contained; no shared mutable state between tests.
 
 After making changes, verify in this order:
 
 1. `pnpm check` — Biome lint/format + TypeScript type check (`astro check`); Biome auto-fix only with `pnpm fix`
 2. `pnpm test --run` — Unit tests (Vitest)
 3. `pnpm build` — Production build succeeds
-
-Write tests before or alongside implementation — they are the success criteria. Test
-observable outcomes and edge cases, not implementation details; keep each test
-self-contained with no shared mutable state.
 
 **Structural vs. subjective correctness.** Structural correctness (API responses, state
 transitions, soft-delete filtering) belongs in Vitest/Playwright and runs automatically as
@@ -48,6 +70,22 @@ judge it, and trying to force it (exhaustive automated browsing, screenshot-diff
 real need) tends to be slow and still miss what a human would notice at a glance. Persist a
 new regression test only for a durable, worth-protecting flow — ideally one with real
 evidence it can break — not for a one-off "let me verify this change" check.
+
+## Commits
+
+Format — plain prose, no prefixes or labels (`feat:`, `fix:`, and the like):
+
+```
+<summary: imperative mood, ≤70 chars, no trailing period>
+
+<motivation: one sentence, only when not evident from the diff>
+
+- <change bullets: only for 2+ distinct changes>
+```
+
+- Never commit secrets (`*.key`, `*.pem`, `credentials*`).
+- Never use `--no-verify`. Use `--amend` only when explicitly asked; default to a new
+  commit.
 
 ## Subagents
 
@@ -86,24 +124,6 @@ change touches rendered UI, regardless of tier):
 - Layout that can vary by viewport, a change spanning multiple components sharing styles,
   or chasing a reported visual bug: run `inspector`. Treat a fix as unverified until a
   re-run comes back clean.
-
-## Code structure
-
-- Name variables, functions, and files to communicate intent.
-- One concern per file; split new code when a file exceeds ~300 lines. Don't split existing
-  files unless asked.
-- Extract a helper only when used in 3+ places; otherwise inline it.
-- Delete dead code you create; never comment it out.
-
-## Commits
-
-```
-<summary: imperative mood, ≤70 chars, no trailing period, no prefix tags (`feat:`, `fix:`)>
-
-<motivation: one sentence, only when not evident from the diff>
-
-- <change bullets: only for 2+ distinct changes>
-```
 
 ## Additional configuration
 

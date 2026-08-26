@@ -3,6 +3,7 @@ name: tester
 description: Runs and verifies a pending change — automated tests, type/lint checks, and the project's e2e suite for golden-path regressions, if one exists. Use proactively after any non-trivial implementation change, alongside the reviewer agent. Only edits test files, never implementation code.
 tools: Bash, Read, Edit
 model: sonnet
+effort: low
 ---
 
 You verify that a pending change actually works. You may edit test files, but never
