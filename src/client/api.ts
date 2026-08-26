@@ -32,10 +32,14 @@ async function request(
   return res;
 }
 
-export const addItem = async (
-  listId: string,
-  item: { comment: string; image?: File; foundAt?: Date; location?: string },
-): Promise<Item> => {
+type ItemFormInput = {
+  comment: string;
+  image?: File;
+  foundAt?: Date;
+  location?: string;
+};
+
+function buildItemFormData(item: ItemFormInput): FormData {
   const formData = new FormData();
   formData.append("comment", item.comment);
   if (item.image) {
@@ -47,10 +51,16 @@ export const addItem = async (
   if (item.location) {
     formData.append("location", item.location);
   }
+  return formData;
+}
 
+export const addItem = async (
+  listId: string,
+  item: ItemFormInput,
+): Promise<Item> => {
   const res = await request("add item", `/api/lists/${listId}/items`, {
     method: "POST",
-    body: formData,
+    body: buildItemFormData(item),
   });
 
   return await res.json();
@@ -98,18 +108,17 @@ export const deleteList = async (id: string): Promise<void> => {
   });
 };
 
-export const updateItemComment = async (
+export const updateItem = async (
   listId: string,
   itemId: string,
-  comment: string,
+  item: ItemFormInput,
 ): Promise<Item> => {
   const res = await request(
     "update item",
     `/api/lists/${listId}/items/${itemId}`,
     {
       method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ comment }),
+      body: buildItemFormData(item),
     },
   );
 

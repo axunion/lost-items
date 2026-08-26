@@ -756,32 +756,47 @@ describe("listsRoute", () => {
   // ─── PATCH /:id/items/:itemId ─────────────────────────────────────────────
 
   describe("PATCH /:id/items/:itemId", () => {
-    it("updates item comment and returns updated item", async () => {
-      const { db, enqueueOne } = setupDbMock();
+    it("updates item fields and returns the updated item", async () => {
+      const { db, enqueueOne, setFn } = setupDbMock();
       createDbMock.mockReturnValue(db);
       const existing = {
         id: "item-1",
         listId: "list-1",
         comment: "old",
-        imageUrl: null,
+        imageKey: null,
+        location: null,
+        foundAt: null,
         createdAt: "2023-01-01T00:00:00.000Z",
         deletedAt: null,
       };
       enqueueOne(existing);
 
+      const formData = new FormData();
+      formData.append("comment", "updated");
+      formData.append("location", "Front desk");
+      formData.append("foundAt", "2026-08-14T21:30:00.000Z");
+
       const res = await listsRoute.request(
         "/list-1/items/item-1",
-        {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ comment: "updated" }),
-        },
+        { method: "PATCH", body: formData },
         createEnv(),
       );
 
       expect(res.status).toBe(200);
-      const body = (await res.json()) as { comment: string };
+      const body = (await res.json()) as {
+        comment: string;
+        location: string;
+        foundAt: string;
+      };
       expect(body.comment).toBe("updated");
+      expect(body.location).toBe("Front desk");
+      expect(setFn).toHaveBeenCalledWith(
+        expect.objectContaining({
+          comment: "updated",
+          location: "Front desk",
+          foundAt: new Date("2026-08-14T21:30:00.000Z"),
+        }),
+      );
     });
 
     it("returns 404 when item does not exist", async () => {
@@ -789,13 +804,12 @@ describe("listsRoute", () => {
       createDbMock.mockReturnValue(db);
       enqueueOne(undefined);
 
+      const formData = new FormData();
+      formData.append("comment", "x");
+
       const res = await listsRoute.request(
         "/list-1/items/no-such-item",
-        {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ comment: "x" }),
-        },
+        { method: "PATCH", body: formData },
         createEnv(),
       );
 
@@ -807,17 +821,163 @@ describe("listsRoute", () => {
       const { db } = setupDbMock();
       createDbMock.mockReturnValue(db);
 
+      const formData = new FormData();
+      formData.append("comment", "x".repeat(1001));
+
       const res = await listsRoute.request(
         "/list-1/items/item-1",
-        {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ comment: "x".repeat(1001) }),
-        },
+        { method: "PATCH", body: formData },
         createEnv(),
       );
 
       expect(res.status).toBe(400);
+    });
+
+    it("replaces the photo and deletes the old R2 object", async () => {
+      const { db, enqueueOne, setFn } = setupDbMock();
+      createDbMock.mockReturnValue(db);
+      const existing = {
+        id: "item-1",
+        listId: "list-1",
+        comment: "old",
+        imageKey: "pub-1/old.jpg",
+        location: null,
+        foundAt: null,
+        createdAt: "2023-01-01T00:00:00.000Z",
+        deletedAt: null,
+      };
+      enqueueOne(existing);
+      enqueueOne({ id: "list-1", publicId: "pub-1" });
+      const env = createEnv();
+
+      const formData = new FormData();
+      formData.append("comment", "updated");
+      formData.append(
+        "image",
+        new File(["binary"], "new.png", { type: "image/png" }),
+      );
+
+      const res = await listsRoute.request(
+        "/list-1/items/item-1",
+        { method: "PATCH", body: formData },
+        env,
+      );
+
+      expect(res.status).toBe(200);
+      expect(env.BUCKET.put).toHaveBeenCalledTimes(1);
+      expect(env.BUCKET.delete).toHaveBeenCalledWith("pub-1/old.jpg");
+      expect(setFn).toHaveBeenCalledWith(
+        expect.objectContaining({
+          imageKey: expect.stringMatching(/^pub-1\/.+-new\.png$/),
+        }),
+      );
+    });
+
+    it("rejects non-image uploads with 400 and leaves the item unchanged", async () => {
+      const { db, enqueueOne, setFn } = setupDbMock();
+      createDbMock.mockReturnValue(db);
+      const existing = {
+        id: "item-1",
+        listId: "list-1",
+        comment: "old",
+        imageKey: "pub-1/kept.jpg",
+        location: null,
+        foundAt: null,
+        createdAt: "2023-01-01T00:00:00.000Z",
+        deletedAt: null,
+      };
+      enqueueOne(existing);
+      const env = createEnv();
+
+      const formData = new FormData();
+      formData.append("comment", "bad file");
+      formData.append(
+        "image",
+        new File(["hello"], "note.txt", { type: "text/plain" }),
+      );
+
+      const res = await listsRoute.request(
+        "/list-1/items/item-1",
+        { method: "PATCH", body: formData },
+        env,
+      );
+
+      expect(res.status).toBe(400);
+      await expect(res.json()).resolves.toEqual({ error: "Invalid file type" });
+      expect(env.BUCKET.put).not.toHaveBeenCalled();
+      expect(env.BUCKET.delete).not.toHaveBeenCalled();
+      expect(setFn).not.toHaveBeenCalled();
+    });
+
+    it("rejects oversized images with 400 and leaves the item unchanged", async () => {
+      const { db, enqueueOne, setFn } = setupDbMock();
+      createDbMock.mockReturnValue(db);
+      const existing = {
+        id: "item-1",
+        listId: "list-1",
+        comment: "old",
+        imageKey: "pub-1/kept.jpg",
+        location: null,
+        foundAt: null,
+        createdAt: "2023-01-01T00:00:00.000Z",
+        deletedAt: null,
+      };
+      enqueueOne(existing);
+      const env = createEnv();
+
+      const formData = new FormData();
+      formData.append(
+        "image",
+        new File([new Uint8Array(5 * 1024 * 1024 + 1)], "big.jpg", {
+          type: "image/jpeg",
+        }),
+      );
+
+      const res = await listsRoute.request(
+        "/list-1/items/item-1",
+        { method: "PATCH", body: formData },
+        env,
+      );
+
+      expect(res.status).toBe(400);
+      await expect(res.json()).resolves.toEqual({
+        error: "File too large (max 5MB)",
+      });
+      expect(env.BUCKET.put).not.toHaveBeenCalled();
+      expect(env.BUCKET.delete).not.toHaveBeenCalled();
+      expect(setFn).not.toHaveBeenCalled();
+    });
+
+    it("keeps the existing photo when no new image is provided", async () => {
+      const { db, enqueueOne, setFn } = setupDbMock();
+      createDbMock.mockReturnValue(db);
+      const existing = {
+        id: "item-1",
+        listId: "list-1",
+        comment: "old",
+        imageKey: "pub-1/kept.jpg",
+        location: null,
+        foundAt: null,
+        createdAt: "2023-01-01T00:00:00.000Z",
+        deletedAt: null,
+      };
+      enqueueOne(existing);
+      const env = createEnv();
+
+      const formData = new FormData();
+      formData.append("comment", "updated");
+
+      await listsRoute.request(
+        "/list-1/items/item-1",
+        { method: "PATCH", body: formData },
+        env,
+      );
+
+      expect(env.BUCKET.put).not.toHaveBeenCalled();
+      expect(env.BUCKET.delete).not.toHaveBeenCalled();
+      expect(setFn).toHaveBeenCalledWith(
+        expect.objectContaining({ imageKey: "pub-1/kept.jpg" }),
+      );
     });
   });
 

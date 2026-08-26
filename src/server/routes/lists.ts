@@ -6,10 +6,9 @@ import { createDb } from "../db";
 import { items, lists } from "../db/schema";
 import { buildImageKey, withImageUrl } from "../images";
 import {
-  addItemSchema,
   createListSchema,
+  itemFormSchema,
   renameListSchema,
-  updateCommentSchema,
 } from "../schemas/lists";
 
 export const listsRoute = new Hono<{ Bindings: Bindings }>();
@@ -34,6 +33,33 @@ const findItem = (db: Db, listId: string, itemId: string) =>
     .from(items)
     .where(and(eq(items.id, itemId), eq(items.listId, listId)))
     .get();
+
+// Cheap, no-I/O checks — run before any DB/R2 call so a bad upload is
+// rejected without paying for a list lookup or a store round-trip.
+const validateItemImage = (image: File): string | null => {
+  if (!ALLOWED_IMAGE_TYPES.has(image.type)) {
+    return "Invalid file type";
+  }
+  if (image.size > 5 * 1024 * 1024) {
+    return "File too large (max 5MB)";
+  }
+  return null;
+};
+
+// Stores an already-validated item photo in R2. Shared by item create and
+// item update so the key-naming convention stays in one place.
+const storeItemImage = async (
+  bucket: R2Bucket,
+  publicId: string,
+  image: File,
+): Promise<string> => {
+  const safeName = image.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+  const key = buildImageKey(publicId, safeName);
+  await bucket.put(key, image, {
+    httpMetadata: { contentType: image.type },
+  });
+  return key;
+};
 
 // Create a new list
 listsRoute.post("/", zValidator("json", createListSchema), async (c) => {
@@ -143,7 +169,7 @@ listsRoute.get("/:id/items", async (c) => {
 });
 
 // Add item to a list
-listsRoute.post("/:id/items", zValidator("form", addItemSchema), async (c) => {
+listsRoute.post("/:id/items", zValidator("form", itemFormSchema), async (c) => {
   const listId = c.req.param("id");
   const db = createDb(c.env.DB);
   const { comment, image, foundAt, location } = c.req.valid("form");
@@ -157,19 +183,11 @@ listsRoute.post("/:id/items", zValidator("form", addItemSchema), async (c) => {
   let itemImageKey: string | undefined;
 
   if (image && image.size > 0) {
-    if (!ALLOWED_IMAGE_TYPES.has(image.type)) {
-      return c.json({ error: "Invalid file type" }, 400);
+    const validationError = validateItemImage(image);
+    if (validationError) {
+      return c.json({ error: validationError }, 400);
     }
-    if (image.size > 5 * 1024 * 1024) {
-      return c.json({ error: "File too large (max 5MB)" }, 400);
-    }
-
-    const safeName = image.name.replace(/[^a-zA-Z0-9._-]/g, "_");
-    const key = buildImageKey(list.publicId, safeName);
-    await c.env.BUCKET.put(key, image, {
-      httpMetadata: { contentType: image.type },
-    });
-    itemImageKey = key;
+    itemImageKey = await storeItemImage(c.env.BUCKET, list.publicId, image);
   }
 
   const id = crypto.randomUUID();
@@ -188,14 +206,14 @@ listsRoute.post("/:id/items", zValidator("form", addItemSchema), async (c) => {
   return c.json({ ...withImageUrl(newItem), deletedAt: null });
 });
 
-// Update item comment
+// Update an item
 listsRoute.patch(
   "/:id/items/:itemId",
-  zValidator("json", updateCommentSchema),
+  zValidator("form", itemFormSchema),
   async (c) => {
     const listId = c.req.param("id");
     const itemId = c.req.param("itemId");
-    const { comment } = c.req.valid("json");
+    const { comment, image, foundAt, location } = c.req.valid("form");
     const db = createDb(c.env.DB);
 
     const existing = await findItem(db, listId, itemId);
@@ -204,9 +222,42 @@ listsRoute.patch(
       return c.json({ error: "Item not found" }, 404);
     }
 
-    await db.update(items).set({ comment }).where(eq(items.id, itemId));
+    let itemImageKey = existing.imageKey;
 
-    return c.json({ ...withImageUrl(existing), comment });
+    if (image && image.size > 0) {
+      const validationError = validateItemImage(image);
+      if (validationError) {
+        return c.json({ error: validationError }, 400);
+      }
+
+      const list = await findList(db, listId);
+      if (!list) {
+        return c.json({ error: "List not found" }, 404);
+      }
+
+      itemImageKey = await storeItemImage(c.env.BUCKET, list.publicId, image);
+    }
+
+    const updated = {
+      comment: comment || "",
+      imageKey: itemImageKey,
+      foundAt: foundAt ? new Date(foundAt) : null,
+      location: location || null,
+    };
+
+    await db.update(items).set(updated).where(eq(items.id, itemId));
+
+    // Delete the replaced photo only after the DB row points at the new one —
+    // if the DB write above had failed, the old (still-referenced) photo must survive.
+    if (image && image.size > 0 && existing.imageKey) {
+      try {
+        await c.env.BUCKET.delete(existing.imageKey);
+      } catch (error) {
+        console.warn(`R2 delete failed for key "${existing.imageKey}":`, error);
+      }
+    }
+
+    return c.json(withImageUrl({ ...existing, ...updated }));
   },
 );
 

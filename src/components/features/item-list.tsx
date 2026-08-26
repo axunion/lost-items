@@ -8,12 +8,7 @@ import {
   Trash2,
 } from "lucide-solid";
 import { type Component, createSignal, For, Show } from "solid-js";
-import {
-  deleteItem,
-  type Item,
-  restoreItem,
-  updateItemComment,
-} from "~/client/api";
+import { deleteItem, type Item, restoreItem, updateItem } from "~/client/api";
 import { cx, formatDate } from "~/client/utils";
 import { Button } from "~/components/ui/Button";
 import { Card } from "~/components/ui/Card";
@@ -26,12 +21,8 @@ import {
   DialogTitle,
 } from "~/components/ui/dialog";
 import { EmptyState } from "~/components/ui/empty-state";
-import {
-  TextField,
-  TextFieldLabel,
-  TextFieldTextArea,
-} from "~/components/ui/text-field";
 import { showToast } from "~/components/ui/toast";
+import ItemFormFields from "./item-form-fields";
 import styles from "./item-list.module.css";
 
 type ItemListProps = {
@@ -41,33 +32,52 @@ type ItemListProps = {
   readonly?: boolean;
 };
 
+// Formats a stored date as the local "YYYY-MM-DDTHH:mm" value a
+// datetime-local input expects; "" when there's nothing to prefill.
+function toDatetimeLocalValue(value: string | Date | null): string {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
+
 const ItemList: Component<ItemListProps> = (props) => {
   const [editingItem, setEditingItem] = createSignal<Item | null>(null);
   const [editComment, setEditComment] = createSignal("");
+  const [editFoundAtInput, setEditFoundAtInput] = createSignal("");
+  const [editLocation, setEditLocation] = createSignal("");
+  const [editImageFile, setEditImageFile] = createSignal<File | undefined>(
+    undefined,
+  );
   const [isSubmitting, setIsSubmitting] = createSignal(false);
   const [deletingItem, setDeletingItem] = createSignal<Item | null>(null);
 
   const handleEdit = (item: Item) => {
     setEditingItem(item);
     setEditComment(item.comment || "");
+    setEditFoundAtInput(toDatetimeLocalValue(item.foundAt));
+    setEditLocation(item.location || "");
+    setEditImageFile(undefined);
   };
 
-  const handleSaveComment = async () => {
+  const handleSave = async () => {
     const item = editingItem();
     if (!item) return;
 
     setIsSubmitting(true);
     try {
-      const updated = await updateItemComment(
-        props.listId,
-        item.id,
-        editComment(),
-      );
+      const updated = await updateItem(props.listId, item.id, {
+        comment: editComment(),
+        image: editImageFile(),
+        foundAt: editFoundAtInput() ? new Date(editFoundAtInput()) : undefined,
+        location: editLocation() || undefined,
+      });
       setEditingItem(null);
       props.onItemUpdated?.(updated);
     } catch (error) {
-      console.error("Failed to update comment:", error);
-      showToast("Failed to update comment", "error");
+      console.error("Failed to update item:", error);
+      showToast("Failed to update item", "error");
     } finally {
       setIsSubmitting(false);
     }
@@ -204,21 +214,26 @@ const ItemList: Component<ItemListProps> = (props) => {
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Edit Comment</DialogTitle>
+            <DialogTitle>Edit Item</DialogTitle>
           </DialogHeader>
-          <TextField
-            value={editComment()}
-            onChange={setEditComment}
-            class={styles.editField}
-          >
-            <TextFieldLabel>Comment</TextFieldLabel>
-            <TextFieldTextArea placeholder="Enter comment..." />
-          </TextField>
+          <div class={styles.editField}>
+            <ItemFormFields
+              comment={editComment()}
+              onCommentChange={setEditComment}
+              foundAtInput={editFoundAtInput()}
+              onFoundAtInputChange={setEditFoundAtInput}
+              location={editLocation()}
+              onLocationChange={setEditLocation}
+              imageFile={editImageFile()}
+              onImageFileChange={setEditImageFile}
+              existingImageUrl={editingItem()?.imageUrl}
+            />
+          </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setEditingItem(null)}>
               Cancel
             </Button>
-            <Button onClick={handleSaveComment} disabled={isSubmitting()}>
+            <Button onClick={handleSave} disabled={isSubmitting()}>
               Save
             </Button>
           </DialogFooter>

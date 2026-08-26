@@ -57,7 +57,7 @@ test("API flow: create room → register item → delete → restore → public 
   await page.reload();
   const itemCard = page.getByTestId("item-card").filter({ hasText: comment });
   await expect(itemCard).toBeVisible();
-  await expect(itemCard.getByRole("img", { name: "Picked up" })).toBeVisible();
+  await expect(itemCard.getByText("Picked up")).toBeVisible();
 
   // 6. Restore item via API
   const restoreRes = await request.post(

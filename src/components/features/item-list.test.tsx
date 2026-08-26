@@ -4,7 +4,7 @@ import * as api from "~/client/api";
 import ItemList from "./item-list";
 
 vi.mock("~/client/api", () => ({
-  updateItemComment: vi.fn(),
+  updateItem: vi.fn(),
   deleteItem: vi.fn(),
   restoreItem: vi.fn(),
 }));
@@ -108,12 +108,12 @@ describe("ItemList", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Edit item" }));
 
-    const textarea = await screen.findByPlaceholderText("Enter comment...");
+    const textarea = await screen.findByPlaceholderText("Optional info...");
     expect(textarea).toHaveValue("Red scarf");
   });
 
-  it("calls updateItemComment and onItemUpdated on successful save", async () => {
-    vi.mocked(api.updateItemComment).mockResolvedValue(makeItem());
+  it("calls updateItem and onItemUpdated on successful save", async () => {
+    vi.mocked(api.updateItem).mockResolvedValue(makeItem());
     const onItemUpdated = vi.fn();
     const item = makeItem({ id: "item-42", comment: "Old comment" });
     render(() => (
@@ -122,15 +122,15 @@ describe("ItemList", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Edit item" }));
 
-    const textarea = await screen.findByPlaceholderText("Enter comment...");
+    const textarea = await screen.findByPlaceholderText("Optional info...");
     fireEvent.input(textarea, { target: { value: "New comment" } });
     fireEvent.click(screen.getByRole("button", { name: "Save" }));
 
     await waitFor(() => {
-      expect(api.updateItemComment).toHaveBeenCalledWith(
+      expect(api.updateItem).toHaveBeenCalledWith(
         "list-1",
         "item-42",
-        "New comment",
+        expect.objectContaining({ comment: "New comment" }),
       );
     });
     await waitFor(() => {
@@ -138,32 +138,27 @@ describe("ItemList", () => {
     });
   });
 
-  it("shows error toast and keeps dialog open when updateItemComment fails", async () => {
+  it("shows error toast and keeps dialog open when updateItem fails", async () => {
     vi.spyOn(console, "error").mockImplementation(() => {});
-    vi.mocked(api.updateItemComment).mockRejectedValue(
-      new Error("network error"),
-    );
+    vi.mocked(api.updateItem).mockRejectedValue(new Error("network error"));
     const item = makeItem({ comment: "Some comment" });
     render(() => <ItemList items={[item]} listId="list-1" />);
 
     fireEvent.click(screen.getByRole("button", { name: "Edit item" }));
-    const textarea = await screen.findByPlaceholderText("Enter comment...");
+    const textarea = await screen.findByPlaceholderText("Optional info...");
     fireEvent.input(textarea, { target: { value: "Will fail" } });
     fireEvent.click(screen.getByRole("button", { name: "Save" }));
 
     await waitFor(() => {
-      expect(showToast).toHaveBeenCalledWith(
-        "Failed to update comment",
-        "error",
-      );
+      expect(showToast).toHaveBeenCalledWith("Failed to update item", "error");
     });
     // Dialog remains open
-    expect(screen.getByPlaceholderText("Enter comment...")).toBeInTheDocument();
+    expect(screen.getByPlaceholderText("Optional info...")).toBeInTheDocument();
   });
 
   it("disables Save button while submitting", async () => {
     let resolve!: (v: api.Item) => void;
-    vi.mocked(api.updateItemComment).mockReturnValue(
+    vi.mocked(api.updateItem).mockReturnValue(
       new Promise<api.Item>((r) => {
         resolve = r;
       }),
@@ -173,7 +168,7 @@ describe("ItemList", () => {
     render(() => <ItemList items={[item]} listId="list-1" />);
 
     fireEvent.click(screen.getByRole("button", { name: "Edit item" }));
-    await screen.findByPlaceholderText("Enter comment...");
+    await screen.findByPlaceholderText("Optional info...");
     fireEvent.click(screen.getByRole("button", { name: "Save" }));
 
     // Save button becomes disabled while inflight

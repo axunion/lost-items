@@ -1,25 +1,10 @@
-import {
-  Camera,
-  Check,
-  Clock,
-  Image as ImageIcon,
-  MapPin,
-  MessageSquare,
-  X,
-} from "lucide-solid";
+import { Check } from "lucide-solid";
 import { type Component, createSignal, Show } from "solid-js";
 import { addItem } from "~/client/api";
-import { compressImage } from "~/client/image-utils";
 import { Button } from "~/components/ui/Button";
 import { Loading } from "~/components/ui/loading";
-import { SectionHeader } from "~/components/ui/section-header";
-import {
-  TextField,
-  TextFieldInput,
-  TextFieldLabel,
-  TextFieldTextArea,
-} from "~/components/ui/text-field";
 import { showToast } from "~/components/ui/toast";
+import ItemFormFields from "./item-form-fields";
 import styles from "./register-form.module.css";
 
 type RegisterFormProps = {
@@ -30,37 +15,8 @@ const RegisterForm: Component<RegisterFormProps> = (props) => {
   const [comment, setComment] = createSignal("");
   const [foundAtInput, setFoundAtInput] = createSignal("");
   const [location, setLocation] = createSignal("");
-  const [imagePreview, setImagePreview] = createSignal<string | null>(null);
   const [imageFile, setImageFile] = createSignal<File | undefined>(undefined);
   const [isSubmitting, setIsSubmitting] = createSignal(false);
-
-  let cameraInputRef: HTMLInputElement | undefined;
-  let fileInputRef: HTMLInputElement | undefined;
-
-  // Swap the selected file and its object-URL preview, revoking the previous
-  // URL so replaced/cleared previews don't leak. Pass undefined to clear.
-  const setSelectedImage = (file: File | undefined) => {
-    const previous = imagePreview();
-    if (previous) {
-      URL.revokeObjectURL(previous);
-    }
-    setImageFile(file);
-    setImagePreview(file ? URL.createObjectURL(file) : null);
-  };
-
-  const handleImageUpload = async (e: Event) => {
-    const file = (e.target as HTMLInputElement).files?.[0];
-    if (file) {
-      try {
-        const compressedFile = await compressImage(file);
-        setSelectedImage(compressedFile);
-      } catch (error) {
-        console.error("Failed to compress image:", error);
-        showToast("Failed to process image", "error");
-      }
-    }
-    (e.target as HTMLInputElement).value = "";
-  };
 
   const handleSubmit = async (e: Event) => {
     e.preventDefault();
@@ -76,7 +32,7 @@ const RegisterForm: Component<RegisterFormProps> = (props) => {
       setComment("");
       setFoundAtInput("");
       setLocation("");
-      setSelectedImage(undefined);
+      setImageFile(undefined);
       showToast("Item registered", "success");
     } catch (error) {
       console.error("Failed to register item:", error);
@@ -93,108 +49,16 @@ const RegisterForm: Component<RegisterFormProps> = (props) => {
           <Loading variant="fullscreen" text="Registering..." />
         </Show>
 
-        <div class={styles.section}>
-          <SectionHeader icon={<Camera />}>Photo</SectionHeader>
-
-          <Show when={!imagePreview()}>
-            <div class={styles.photoGrid}>
-              <Button
-                type="button"
-                variant="outline"
-                class={styles.photoButton}
-                onClick={() => cameraInputRef?.click()}
-              >
-                <Camera class={styles.sectionIcon} />
-                <span class={styles.sectionLabel}>Take Photo</span>
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                class={styles.photoButton}
-                onClick={() => fileInputRef?.click()}
-              >
-                <ImageIcon class={styles.sectionIcon} />
-                <span class={styles.sectionLabel}>Choose Photo</span>
-              </Button>
-            </div>
-          </Show>
-
-          <input
-            ref={cameraInputRef}
-            type="file"
-            accept="image/*"
-            capture="environment"
-            aria-label="Take a photo"
-            class={styles.hiddenInput}
-            onChange={handleImageUpload}
-          />
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            aria-label="Choose a photo"
-            class={styles.hiddenInput}
-            onChange={handleImageUpload}
-          />
-
-          <Show when={imagePreview()}>
-            <div class={styles.previewContainer}>
-              <img
-                src={imagePreview() || ""}
-                alt="Preview"
-                class={styles.previewImage}
-              />
-              <button
-                type="button"
-                aria-label="Clear image"
-                onClick={() => setSelectedImage(undefined)}
-                class={styles.clearButton}
-              >
-                <X class={styles.clearIcon} />
-              </button>
-            </div>
-          </Show>
-        </div>
-
-        <TextField
-          value={foundAtInput()}
-          onChange={setFoundAtInput}
-          class={styles.section}
-        >
-          <SectionHeader icon={<Clock />}>
-            <TextFieldLabel>Found Time</TextFieldLabel>
-          </SectionHeader>
-          <TextFieldInput type="datetime-local" />
-        </TextField>
-
-        <TextField
-          value={location()}
-          onChange={setLocation}
-          class={styles.section}
-        >
-          <SectionHeader icon={<MapPin />}>
-            <TextFieldLabel>Location</TextFieldLabel>
-          </SectionHeader>
-          <TextFieldInput
-            type="text"
-            placeholder="Where it was found..."
-            maxlength={200}
-          />
-        </TextField>
-
-        <TextField
-          value={comment()}
-          onChange={setComment}
-          class={styles.commentField}
-        >
-          <SectionHeader icon={<MessageSquare />}>
-            <TextFieldLabel>Comment</TextFieldLabel>
-          </SectionHeader>
-          <TextFieldTextArea
-            placeholder="Optional info..."
-            class={styles.commentTextarea}
-          />
-        </TextField>
+        <ItemFormFields
+          comment={comment()}
+          onCommentChange={setComment}
+          foundAtInput={foundAtInput()}
+          onFoundAtInputChange={setFoundAtInput}
+          location={location()}
+          onLocationChange={setLocation}
+          imageFile={imageFile()}
+          onImageFileChange={setImageFile}
+        />
 
         <Button
           type="submit"

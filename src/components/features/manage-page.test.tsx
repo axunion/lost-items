@@ -4,7 +4,7 @@ import * as api from "~/client/api";
 import ManagePage from "./manage-page";
 
 vi.mock("~/client/api", () => ({
-  updateItemComment: vi.fn(),
+  updateItem: vi.fn(),
   deleteItem: vi.fn(),
   restoreItem: vi.fn(),
 }));
@@ -65,7 +65,7 @@ describe("ManagePage", () => {
   });
 
   it("replaces item comment in place after a successful edit", async () => {
-    vi.mocked(api.updateItemComment).mockResolvedValue(
+    vi.mocked(api.updateItem).mockResolvedValue(
       makeItem("a", "Edited comment"),
     );
 
@@ -73,7 +73,7 @@ describe("ManagePage", () => {
     render(() => <ManagePage listId="list-1" items={initialItems} />);
 
     fireEvent.click(screen.getByRole("button", { name: "Edit item" }));
-    const textarea = await screen.findByPlaceholderText("Enter comment...");
+    const textarea = await screen.findByPlaceholderText("Optional info...");
     fireEvent.input(textarea, { target: { value: "Edited comment" } });
     fireEvent.click(screen.getByRole("button", { name: "Save" }));
 

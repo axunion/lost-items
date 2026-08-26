@@ -14,7 +14,7 @@ import {
   deleteList,
   getItems,
   restoreItem,
-  updateItemComment,
+  updateItem,
   updateList,
 } from "./api";
 
@@ -167,8 +167,8 @@ describe("api", () => {
     });
   });
 
-  describe("updateItemComment", () => {
-    it("should call PATCH with comment", async () => {
+  describe("updateItem", () => {
+    it("should call PATCH with form data", async () => {
       const mockResponse = {
         id: "item-1",
         listId: "list-1",
@@ -182,20 +182,22 @@ describe("api", () => {
         json: async () => mockResponse,
       });
 
-      const result = await updateItemComment("list-1", "item-1", "updated");
-
-      expect(fetchSpy).toHaveBeenCalledWith("/api/lists/list-1/items/item-1", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ comment: "updated" }),
+      const result = await updateItem("list-1", "item-1", {
+        comment: "updated",
       });
+
+      const [url, options] = fetchSpy.mock.calls[0];
+      expect(url).toBe("/api/lists/list-1/items/item-1");
+      expect(options.method).toBe("PATCH");
+      expect(options.body).toBeInstanceOf(FormData);
+      expect(options.body.get("comment")).toBe("updated");
       expect(result).toEqual(mockResponse);
     });
 
     it("should throw error on failure", async () => {
       fetchSpy.mockResolvedValue({ ok: false, status: 404 });
       await expect(
-        updateItemComment("list-1", "item-1", "fail"),
+        updateItem("list-1", "item-1", { comment: "fail" }),
       ).rejects.toThrow("Failed to update item: 404");
     });
   });
