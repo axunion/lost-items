@@ -89,6 +89,15 @@ Build the project for production:
 pnpm build
 ```
 
+## Deployment
+
+Production deploys run via GitHub Actions (`.github/workflows/deploy.yml`) on push to
+`main` — see `docs/build-deploy.html` for the pipeline details. It requires:
+
+- **GitHub Actions secrets:** `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`
+- **Cloudflare Worker variable:** `ADMIN_TOKEN` — same purpose as the local `.dev.vars`
+  value above, set separately for production via the Cloudflare dashboard
+
 ## Project Structure
 
 ```
