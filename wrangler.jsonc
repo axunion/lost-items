@@ -10,7 +10,7 @@
     {
       "binding": "DB",
       "database_name": "lost-items-db",
-      "database_id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+      "database_id": "60db82e3-112d-4ad3-86bc-ccf860b3c91f"
     }
   ],
   "r2_buckets": [
