@@ -29,6 +29,7 @@ export default defineConfig({
     imageService: "compile",
   }),
   integrations: [solidJs()],
+  session: false,
 
   vite: {
     css: {
