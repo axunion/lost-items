@@ -35,6 +35,7 @@ test("public room page hides edit and delete buttons when items exist", async ({
   const roomName = `Public Room ${Date.now()}-${process.pid}`;
   const createRes = await request.post("/api/lists", {
     data: { name: roomName },
+    headers: { "x-admin-token": adminToken },
   });
   expect(createRes.ok()).toBeTruthy();
   const { id, publicId } = (await createRes.json()) as {

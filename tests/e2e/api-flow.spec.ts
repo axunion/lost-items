@@ -22,6 +22,7 @@ test("API flow: create room → register item → delete → restore → public 
   const roomName = `API Flow ${Date.now()}-${process.pid}`;
   const createRes = await request.post("/api/lists", {
     data: { name: roomName },
+    headers: { "x-admin-token": adminToken },
   });
   expect(createRes.ok()).toBeTruthy();
   const { id, publicId } = (await createRes.json()) as {

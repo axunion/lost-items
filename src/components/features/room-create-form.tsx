@@ -9,6 +9,7 @@ import styles from "./room-create-form.module.css";
 
 type RoomCreateFormProps = {
   onCreated?: (list: List) => void;
+  adminToken: string;
 };
 
 const RoomCreateForm: Component<RoomCreateFormProps> = (props) => {
@@ -23,7 +24,7 @@ const RoomCreateForm: Component<RoomCreateFormProps> = (props) => {
     setIsSubmitting(true);
 
     try {
-      const { id, publicId } = await createList(currentName);
+      const { id, publicId } = await createList(currentName, props.adminToken);
       props.onCreated?.({
         id,
         publicId,

@@ -17,7 +17,7 @@ describe("RoomCreateForm", () => {
   });
 
   it("renders the room name input and create button", () => {
-    render(() => <RoomCreateForm />);
+    render(() => <RoomCreateForm adminToken="test-admin-token" />);
     expect(screen.getByPlaceholderText("Room Name")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /create/i })).toBeInTheDocument();
   });
@@ -29,14 +29,19 @@ describe("RoomCreateForm", () => {
     });
     const handleCreated = vi.fn();
 
-    render(() => <RoomCreateForm onCreated={handleCreated} />);
+    render(() => (
+      <RoomCreateForm onCreated={handleCreated} adminToken="test-admin-token" />
+    ));
 
     const input = screen.getByPlaceholderText("Room Name");
     fireEvent.input(input, { target: { value: "My New Room" } });
     fireEvent.click(screen.getByRole("button", { name: /create/i }));
 
     await waitFor(() => {
-      expect(api.createList).toHaveBeenCalledWith("My New Room");
+      expect(api.createList).toHaveBeenCalledWith(
+        "My New Room",
+        "test-admin-token",
+      );
     });
 
     expect(handleCreated).toHaveBeenCalledWith(
@@ -55,7 +60,7 @@ describe("RoomCreateForm", () => {
   });
 
   it("does not submit when input is empty or whitespace only", () => {
-    render(() => <RoomCreateForm />);
+    render(() => <RoomCreateForm adminToken="test-admin-token" />);
 
     const input = screen.getByPlaceholderText("Room Name");
     const button = screen.getByRole("button", { name: /create/i });
@@ -78,7 +83,7 @@ describe("RoomCreateForm", () => {
         ),
     );
 
-    render(() => <RoomCreateForm />);
+    render(() => <RoomCreateForm adminToken="test-admin-token" />);
 
     fireEvent.input(screen.getByPlaceholderText("Room Name"), {
       target: { value: "Test Room" },
@@ -101,7 +106,7 @@ describe("RoomCreateForm", () => {
     vi.spyOn(console, "error").mockImplementation(() => {});
     vi.mocked(api.createList).mockRejectedValue(new Error("network error"));
 
-    render(() => <RoomCreateForm />);
+    render(() => <RoomCreateForm adminToken="test-admin-token" />);
 
     const input = screen.getByPlaceholderText("Room Name");
     fireEvent.input(input, { target: { value: "Bad Room" } });

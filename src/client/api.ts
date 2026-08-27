@@ -81,10 +81,14 @@ export const getItems = async (
 
 export const createList = async (
   name: string,
+  adminToken: string,
 ): Promise<{ id: string; publicId: string }> => {
   const res = await request("create list", "/api/lists", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      "x-admin-token": adminToken,
+    },
     body: JSON.stringify({ name }),
   });
 

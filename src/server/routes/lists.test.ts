@@ -85,6 +85,8 @@ function setupDbMock() {
   };
 }
 
+const ADMIN_TOKEN = "test-admin-token";
+
 function createEnv(
   overrides?: Partial<{
     put: ReturnType<typeof vi.fn>;
@@ -98,12 +100,14 @@ function createEnv(
       delete: vi.fn().mockResolvedValue(undefined),
       ...overrides,
     },
+    ADMIN_TOKEN,
   } as unknown as {
     DB: unknown;
     BUCKET: {
       put: ReturnType<typeof vi.fn>;
       delete: ReturnType<typeof vi.fn>;
     };
+    ADMIN_TOKEN: string;
   };
 }
 
@@ -123,7 +127,10 @@ describe("listsRoute", () => {
         "/",
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            "x-admin-token": ADMIN_TOKEN,
+          },
           body: JSON.stringify({ name: "Test Room" }),
         },
         createEnv(),
@@ -148,7 +155,10 @@ describe("listsRoute", () => {
         "/",
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            "x-admin-token": ADMIN_TOKEN,
+          },
           body: JSON.stringify({}),
         },
         createEnv(),
@@ -157,6 +167,67 @@ describe("listsRoute", () => {
       expect(insertValues).toHaveBeenCalledWith(
         expect.objectContaining({ name: null }),
       );
+    });
+
+    it("returns 403 when the admin token is wrong", async () => {
+      const { db, insertValues } = setupDbMock();
+      createDbMock.mockReturnValue(db);
+
+      const res = await listsRoute.request(
+        "/",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-admin-token": "wrong-token",
+          },
+          body: JSON.stringify({ name: "Test Room" }),
+        },
+        createEnv(),
+      );
+
+      expect(res.status).toBe(403);
+      await expect(res.json()).resolves.toEqual({ error: "Forbidden" });
+      expect(insertValues).not.toHaveBeenCalled();
+    });
+
+    it("returns 403 when the admin token header is missing", async () => {
+      const { db, insertValues } = setupDbMock();
+      createDbMock.mockReturnValue(db);
+
+      const res = await listsRoute.request(
+        "/",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name: "Test Room" }),
+        },
+        createEnv(),
+      );
+
+      expect(res.status).toBe(403);
+      await expect(res.json()).resolves.toEqual({ error: "Forbidden" });
+      expect(insertValues).not.toHaveBeenCalled();
+    });
+
+    it("returns 403 (fails closed) when ADMIN_TOKEN is unset, even with no header", async () => {
+      const { db, insertValues } = setupDbMock();
+      createDbMock.mockReturnValue(db);
+      const env = { ...createEnv(), ADMIN_TOKEN: "" };
+
+      const res = await listsRoute.request(
+        "/",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name: "Test Room" }),
+        },
+        env,
+      );
+
+      expect(res.status).toBe(403);
+      await expect(res.json()).resolves.toEqual({ error: "Forbidden" });
+      expect(insertValues).not.toHaveBeenCalled();
     });
   });
 
@@ -481,6 +552,29 @@ describe("listsRoute", () => {
 
       expect(res.status).toBe(404);
       await expect(res.json()).resolves.toEqual({ error: "List not found" });
+    });
+
+    it("rejects new items once the list has reached the max item count", async () => {
+      const { db, enqueueOne, insertValues } = setupDbMock();
+      createDbMock.mockReturnValue(db);
+      enqueueOne({ id: "list-1", publicId: "pub-1" });
+      enqueueOne({ count: 100 });
+      const env = createEnv();
+
+      const formData = new FormData();
+      formData.append("comment", "one too many");
+
+      const res = await listsRoute.request(
+        "/list-1/items",
+        { method: "POST", body: formData },
+        env,
+      );
+
+      expect(res.status).toBe(400);
+      await expect(res.json()).resolves.toEqual({
+        error: "List is full (max 100 items)",
+      });
+      expect(insertValues).not.toHaveBeenCalled();
     });
 
     it("rejects non-image uploads with 400", async () => {

@@ -29,6 +29,7 @@ const recentLists = await db
     lists={recentLists}
     origin={Astro.url.origin}
     historyHref={`/${token}/history`}
+    adminToken={token}
     client:load
   />
 </Layout>

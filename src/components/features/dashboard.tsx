@@ -10,6 +10,7 @@ type DashboardProps = {
   lists: List[];
   origin: string;
   historyHref: string;
+  adminToken: string;
 };
 
 const Dashboard: Component<DashboardProps> = (props) => {
@@ -19,7 +20,7 @@ const Dashboard: Component<DashboardProps> = (props) => {
     <main class={styles.main}>
       <div class={styles.newRoomSection}>
         <SectionHeader icon={<SquarePlus />}>New Room</SectionHeader>
-        <RoomCreateForm onCreated={setNewList} />
+        <RoomCreateForm onCreated={setNewList} adminToken={props.adminToken} />
       </div>
 
       <div class={styles.recentSection}>

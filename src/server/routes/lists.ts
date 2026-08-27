@@ -1,5 +1,5 @@
 import { zValidator } from "@hono/zod-validator";
-import { and, desc, eq, isNull } from "drizzle-orm";
+import { and, count, desc, eq, isNull } from "drizzle-orm";
 import { Hono } from "hono";
 import type { Bindings } from "../bindings";
 import { createDb } from "../db";
@@ -21,6 +21,10 @@ const ALLOWED_IMAGE_TYPES = new Set([
   "image/webp",
   "image/gif",
 ]);
+
+// Real usage is a handful of items per event; this is headroom against
+// runaway spam, not a realistic capacity ceiling.
+const MAX_ITEMS_PER_LIST = 100;
 
 type Db = ReturnType<typeof createDb>;
 
@@ -61,8 +65,19 @@ const storeItemImage = async (
   return key;
 };
 
-// Create a new list
+// Create a new list — only the dashboard (gated by ADMIN_TOKEN) is meant to
+// call this; unlike every other mutating route, it needs no admin id or
+// item id to reach, so it's the one write endpoint that needs its own gate.
 listsRoute.post("/", zValidator("json", createListSchema), async (c) => {
+  // Explicit ADMIN_TOKEN check (not just !==) so an unset secret fails
+  // closed instead of letting a header-less request match undefined.
+  if (
+    !c.env.ADMIN_TOKEN ||
+    c.req.header("x-admin-token") !== c.env.ADMIN_TOKEN
+  ) {
+    return c.json({ error: "Forbidden" }, 403);
+  }
+
   const { name } = c.req.valid("json");
   const id = crypto.randomUUID();
   const publicId = crypto.randomUUID();
@@ -178,6 +193,19 @@ listsRoute.post("/:id/items", zValidator("form", itemFormSchema), async (c) => {
 
   if (!list) {
     return c.json({ error: "List not found" }, 404);
+  }
+
+  const activeItemCount = await db
+    .select({ count: count() })
+    .from(items)
+    .where(and(eq(items.listId, listId), isNull(items.deletedAt)))
+    .get();
+
+  if ((activeItemCount?.count ?? 0) >= MAX_ITEMS_PER_LIST) {
+    return c.json(
+      { error: `List is full (max ${MAX_ITEMS_PER_LIST} items)` },
+      400,
+    );
   }
 
   let itemImageKey: string | undefined;

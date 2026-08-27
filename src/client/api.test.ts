@@ -38,11 +38,14 @@ describe("api", () => {
         json: async () => mockResponse,
       });
 
-      const result = await createList("New Room");
+      const result = await createList("New Room", "test-admin-token");
 
       expect(fetchSpy).toHaveBeenCalledWith("/api/lists", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "x-admin-token": "test-admin-token",
+        },
         body: JSON.stringify({ name: "New Room" }),
       });
       expect(result).toEqual(mockResponse);
@@ -54,7 +57,7 @@ describe("api", () => {
         status: 500,
       });
 
-      await expect(createList("Fail Room")).rejects.toThrow(
+      await expect(createList("Fail Room", "test-admin-token")).rejects.toThrow(
         "Failed to create list: 500",
       );
     });
