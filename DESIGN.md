@@ -166,13 +166,13 @@ line rhythm.
 
 | Role | Size | Weight | Line Height | Use |
 |------|------|--------|-------------|-----|
-| Page title | 22px / 1.375rem | 700 | 1.3 | Dashboard heading, room name (h1) |
-| Section heading | 16px / 1rem | 600 | 1.5 | Card grid label, form section (h2/h3) |
+| Page title | 18px / 1.125rem | 700 | 1.3 | App header title (h1); section labels (`SectionHeader`: "Items", "History") |
+| Section heading | 16px / 1rem | 600 | 1.5 | Card title, dialog title |
 | Body / comment | 15px / 0.9375rem | 400 | 1.65 | Item comments — widest text block; prioritize readability |
 | Label / badge | 12px / 0.75rem | 700 | 1 | Status badges, date overlays |
 | Caption / meta | 11px / 0.6875rem | 500 | 1.4 | Timestamps, item IDs |
 | Button (CTA) | 16px / 1rem | 600 | 1 | xl buttons |
-| Input | 15px / 0.9375rem | 400 | 1 | Form fields (aligns with body) |
+| Input | 15px / 0.9375rem | 400 | 1 | Form fields (aligns with body); the item-comment textarea uses 16px — see §4.5 |
 
 Heading `letter-spacing` rule: `0.04em` on page titles and section headings only.
 Never apply `letter-spacing` to body text or button labels.
@@ -304,6 +304,10 @@ Font: 15px / 400 (matches body)
 Placeholder: var(--color-muted-foreground)
 ```
 
+Exception — the item registration comment textarea uses 16px, not 15px. Below 16px, iOS
+Safari auto-zooms the viewport on focus; the extra 1px avoids that disruption on the field
+most likely to receive extended typing.
+
 File upload area (photo input, e.g. "Take Photo" / "Choose Photo"):
 - Dashed border, 2px, `--color-primary` — **not** `--color-border`. `--color-border` on
   `--color-secondary` composites to roughly 1.2:1, far under the 3:1 WCAG 1.4.11 minimum for a
@@ -346,8 +350,17 @@ with `@keyframes` defined locally in the component's `.module.css`.
 Position: bottom-center, 1rem from bottom
 Max width: min(calc(100vw - 2rem), 360px)
 Border radius: 0.75rem
-Success / info: background var(--color-card); border 1px solid var(--color-border)
-Error: background var(--color-destructive); color var(--color-destructive-foreground)
+```
+
+Each variant uses the same tinted-card treatment as status chips elsewhere in the app (§4.2's
+card tints, §4.3's badges) — a subdued background, a soft alpha border, and text in the
+matching saturated color. No variant uses a hard/solid fill; this keeps toasts legible without
+reading as an alarm flashing across the screen.
+
+```
+Success: background var(--color-status-returned-subdued); border 1px solid var(--color-status-returned-alpha-30); text var(--color-status-returned-text)
+Error:   background var(--color-destructive-alpha-10);     border 1px solid var(--color-destructive-alpha-40);     text var(--color-destructive)
+Info:    background var(--color-primary-subdued);          border 1px solid var(--color-ring);                     text var(--color-primary)
 ```
 
 ---
@@ -531,8 +544,8 @@ Muted surface:          hsl(40 16% 94%)
 === TYPOGRAPHY ===
 Font: "Inter Variable", "Noto Sans JP Variable", system-ui, sans-serif
 Body:        15px / weight 400 / line-height 1.65
-Heading:     22px / weight 700 / letter-spacing 0.04em / font-feature-settings "cv11","ss01","palt"
-Section:     16px / weight 600 / letter-spacing 0.04em
+Page title:  18px / weight 700 / letter-spacing 0.04em / font-feature-settings "cv11","ss01","palt"
+Section:     16px / weight 600 / letter-spacing 0.04em / font-feature-settings "cv11","ss01","palt"
 Badge/label: 12px / weight 700
 Caption:     11px / weight 500
 

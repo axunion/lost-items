@@ -32,9 +32,9 @@ const { title, showBack = false, backUrl = "/" } = Astro.props;
 		top: 0;
 		z-index: 50;
 		width: 100%;
-		background-color: var(--color-background-alpha-85);
+		background-color: var(--color-background-alpha-90);
 		backdrop-filter: blur(12px);
-		border-bottom: 1px solid var(--color-border-alpha-30);
+		border-bottom: 1px solid var(--color-border-alpha-40);
 	}
 
 	.app-header__inner {
@@ -84,7 +84,8 @@ const { title, showBack = false, backUrl = "/" } = Astro.props;
 		transform: translateX(-50%);
 		font-size: 1.125rem;
 		font-weight: 700;
-		letter-spacing: 0.01em;
+		letter-spacing: 0.04em;
+		font-feature-settings: "cv11", "ss01", "palt";
 		overflow: hidden;
 		text-overflow: ellipsis;
 		white-space: nowrap;

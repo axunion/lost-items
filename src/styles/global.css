@@ -97,7 +97,7 @@
   --space-8: 2rem; /* 32px */
 
   /* === Radius === */
-  --radius: 0.75rem; /* 12px — cards, dialogs, main elements */
+  --radius: 0.75rem; /* 12px — cards, main elements */
 
   /* Page horizontal inset (DESIGN.md §5.2): 1rem mobile, 1.5rem ≥480px.
      Single source of truth — page `<main>` classes reference this instead

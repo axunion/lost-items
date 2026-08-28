@@ -13,7 +13,7 @@
 .submitButton {
   width: 100%;
   font-weight: 700;
-  box-shadow: var(--elevation-4);
+  box-shadow: var(--elevation-1);
 }
 
 .submitButtonContent {

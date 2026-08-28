@@ -44,7 +44,7 @@
   background-color: var(--color-background);
   padding: 1.5rem;
   box-shadow: var(--elevation-6);
-  border-radius: var(--radius);
+  border-radius: 1rem;
 }
 
 .content[data-expanded] {
@@ -142,6 +142,7 @@
   font-weight: 600;
   line-height: 1.5;
   letter-spacing: 0.04em;
+  font-feature-settings: "cv11", "ss01", "palt";
 }
 
 @keyframes fadeIn {
