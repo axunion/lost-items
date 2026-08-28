@@ -45,9 +45,16 @@ Split components appropriately for maintainability and reusability.
 ## 4. Design Standards (Tokens)
 
 > **Design specification**: `DESIGN.md` (repo root) is the authoritative source for the full
-> color palette, typography scale, component sizing, and elevation system. When making visual
-> decisions, consult `DESIGN.md` first. The CSS Custom Properties in `src/styles/global.css`
-> implement those values — if the two ever disagree, treat `DESIGN.md` as correct and fix the CSS.
+> color palette, typography scale, component sizing, and elevation system — not just the CSS
+> Custom Properties in `src/styles/global.css`, but every literal value it specifies
+> (font-size, font-weight, letter-spacing, radius, elevation, spacing), wherever it appears:
+> `global.css`, a component's `.module.css`, or an `.astro` `<style>` block. When making visual
+> decisions, consult `DESIGN.md` first.
+>
+> Keep the two in sync, in both directions:
+> - Accidental mismatch → `DESIGN.md` is correct; fix the CSS.
+> - Deliberate deviation (a real constraint `DESIGN.md` didn't anticipate) → update `DESIGN.md`
+>   in the same change instead of leaving it stale. Never let the two disagree silently.
 
 - **CSS Custom Properties (Design Tokens)**:
     - All colors, spacing, etc. must use tokens defined in `:root {}` in `src/styles/global.css`.
@@ -86,7 +93,6 @@ Split components appropriately for maintainability and reusability.
 
 ## 6. Quality and Verification Workflow
 
-After adding or changing UI, always verify quality in this order:
-1. **Lint check**: Run `pnpm check` (Biome) and confirm no warnings or errors.
-2. **Type check**: Verify no TypeScript errors; avoid using `any`.
-3. **Browser verification**: Check for layout breakage and confirm responsive behavior.
+Run the standard verification order from CLAUDE.md's Testing section (`pnpm check`,
+`pnpm test --run`, `pnpm build`). For UI changes specifically, also do a browser
+verification: check for layout breakage and confirm responsive behavior.

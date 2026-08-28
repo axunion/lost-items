@@ -127,10 +127,9 @@ change touches rendered UI, regardless of tier):
 
 ## Additional configuration
 
-- **`DESIGN.md`** — Visual design specification: color palette (Trust Blue primary, amber/green
-  status colors), typography, component sizing, layout, and elevation. Source of truth for all
-  design decisions; `src/styles/global.css` implements these tokens — if they ever
-  disagree, treat `DESIGN.md` as correct and fix the CSS.
+- **`DESIGN.md`** — Visual design specification: color palette, typography, component sizing,
+  layout, and elevation. Source-of-truth rule and sync procedure are defined once, in
+  `.claude/rules/frontend.md` §4 — don't restate them here.
 - **`.claude/rules/`** — Context-specific guidelines auto-loaded by glob pattern:
   - `frontend.md` — SolidJS components, UI design system (`src/components/**`, `src/pages/**`)
   - `backend.md` — Hono API patterns, bindings, R2 (`src/server/**`)
