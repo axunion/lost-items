@@ -4,3 +4,5 @@ allowBuilds:
   lefthook: true
   sharp: true
   workerd: true
+patchedDependencies:
+  '@kobalte/core@0.13.13': patches/@kobalte__core@0.13.13.patch

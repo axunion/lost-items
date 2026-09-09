@@ -1,0 +1,46 @@
+diff --git a/dist/chunk/OPRD3XHK.js b/dist/chunk/OPRD3XHK.js
+index 582c5e499473e78bf64eae0acc42f51e0d353eb4..24d53df09c11f328d251f59a5a2fd2fe73ab257f 100644
+--- a/dist/chunk/OPRD3XHK.js
++++ b/dist/chunk/OPRD3XHK.js
+@@ -116,6 +116,9 @@ function TextFieldRoot(props) {
+     }
+     const target = e.target;
+     setValue(target.value);
++    if (e.isComposing) {
++      return;
++    }
+     target.value = value() ?? "";
+   };
+   const context = {
+diff --git a/dist/chunk/TSB6MOZK.jsx b/dist/chunk/TSB6MOZK.jsx
+index 58488e83b6440db64b9b32f63bcaa6d98b379818..29d3d0a15dcf3740357e68a4b5d9dfe680f38bb1 100644
+--- a/dist/chunk/TSB6MOZK.jsx
++++ b/dist/chunk/TSB6MOZK.jsx
+@@ -138,6 +138,9 @@ function TextFieldRoot(props) {
+     }
+     const target = e.target;
+     setValue(target.value);
++    if (e.isComposing) {
++      return;
++    }
+     target.value = value() ?? "";
+   };
+   const context = {
+diff --git a/src/text-field/text-field-root.tsx b/src/text-field/text-field-root.tsx
+index f6295ca643ab495c26a8a1346e67884f3248d507..ee6a7c2f8eabd007765f5f7a3b49c657ea201a4a 100644
+--- a/src/text-field/text-field-root.tsx
++++ b/src/text-field/text-field-root.tsx
+@@ -136,6 +136,13 @@ export function TextFieldRoot<T extends ValidComponent = "div">(
+ 
+ 		setValue(target.value);
+ 
++		// Writing to `target.value` while an IME composition is in progress
++		// (e.g. Japanese/Chinese/Korean input) interrupts the composition session,
++		// causing the browser to flicker the candidate window on every keystroke.
++		if (e.isComposing) {
++			return;
++		}
++
+ 		// Unlike in React, inputs `value` can be out of sync with our value state.
+ 		// even if an input is controlled (ex: `<input value="foo" />`,
+ 		// typing on the input will change its internal `value`.

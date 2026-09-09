@@ -203,6 +203,9 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+patchedDependencies:
+  '@kobalte/core@0.13.13': 9f3eb415b5cd487692325e7f15768f38aab23ef556580c929cbb9c28116b40f3
+
 importers:
 
   .:
@@ -224,7 +227,7 @@ importers:
         version: 0.9.0(hono@4.13.2)(zod@4.4.3)
       '@kobalte/core':
         specifier: ^0.13.13
-        version: 0.13.13(solid-js@1.9.14)
+        version: 0.13.13(patch_hash=9f3eb415b5cd487692325e7f15768f38aab23ef556580c929cbb9c28116b40f3)(solid-js@1.9.14)
       astro:
         specifier: ^7.2.1
         version: 7.2.1(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(@types/node@24.13.3)(tsx@4.23.12)(yaml@2.9.0)
@@ -4894,7 +4897,7 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
 
-  '@kobalte/core@0.13.13(solid-js@1.9.14)':
+  '@kobalte/core@0.13.13(patch_hash=9f3eb415b5cd487692325e7f15768f38aab23ef556580c929cbb9c28116b40f3)(solid-js@1.9.14)':
     dependencies:
       '@floating-ui/dom': 1.8.0
       '@internationalized/number': 3.6.7
