@@ -95,8 +95,12 @@ Production deploys run via GitHub Actions (`.github/workflows/deploy.yml`) on pu
 `main`. It requires:
 
 - **GitHub Actions secrets:** `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`
-- **Cloudflare Worker variable:** `ADMIN_TOKEN` — same purpose as the local `.dev.vars`
-  value above, set separately for production via the Cloudflare dashboard
+- **Cloudflare Worker secret:** `ADMIN_TOKEN` — same purpose as the local `.dev.vars`
+  value above, set for production with `wrangler secret put ADMIN_TOKEN`. It must be a
+  secret, not a plaintext dashboard variable — `wrangler deploy` overwrites any variable
+  not declared in `wrangler.jsonc` on every deploy, while secrets are left untouched.
+  Store the actual value in a password manager; Cloudflare secrets can't be read back
+  later, only overwritten.
 
 ## Project Structure
 
