@@ -5,4 +5,4 @@ allowBuilds:
   sharp: true
   workerd: true
 patchedDependencies:
-  '@kobalte/core@0.13.13': patches/@kobalte__core@0.13.13.patch
+  '@kobalte/core@0.13.14': patches/@kobalte__core@0.13.14.patch

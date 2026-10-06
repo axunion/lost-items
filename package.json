@@ -6,12 +6,12 @@
     "runtime": {
       "name": "node",
       "version": "^24",
-      "onFail": "warn"
+      "onFail": "download"
     },
     "packageManager": {
       "name": "pnpm",
-      "version": "^11",
-      "onFail": "warn"
+      "version": "^12",
+      "onFail": "download"
     }
   },
   "scripts": {
@@ -36,36 +36,36 @@
     "test:e2e:headed": "playwright test --headed"
   },
   "dependencies": {
-    "@astrojs/cloudflare": "^14.2.1",
+    "@astrojs/cloudflare": "^14.3.3",
     "@astrojs/solid-js": "^7.0.2",
     "@fontsource-variable/inter": "^5.3.0",
     "@fontsource-variable/noto-sans-jp": "^5.3.0",
-    "@hono/zod-validator": "^0.9.0",
-    "@kobalte/core": "^0.13.13",
-    "astro": "^7.2.1",
-    "drizzle-orm": "^0.45.2",
-    "hono": "^4.13.2",
-    "lucide-solid": "^1.31.0",
-    "solid-js": "^1.9.14",
-    "zod": "^4.4.3"
+    "@hono/zod-validator": "^0.9.1",
+    "@kobalte/core": "^0.13.14",
+    "astro": "^7.3.5",
+    "drizzle-orm": "^0.45.3",
+    "hono": "^4.13.13",
+    "lucide-solid": "^1.52.0",
+    "solid-js": "^1.9.15",
+    "zod": "^4.6.5"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
-    "@biomejs/biome": "2.5.8",
-    "@cloudflare/workers-types": "^5.20260813.1",
-    "@playwright/test": "^1.62.1",
+    "@biomejs/biome": "2.5.15",
+    "@cloudflare/workers-types": "^5.20261005.1",
+    "@playwright/test": "^1.63.0",
     "@solidjs/testing-library": "^0.8.10",
     "@testing-library/jest-dom": "7.0.1",
-    "@types/node": "^24.13.3",
-    "@vitest/coverage-v8": "^4.1.10",
-    "@vitest/ui": "^4.1.10",
+    "@types/node": "^24.19.1",
+    "@vitest/coverage-v8": "^5.0.3",
+    "@vitest/ui": "^5.0.3",
     "better-sqlite3": "^13.0.3",
-    "drizzle-kit": "^0.31.10",
+    "drizzle-kit": "^0.31.11",
     "jsdom": "^27.4.0",
-    "lefthook": "^2.1.10",
+    "lefthook": "^2.1.17",
     "typescript": "^6.0.3",
     "vite-plugin-solid": "^2.11.14",
-    "vitest": "^4.1.10",
-    "wrangler": "^4.123.0"
+    "vitest": "^5.0.3",
+    "wrangler": "^4.147.0"
   }
 }
