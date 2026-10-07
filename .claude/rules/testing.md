@@ -126,6 +126,6 @@ test("...", async ({ page, request }) => {
 
 ## Dev Server Management
 
-- Before starting a dev server, check for existing processes with `lsof -i :4321` to avoid running multiple instances
-- Any process started during a session must be stopped before the session ends (`lsof -ti :4321 | xargs kill`)
+- Before starting a dev server, kill anything already listening on the port so you start fresh (`lsof -ti:4321 -sTCP:LISTEN | xargs -r kill`)
+- Stop the dev server before the session ends (same command)
 - For `pnpm test:e2e`, the `webServer` config handles the dev server lifecycle automatically — no manual management needed

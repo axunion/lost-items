@@ -16,8 +16,6 @@ Steps:
 3. Review the SQL against the safety checklist below, then show the SQL together with any flagged issues and ask for confirmation before applying.
 4. Run `pnpm db:migrate` to apply to the local database.
 
-**Important**: Never apply migrations without showing the SQL first.
-
 ## Safety checklist (D1 / SQLite)
 
 - **DROP TABLE / DROP COLUMN**: Irreversible on D1 — confirm data is either backed up or the column/table is provably unused

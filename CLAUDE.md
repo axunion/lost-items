@@ -2,139 +2,71 @@
 
 Guidance for Claude Code when working with this repository.
 
-## Approach
-
-- **Think before coding.** State assumptions. Make routine judgment calls yourself and
-  note them; ask only when different interpretations would lead to materially different
-  work. If a simpler path exists, say so and push back when warranted.
-- **Simplest thing that works.** No unasked-for abstractions, flexibility, or error
-  handling for impossible cases. If 200 lines could be 50, rewrite it.
-- **Surgical changes.** Every changed line should trace to the request. Don't refactor,
-  reformat, or "improve" adjacent code that isn't broken; match the surrounding style.
-  Remove only the imports and symbols your change orphaned; leave unrelated dead code alone
-  and mention it.
-- **Goal-driven.** Turn each task into a verifiable outcome ("fix the bug" → "write a
-  failing test that reproduces it, then make it pass"). For multi-step work, state a brief
-  plan before starting.
-
-## Language
-
-Default to the user's language for everything interactive — chat replies, plan-mode
-proposals, clarifying questions, and any other back-and-forth during the session.
-
-Switch to English only for durable artifacts: things other people or tools will read
-after the session ends — in-code comments, console/log/error output, AI-readable
-instruction files, and reader-facing docs (README and the like). Scratch notes and other
-throwaway dev artifacts stay in the user's language.
-
 ## Architecture
 
-**Astro 7 SSR + Hono API on Cloudflare Workers.** Pages are server-rendered by Astro; interactive islands use SolidJS with `client:load`. The API is a standalone Hono app mounted at `/api` via a catch-all Astro route.
-
-### Request flow
+**Astro 7 SSR + Hono API on Cloudflare Workers.** Astro server-renders pages; interactive
+islands are SolidJS (`client:load`). The API is a standalone Hono app mounted at `/api` via
+the catch-all route `src/pages/api/[...route].ts`.
 
 ```
 Browser → Astro SSR (pages/*.astro)     → D1 via Drizzle (server-side data fetching)
        → Hono API  (api/[...route].ts)  → D1 / R2 (client-side mutations)
 ```
 
-### mockDebugPlugin (astro.config.mjs)
+`mockDebugPlugin` in `astro.config.mjs` stubs the `debug` package, whose CJS
+`module.exports` is unavailable in workerd. It works around a transitive dependency of the
+Astro ecosystem, not project code.
 
-A Vite plugin that stubs the `debug` npm package. Required because `debug` uses CJS `module.exports` which is unavailable in the workerd runtime. This is a workaround for a transitive dependency issue in the Astro ecosystem, not a project code concern.
+## Verification
 
-## Code Structure
+After making changes, run in order:
 
-- Name variables, functions, and files to communicate intent.
-- One concern per file; split new code when a file exceeds ~300 lines. Don't split existing
-  files unless asked.
-- Extract a helper only when used in 3+ places; otherwise inline it.
-- Delete dead code you create; never comment it out.
+1. `pnpm check` — Biome lint/format + `astro check` (auto-fix with `pnpm fix`)
+2. `pnpm test --run` — Vitest unit tests
+3. `pnpm build` — production build
 
-## Testing
-
-- Write tests before or alongside implementation — they are your success criteria.
-- Test observable outcomes and edge cases, not implementation details.
-- Each test is fully self-contained; no shared mutable state between tests.
-
-After making changes, verify in this order:
-
-1. `pnpm check` — Biome lint/format + TypeScript type check (`astro check`); Biome auto-fix only with `pnpm fix`
-2. `pnpm test --run` — Unit tests (Vitest)
-3. `pnpm build` — Production build succeeds
-
-**Structural vs. subjective correctness.** Structural correctness (API responses, state
-transitions, soft-delete filtering) belongs in Vitest/Playwright and runs automatically as
-part of verification. Subjective judgment ("does this look right", spacing, whether a status
-color reads clearly per `DESIGN.md`) stays a human/live-check task — no script can reliably
-judge it, and trying to force it (exhaustive automated browsing, screenshot-diffing without
-real need) tends to be slow and still miss what a human would notice at a glance. Persist a
-new regression test only for a durable, worth-protecting flow — ideally one with real
-evidence it can break — not for a one-off "let me verify this change" check.
-
-## Commits
-
-Format — plain prose, no prefixes or labels (`feat:`, `fix:`, and the like):
-
-```
-<summary: imperative mood, ≤70 chars, no trailing period>
-
-<motivation: one sentence, only when not evident from the diff>
-
-- <change bullets: only for 2+ distinct changes>
-```
-
-- Never commit secrets (`*.key`, `*.pem`, `credentials*`).
-- Never use `--no-verify`. Use `--amend` only when explicitly asked; default to a new
-  commit.
+Structural correctness (API responses, state transitions, soft-delete filtering) belongs in
+Vitest/Playwright. Subjective judgment (spacing, whether a status color reads clearly per
+`DESIGN.md`) stays a human/live check — automating it is slow and still misses what a human
+sees at a glance. Persist a new regression test only for a durable flow worth protecting,
+not for a one-off check of a single change.
 
 ## Subagents
 
-Beyond the built-in `Explore` (local code search) and `Plan` agents, this project defines
-four read-only or test-only subagents in `.claude/agents/`: `researcher`, `reviewer`,
-`tester`, and `inspector`. **None of them write implementation code — the main
-conversation does, at every tier below.** A subagent's real product would be the working
-tree rather than the summary it returns, and each retry would re-spawn it with no memory
-of the code it just wrote; what these agents provide instead is a check from something
-that didn't write the code, which survives that limitation fine.
+`.claude/agents/` defines read-only or test-only `researcher`, `reviewer`, `tester`, and `inspector`, alongside the
+built-in `Explore` and `Plan`. **None of them write implementation code — the main
+conversation always does.** A subagent's retry re-spawns it with no memory of the code it
+wrote; their value is a check from something that didn't write the code.
 
-Scale the response to the size and risk of the task:
+Scale to the task's size and risk:
 
 - **Trivial** (one-line fixes, typos, config tweaks): implement directly, no agents.
-- **Non-trivial but contained** (a self-contained change in one area): implement directly.
-  Optionally run one research pass first — the built-in `Explore` to confirm an existing
-  convention, or `researcher` when the change leans on an unfamiliar external API (Astro's
-  Cloudflare adapter, Kobalte, Hono on Workers). Afterward, run `reviewer` and `tester` in
-  parallel automatically, **without asking first** — both are read-only/test-only, so the
-  cost of running them is low and they exist specifically to catch what a self-review
-  misses.
+- **Contained** (a self-contained change in one area): implement directly, optionally after
+  one research pass (`Explore` for an existing convention, `researcher` for an unfamiliar
+  external API such as Astro's Cloudflare adapter, Kobalte, or Hono on Workers). Then run
+  `reviewer` and `tester` in parallel **without asking first** — they're read-only/test-only,
+  so cheap to run.
 - **Large, ambiguous, or high-risk** (spans many files, substantially touches
   `src/server/routes/`, `src/server/images.ts`, or `src/server/db/schema.ts`, or the task
-  itself is genuinely ambiguous): propose that the user drive it with the built-in `/goal`
-  command, with a completion condition that explicitly requires `reviewer` reporting no
-  findings and `tester` passing — not just "implement X". Once set, repeat
-  research (`Explore` + `researcher` in parallel) → implement → `reviewer` + `tester` in
-  parallel across turns until the evaluator confirms the condition holds.
+  itself is genuinely ambiguous): propose the
+  built-in `/goal` command with a completion condition requiring `reviewer` to report no
+  findings and `tester` to pass. Then loop research (`Explore` + `researcher`) → implement →
+  `reviewer` + `tester` until the condition holds.
 
-**Visual-verification gate** (a separate axis from the tiers above — applies whenever a
-change touches rendered UI, regardless of tier):
+**Visual verification** applies to any change touching rendered UI, regardless of tier:
 
-- No rendered surface touched: skip, no browser involved.
-- Small, isolated, single-property UI tweak: a quick manual glance at the running app is
-  enough.
-- Layout that can vary by viewport, a change spanning multiple components sharing styles,
-  or chasing a reported visual bug: run `inspector`. Treat a fix as unverified until a
-  re-run comes back clean.
+- Small, isolated, single-property tweak: a quick manual glance at the running app.
+- Viewport-dependent layout, styles shared across components, or a reported visual bug:
+  run `inspector`; the fix is unverified until a re-run comes back clean.
 
 ## Additional configuration
 
-- **`DESIGN.md`** — Visual design specification: color palette, typography, component sizing,
-  layout, and elevation. Source-of-truth rule and sync procedure are defined once, in
-  `.claude/rules/frontend.md` §4 — don't restate them here.
-- **`.claude/rules/`** — Context-specific guidelines auto-loaded by glob pattern:
+- **`DESIGN.md`** — Visual design spec (palette, typography, sizing, layout, elevation).
+  Its source-of-truth and sync rules live in `.claude/rules/frontend.md` §4 only.
+- **`.claude/rules/`** — Guidelines auto-loaded by glob:
   - `frontend.md` — SolidJS components, UI design system (`src/components/**`, `src/pages/**`)
   - `backend.md` — Hono API patterns, bindings, R2 (`src/server/**`)
   - `testing.md` — Unit/E2E test patterns (`src/**/*.test.*`, `tests/e2e/**`)
   - `database.md` — Drizzle schema, migrations, soft delete (`src/server/db/**`, `migrations/**`)
-- **`lefthook.yml`** — Git pre-commit hooks: Biome auto-fix (staged files) + `astro check`, runs in parallel
-- **`.claude/skills/`** — Slash commands: `/db-migrate`, `/quality-check [--fix]`, `/new-component <Name> [ui|features]`
-- **`.claude/agents/`** — Subagent definitions (`researcher`, `reviewer`, `tester`, `inspector`); see "Subagents" above
+- **`.claude/skills/`** — `/db-migrate`, `/quality-check [--fix]`, `/new-component <Name> [ui|features]`
+- **`lefthook.yml`** — Pre-commit: Biome auto-fix on staged files + `pnpm check`, in parallel
