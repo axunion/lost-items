@@ -94,19 +94,15 @@ const HistoryList: Component<HistoryListProps> = (props) => {
     setDeletingId(null);
   };
 
-  const handleCopy = (url: string) => {
-    // navigator.clipboard is undefined on insecure origins, so a missing API
-    // must reach the same error toast as a rejected write.
-    Promise.resolve()
-      .then(() => navigator.clipboard.writeText(url))
-      .then(() => {
-        setCopiedUrl(url);
-        setTimeout(() => setCopiedUrl(null), 2000);
-      })
-      .catch((error) => {
-        console.error("Failed to copy URL:", error);
-        showToast("Failed to copy URL", "error");
-      });
+  const handleCopy = async (url: string) => {
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopiedUrl(url);
+      setTimeout(() => setCopiedUrl(null), 2000);
+    } catch (error) {
+      console.error("Failed to copy URL:", error);
+      showToast("Failed to copy URL", "error");
+    }
   };
 
   const handleOpenPage = (path: string) => {
