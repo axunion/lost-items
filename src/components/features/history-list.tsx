@@ -95,8 +95,10 @@ const HistoryList: Component<HistoryListProps> = (props) => {
   };
 
   const handleCopy = (url: string) => {
-    navigator.clipboard
-      .writeText(url)
+    // navigator.clipboard is undefined on insecure origins, so a missing API
+    // must reach the same error toast as a rejected write.
+    Promise.resolve()
+      .then(() => navigator.clipboard.writeText(url))
       .then(() => {
         setCopiedUrl(url);
         setTimeout(() => setCopiedUrl(null), 2000);

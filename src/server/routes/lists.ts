@@ -139,8 +139,16 @@ listsRoute.delete("/:id", async (c) => {
     return c.json({ error: "List not found" }, 404);
   }
 
-  // Delete images from R2 — failures are logged and non-fatal so the DB batch still runs.
-  // Log the specific key on failure so orphaned objects can be identified and cleaned up manually.
+  // D1 rejects the SQL BEGIN that db.transaction issues; db.batch is the
+  // D1-native alternative and executes the statements atomically.
+  await db.batch([
+    db.delete(items).where(eq(items.listId, id)),
+    db.delete(lists).where(eq(lists.id, id)),
+  ]);
+
+  // Delete images only after the rows are gone: a failed batch must not leave
+  // rows pointing at deleted objects. R2 failures are logged and non-fatal; the
+  // key in the log lets orphaned objects be cleaned up manually.
   const itemsWithImages = itemsToDelete.filter((item) => item.imageKey);
   const deleteSettled = await Promise.allSettled(
     itemsWithImages.map((item) => c.env.BUCKET.delete(item.imageKey as string)),
@@ -153,13 +161,6 @@ listsRoute.delete("/:id", async (c) => {
       );
     }
   }
-
-  // D1 rejects the SQL BEGIN that db.transaction issues; db.batch is the
-  // D1-native alternative and executes the statements atomically.
-  await db.batch([
-    db.delete(items).where(eq(items.listId, id)),
-    db.delete(lists).where(eq(lists.id, id)),
-  ]);
 
   return c.json({ success: true });
 });
@@ -189,6 +190,14 @@ listsRoute.post("/:id/items", zValidator("form", itemFormSchema), async (c) => {
   const db = createDb(c.env.DB);
   const { comment, image, foundAt, location } = c.req.valid("form");
 
+  const hasImage = !!image && image.size > 0;
+  if (hasImage) {
+    const validationError = validateItemImage(image);
+    if (validationError) {
+      return c.json({ error: validationError }, 400);
+    }
+  }
+
   const list = await findList(db, listId);
 
   if (!list) {
@@ -210,11 +219,7 @@ listsRoute.post("/:id/items", zValidator("form", itemFormSchema), async (c) => {
 
   let itemImageKey: string | undefined;
 
-  if (image && image.size > 0) {
-    const validationError = validateItemImage(image);
-    if (validationError) {
-      return c.json({ error: validationError }, 400);
-    }
+  if (hasImage) {
     itemImageKey = await storeItemImage(c.env.BUCKET, list.publicId, image);
   }
 
@@ -244,6 +249,14 @@ listsRoute.patch(
     const { comment, image, foundAt, location } = c.req.valid("form");
     const db = createDb(c.env.DB);
 
+    const hasImage = !!image && image.size > 0;
+    if (hasImage) {
+      const validationError = validateItemImage(image);
+      if (validationError) {
+        return c.json({ error: validationError }, 400);
+      }
+    }
+
     const existing = await findItem(db, listId, itemId);
 
     if (!existing) {
@@ -252,12 +265,7 @@ listsRoute.patch(
 
     let itemImageKey = existing.imageKey;
 
-    if (image && image.size > 0) {
-      const validationError = validateItemImage(image);
-      if (validationError) {
-        return c.json({ error: validationError }, 400);
-      }
-
+    if (hasImage) {
       const list = await findList(db, listId);
       if (!list) {
         return c.json({ error: "List not found" }, 404);
@@ -277,7 +285,7 @@ listsRoute.patch(
 
     // Delete the replaced photo only after the DB row points at the new one —
     // if the DB write above had failed, the old (still-referenced) photo must survive.
-    if (image && image.size > 0 && existing.imageKey) {
+    if (hasImage && existing.imageKey) {
       try {
         await c.env.BUCKET.delete(existing.imageKey);
       } catch (error) {

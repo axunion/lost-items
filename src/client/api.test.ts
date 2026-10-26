@@ -8,6 +8,7 @@ import {
   vi,
 } from "vitest";
 import {
+  ApiError,
   addItem,
   createList,
   deleteItem,
@@ -60,6 +61,37 @@ describe("api", () => {
       await expect(createList("Fail Room", "test-admin-token")).rejects.toThrow(
         "Failed to create list: 500",
       );
+    });
+  });
+
+  describe("error responses", () => {
+    it("exposes the server error message on ApiError", async () => {
+      fetchSpy.mockResolvedValue({
+        ok: false,
+        status: 400,
+        json: async () => ({ error: "File too large (max 5MB)" }),
+      });
+
+      const error = await addItem("list-1", { comment: "x" }).catch((e) => e);
+
+      expect(error).toBeInstanceOf(ApiError);
+      expect(error.message).toBe("Failed to add item: 400");
+      expect(error.serverMessage).toBe("File too large (max 5MB)");
+    });
+
+    it("leaves serverMessage undefined when the body is not JSON", async () => {
+      fetchSpy.mockResolvedValue({
+        ok: false,
+        status: 502,
+        json: async () => {
+          throw new SyntaxError("Unexpected token");
+        },
+      });
+
+      const error = await addItem("list-1", { comment: "x" }).catch((e) => e);
+
+      expect(error).toBeInstanceOf(ApiError);
+      expect(error.serverMessage).toBeUndefined();
     });
   });
 

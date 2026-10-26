@@ -3,7 +3,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import * as api from "~/client/api";
 import ItemList from "./item-list";
 
-vi.mock("~/client/api", () => ({
+vi.mock("~/client/api", async (importOriginal) => ({
+  ApiError: (await importOriginal<typeof import("~/client/api")>()).ApiError,
   updateItem: vi.fn(),
   deleteItem: vi.fn(),
   restoreItem: vi.fn(),
@@ -154,6 +155,30 @@ describe("ItemList", () => {
     });
     // Dialog remains open
     expect(screen.getByPlaceholderText("Optional info...")).toBeInTheDocument();
+  });
+
+  it("shows the server error message when updateItem is rejected by the API", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    vi.mocked(api.updateItem).mockRejectedValue(
+      new api.ApiError(
+        "Failed to update item: 400",
+        "File too large (max 5MB)",
+      ),
+    );
+    const item = makeItem({ comment: "Some comment" });
+    render(() => <ItemList items={[item]} listId="list-1" />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Edit item" }));
+    const textarea = await screen.findByPlaceholderText("Optional info...");
+    fireEvent.input(textarea, { target: { value: "Will fail" } });
+    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+
+    await waitFor(() => {
+      expect(showToast).toHaveBeenCalledWith(
+        "File too large (max 5MB)",
+        "error",
+      );
+    });
   });
 
   it("disables Save button while submitting", async () => {

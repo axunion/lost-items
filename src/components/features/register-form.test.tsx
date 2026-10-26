@@ -5,7 +5,8 @@ import { compressImage } from "~/client/image-utils";
 import { showToast } from "~/components/ui/toast";
 import RegisterForm from "./register-form";
 
-vi.mock("~/client/api", () => ({
+vi.mock("~/client/api", async (importOriginal) => ({
+  ApiError: (await importOriginal<typeof import("~/client/api")>()).ApiError,
   addItem: vi.fn(),
 }));
 vi.mock("~/client/image-utils", () => ({
@@ -267,6 +268,29 @@ describe("RegisterForm", () => {
 
     await waitFor(() => {
       expect(showToast).toHaveBeenCalledWith("Failed to register", "error");
+    });
+  });
+
+  it("shows the server error message when the API rejects the registration", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    vi.mocked(api.addItem).mockRejectedValue(
+      new api.ApiError(
+        "Failed to add item: 400",
+        "List is full (max 100 items)",
+      ),
+    );
+
+    render(() => <RegisterForm listId={listId} />);
+    fireEvent.input(screen.getByPlaceholderText("Optional info..."), {
+      target: { value: "rejected submit" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: /register/i }));
+
+    await waitFor(() => {
+      expect(showToast).toHaveBeenCalledWith(
+        "List is full (max 100 items)",
+        "error",
+      );
     });
   });
 });

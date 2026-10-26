@@ -8,7 +8,13 @@ import {
   Trash2,
 } from "lucide-solid";
 import { type Component, createSignal, For, Show } from "solid-js";
-import { deleteItem, type Item, restoreItem, updateItem } from "~/client/api";
+import {
+  ApiError,
+  deleteItem,
+  type Item,
+  restoreItem,
+  updateItem,
+} from "~/client/api";
 import { cx, formatDate } from "~/client/utils";
 import { Button } from "~/components/ui/Button";
 import { Card } from "~/components/ui/Card";
@@ -77,7 +83,11 @@ const ItemList: Component<ItemListProps> = (props) => {
       props.onItemUpdated?.(updated);
     } catch (error) {
       console.error("Failed to update item:", error);
-      showToast("Failed to update item", "error");
+      showToast(
+        (error instanceof ApiError && error.serverMessage) ||
+          "Failed to update item",
+        "error",
+      );
     } finally {
       setIsSubmitting(false);
     }

@@ -16,6 +16,25 @@ export type List = {
   createdAt: string | Date;
 };
 
+// Carries the user-facing `{ error }` message the API returned, when it sent one.
+export class ApiError extends Error {
+  constructor(
+    message: string,
+    readonly serverMessage?: string,
+  ) {
+    super(message);
+  }
+}
+
+async function readServerError(res: Response): Promise<string | undefined> {
+  try {
+    const body: { error?: unknown } | null = await res.json();
+    return typeof body?.error === "string" ? body.error : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 // Forwards to fetch and throws a labeled error on a non-ok response, so each
 // endpoint below only needs to state its URL, init, and error label once.
 async function request(
@@ -26,7 +45,10 @@ async function request(
   const res = init ? await fetch(url, init) : await fetch(url);
 
   if (!res.ok) {
-    throw new Error(`Failed to ${action}: ${res.status}`);
+    throw new ApiError(
+      `Failed to ${action}: ${res.status}`,
+      await readServerError(res),
+    );
   }
 
   return res;

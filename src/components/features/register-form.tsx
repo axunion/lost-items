@@ -1,6 +1,6 @@
 import { Check } from "lucide-solid";
 import { type Component, createSignal, Show } from "solid-js";
-import { addItem } from "~/client/api";
+import { ApiError, addItem } from "~/client/api";
 import { Button } from "~/components/ui/Button";
 import { Loading } from "~/components/ui/loading";
 import { showToast } from "~/components/ui/toast";
@@ -36,7 +36,11 @@ const RegisterForm: Component<RegisterFormProps> = (props) => {
       showToast("Item registered", "success");
     } catch (error) {
       console.error("Failed to register item:", error);
-      showToast("Failed to register", "error");
+      showToast(
+        (error instanceof ApiError && error.serverMessage) ||
+          "Failed to register",
+        "error",
+      );
     } finally {
       setIsSubmitting(false);
     }

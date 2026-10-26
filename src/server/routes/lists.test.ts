@@ -404,6 +404,25 @@ describe("listsRoute", () => {
       expect(batchFn).toHaveBeenCalledTimes(1);
     });
 
+    it("keeps R2 images when the DB batch fails", async () => {
+      const { db, enqueueOne, enqueueMany, batchFn } = setupDbMock();
+      createDbMock.mockReturnValue(db);
+      batchFn.mockRejectedValueOnce(new Error("D1 error"));
+      const env = createEnv();
+
+      enqueueOne({ id: "list-1" });
+      enqueueMany([{ id: "i1", imageKey: "list-1/a.jpg" }]);
+
+      const res = await listsRoute.request(
+        "/list-1",
+        { method: "DELETE" },
+        env,
+      );
+
+      expect(res.status).toBe(500);
+      expect(env.BUCKET.delete).not.toHaveBeenCalled();
+    });
+
     it("succeeds with no R2 calls when list has no items with images", async () => {
       const { db, enqueueOne, enqueueMany, batchFn } = setupDbMock();
       createDbMock.mockReturnValue(db);
@@ -600,6 +619,27 @@ describe("listsRoute", () => {
       await expect(res.json()).resolves.toEqual({ error: "Invalid file type" });
       expect(env.BUCKET.put).not.toHaveBeenCalled();
       expect(insertValues).not.toHaveBeenCalled();
+    });
+
+    it("rejects an invalid upload before touching the database", async () => {
+      const { db } = setupDbMock();
+      createDbMock.mockReturnValue(db);
+      const env = createEnv();
+
+      const formData = new FormData();
+      formData.append(
+        "image",
+        new File(["hello"], "note.txt", { type: "text/plain" }),
+      );
+
+      const res = await listsRoute.request(
+        "/missing-list/items",
+        { method: "POST", body: formData },
+        env,
+      );
+
+      expect(res.status).toBe(400);
+      expect(db.select).not.toHaveBeenCalled();
     });
 
     it("rejects SVG uploads with 400 (stored XSS vector)", async () => {
