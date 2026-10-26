@@ -32,7 +32,7 @@ test("API flow: create room → register item → delete → restore → public 
 
   // 2. Verify room appears on dashboard (SSR)
   await page.goto(`/${adminToken}/dashboard`);
-  await expect(page).toHaveTitle("Dashboard");
+  await expect(page).toHaveTitle("Lost Items – Dashboard");
   await expect(
     page.getByTestId("room-name").filter({ hasText: roomName }),
   ).toBeVisible();

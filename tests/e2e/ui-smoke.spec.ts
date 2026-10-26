@@ -16,7 +16,7 @@ if (!adminToken) {
 
 test("dashboard renders primary UI sections", async ({ page }) => {
   await page.goto(`/${adminToken}/dashboard`);
-  await expect(page).toHaveTitle("Dashboard");
+  await expect(page).toHaveTitle("Lost Items – Dashboard");
   await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
   await expect(page.getByText("New Room")).toBeVisible();
   await expect(page.getByPlaceholder("Room Name")).toBeVisible();
